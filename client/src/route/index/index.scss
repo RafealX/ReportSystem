@@ -1,0 +1,19 @@
+:local(.style) {
+    .banner {
+        padding: 100px 0 50px;
+        background: #00bcd4;
+        color: rgba(255, 255, 255, .88);
+        text-align: center;
+        h1 {
+            margin-bottom: 20px;
+            font-size: 30px;
+        }
+        p {
+            font-size: 16px;
+            line-height: 1.5em;
+        }
+        .btn {
+            margin-top: 40px;
+        }
+    }
+}

@@ -1,0 +1,27 @@
+:local(.style) {
+    position: relative;
+    h1 {
+        height: 64px;
+        line-height: 64px;
+        background: #00bcd4;
+        color: #fff;
+        font-size: 30px;
+        text-align: center;
+    }
+    .user {
+        height: 60px;
+        line-height: 60px;
+        font-size: 16px;
+        box-shadow: rgba(0, 0, 0, 0.117647) 0 1px 6px, rgba(0, 0, 0, 0.117647) 0 1px 4px;
+        .avatar {
+            margin:0 10px 0 15px;
+            vertical-align: middle;
+        }
+    }
+    .logout {
+        position: absolute;
+        width: 236px;
+        bottom: 10px;
+        left: 10px;
+    }
+}

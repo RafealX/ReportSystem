@@ -1,0 +1,29 @@
+:local(.style) {
+    padding: 0 16px;
+    .box {
+        max-width: 500px;
+        margin: 0 auto 20px;
+        .card {
+            margin-top: 16px;
+        }
+    }
+    .text {
+        width: 100% !important;
+    }
+    .toggle {
+        width: 100px !important;
+        margin: 10px 0;
+    }
+    h4 {
+        margin: 16px 0;
+        color: rgba(0, 0, 0, .5);
+        font-weight: normal;
+    }
+    .avatars {
+        margin-top: 10px;
+        img {
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+    }
+}

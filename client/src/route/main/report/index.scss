@@ -1,0 +1,51 @@
+:local(.style) {
+    .item {
+        margin: 20px;
+        line-height: 1.8em;
+        .content {
+            color: #555;
+            h2 {
+                font-size: 1.5em;
+                line-height: 1.5em;
+            }
+            h3 {
+                font-size: 1.17em;
+                line-height: 1.5em;
+            }
+            ol, ul {
+                padding-left: 30px;
+            }
+            li {
+                list-style: inherit;
+            }
+        }
+        .team {
+            margin: 0 16px;
+        }
+        .inner-item {
+            margin: 10px 0;
+            border-bottom: 1px dotted #d9d9d9;
+            .avatar {
+                float: left;
+                margin-right: 16px;
+            }
+            .name {
+                line-height: 40px;
+                font-weight: bold;
+                font-size: 14px;
+            }
+            .content {
+                clear: both;
+                padding: 15px 0;
+            }
+        }
+        .not {
+            float: right;
+            display: flex;
+            align-items: center;
+            & > * {
+                margin-left: 10px;
+            }
+        }
+    }
+}
