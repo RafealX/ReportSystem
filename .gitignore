@@ -1,0 +1,12 @@
+npm-debug.log
+node_modules
+.DS_Store
+.Trashes
+.idea
+*.sublime-workspace
+*.sublime-project
+.buildpath
+.project
+.settings
+.sass-cache
+bower_components
