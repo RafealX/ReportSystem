@@ -1,6 +1,7 @@
 /**
  * server 入口
  */
+ 
 'use strict';
 const bodyParser = require('koa-bodyparser');
 const mongoose = require('mongoose');
