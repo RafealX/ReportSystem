@@ -7,7 +7,8 @@ module.exports = {
         secret: 'REPORT_U'
     },
     db: {
-        url: 'mongodb://163.44.167.226:27017/report'
+        url: 'mongodb://163.44.167.226:27017/report',
+        autoReconnect: true,
     },
     mail: {
         host: 'smtp.163.com',

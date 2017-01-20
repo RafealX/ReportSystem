@@ -9,7 +9,7 @@ var autoprefixer = require('autoprefixer');
 
 module.exports = {
     cache: true,
-    debug: false,
+    debug: true,
 
     output: {
         path: path.join(__dirname, 'dist'),
