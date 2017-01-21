@@ -140,3 +140,9 @@
 [2017-01-21 22:31:02.653] [INFO] [default] - Mongo opened
 [2017-01-21 22:31:02.659] [INFO] [default] - Server listening on 8005
 [2017-01-21 22:36:22.453] [ERROR] [default] - Mongo connect error  connection timeout
+[2017-01-21 22:52:21.170] [INFO] [default] - Mongo opened
+[2017-01-21 22:52:21.176] [INFO] [default] - Server listening on 8005
+[2017-01-21 23:04:42.474] [ERROR] [default] - Mongo connect error  connection timeout
+[2017-01-21 23:05:03.827] [INFO] [default] - Mongo opened
+[2017-01-21 23:05:03.833] [INFO] [default] - Server listening on 8005
+[2017-01-21 23:09:42.319] [ERROR] [default] - Mongo connect error  connection timeout

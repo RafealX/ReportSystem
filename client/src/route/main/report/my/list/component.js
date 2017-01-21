@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import {browserHistory} from 'react-router';
-import {FlatButton, Card, CardActions, CardHeader, IconButton,
+import {FlatButton, Card, CardActions, CardHeader, IconButton,Dialog,DatePicker,
     CardText, List, ListItem, Avatar, Divider, Popover, Menu, MenuItem,Step,Stepper,StepLabel,StepContent} from 'material-ui';
 import AddIcon from 'material-ui/svg-icons/content/add';
 import IconMenu from 'material-ui/IconMenu';
@@ -53,66 +53,31 @@ module.exports = React.createClass({
     handleChange(e,c) {
         switch(c.props.value*1){
             case 1:
-               browserHistory.push('/m/report/my/edit'); 
+               this.setState({
+                open:true
+               });
+               break;
             case 2:
-               browserHistory.push('/m/report/my/edit'); 
+               
         }
     },
-    showPAM() {
-        this.setState({
-            show:true
-        })
+    handleClose() {
+        this.setState({open: false});
     },
-    renderStepActions(step) {
-        const {stepIndex} = this.state;
-
-        return (
-          <div style={{margin: '12px 0'}}>
-            <FlatButton
-              label={stepIndex === 2 ? 'Finish' : 'Next'}
-              disableTouchRipple={true}
-              disableFocusRipple={true}
-              primary={true}
-              onClick={this.showPAM}
-              onTouchTap={this.handleNext}
-              style={{marginRight: 12}}
-            />
-            {step > 0 && (
-              <FlatButton
-                label="Back"
-                disabled={stepIndex === 0}
-                disableTouchRipple={true}
-                disableFocusRipple={true}
-                onTouchTap={this.handlePrev}
-              />
-            )}
-            <p style={{display:this.state.show?'block':'none'}}>For each ad campaign that you create, you can control how much
-                        you're willing to spend on clicks and conversions, which networks
-                        and geographical locations you want your ads to show on, and more.;aksfgalkjsllfjk</p>
-                        <p style={{display:this.state.show?'block':'none'}}>For each ad campaign that you create, you can control how much
-                        you're willing to spend on clicks and conversions, which networks
-                        and geographical locations you want your ads to show on, and more.;aksfgalkjsllfjk</p>
-                        <p style={{display:this.state.show?'block':'none'}}>For each ad campaign that you create, you can control how much
-                        you're willing to spend on clicks and conversions, which networks
-                        and geographical locations you want your ads to show on, and more.;aksfgalkjsllfjk</p>
-          </div>
-        );
-      },
-    handleNext() {
-        const {stepIndex} = this.state;
-        this.setState({
-          stepIndex: stepIndex + 1,
-          finished: stepIndex >= 2,
-        });
-      },
-
-      handlePrev() {
-        const {stepIndex} = this.state;
-        if (stepIndex > 0) {
-          this.setState({stepIndex: stepIndex - 1});
-        }
-      },
     render() {
+        const actions = [
+          <FlatButton
+            label="Cancel"
+            primary={true}
+            onTouchTap={this.handleClose}
+          />,
+          <FlatButton
+            label="Submit"
+            primary={true}
+            disabled={true}
+            onTouchTap={this.handleClose}
+          />,
+        ];
         let itemRender = (x, i) => 
         <Step active={true} className="step">
         <StepLabel iconContainerStyle={containerStyle}>{x.periodDesc}</StepLabel>
@@ -145,7 +110,16 @@ module.exports = React.createClass({
                 <Stepper orientation="vertical" linear={false}>
                   <ListView ref="listView" list={this.state.list} itemRender={itemRender}/>
                 </Stepper>
-                
+                <Dialog
+                  title="新增普通日记"
+                  actions={actions}
+                  modal={false}
+                  open={this.state.open}
+                  onRequestClose={this.handleClose}
+                >
+                  Open a Date Picker dialog from within a dialog.
+                  <DatePicker hintText="Date Picker" />
+                </Dialog>
                 <Popover
                     open={!!this.state.currentRp}
                     anchorEl={this.state.anchorEl}
