@@ -1,11 +1,14 @@
 :local(.style) {
+
     position: relative;
-    h1 {
+    h1,h2 {
         height: 64px;
         line-height: 64px;
         background: #00bcd4;
         color: #fff;
-        font-size: 30px;
+        font-size:24px;
+        font-weight:normal;
+        font-family:"Microsoft YaHei", "PingFang SC", 仿宋, sans-serif;
         text-align: center;
     }
     .user {
@@ -19,9 +22,7 @@
         }
     }
     .logout {
-        position: absolute;
         width: 236px;
-        bottom: 10px;
-        left: 10px;
+        margin:0 10px;
     }
 }

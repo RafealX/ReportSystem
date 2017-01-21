@@ -6,6 +6,7 @@ import {browserHistory} from 'react-router';
 import {FlatButton, Card, CardActions, CardHeader, IconButton,
     CardText, List, ListItem, Avatar, Divider, Popover, Menu, MenuItem} from 'material-ui';
 import AddIcon from 'material-ui/svg-icons/content/add';
+import IconMenu from 'material-ui/IconMenu';
 import {fetch} from 'lib/util';
 import popup from 'cpn/popup';
 import {style} from '../../index.scss';
@@ -19,7 +20,15 @@ module.exports = React.createClass({
     componentDidMount() {
         let barConf = {
             title: '我的简报',
-            iconElementRight: <IconButton onTouchTap={this._create}><AddIcon/></IconButton>
+            iconElementRight:<IconMenu onItemTouchTap={this.handleChange} iconButtonElement={
+                  <IconButton title="新建日报"><AddIcon /></IconButton>
+                }
+                targetOrigin={{horizontal: 'right', vertical: 'top'}}
+                anchorOrigin={{horizontal: 'right', vertical: 'top'}}
+              >
+                <MenuItem  value="1" primaryText="普通日报" />
+                <MenuItem  value="2" primaryText="任务日报" />
+              </IconMenu>
         };
         pubsub.publish('config.appBar', barConf);
         fetch('/api/team/myList')
@@ -28,6 +37,14 @@ module.exports = React.createClass({
                     myTeams: d.teams
                 });
             })
+    },
+    handleChange(e,c) {
+        switch(c.props.value*1){
+            case 1:
+               browserHistory.push('/m/report/my/edit'); 
+            case 2:
+               browserHistory.push('/m/report/my/edit'); 
+        }
     },
     render() {
         let itemRender = (x, i) => <Card initiallyExpanded key={i} className="item">
@@ -72,6 +89,7 @@ module.exports = React.createClass({
         return fetch(`/api/report/my?limit=${limit}&offset=${offset}`);
     },
     _create() {
+
         browserHistory.push('/m/report/my/edit');
     },
     _onAddOrUpdate(rp) {

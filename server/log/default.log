@@ -77,3 +77,30 @@
 [2017-01-20 10:54:24.720] [INFO] [default] - Server listening on 8005
 [2017-01-20 11:40:36.690] [INFO] [default] - Mongo opened
 [2017-01-20 11:40:36.695] [INFO] [default] - Server listening on 8005
+[2017-01-20 13:52:38.833] [INFO] [default] - Mongo opened
+[2017-01-20 13:52:38.838] [INFO] [default] - Server listening on 8005
+[2017-01-20 14:09:06.962] [ERROR] [default] - Mongo connect error  connection timeout
+[2017-01-20 14:15:06.999] [INFO] [default] - Mongo opened
+[2017-01-20 14:15:07.004] [INFO] [default] - Server listening on 8005
+[2017-01-20 14:26:37.709] [ERROR] [default] - Mongo connect error  connection timeout
+[2017-01-20 14:58:06.879] [INFO] [default] - Mongo opened
+[2017-01-20 14:58:06.885] [INFO] [default] - Server listening on 8005
+[2017-01-20 15:32:53.030] [ERROR] [default] - Mongo connect error  connection timeout
+[2017-01-20 16:39:05.566] [INFO] [default] - Mongo opened
+[2017-01-20 16:39:05.571] [INFO] [default] - Server listening on 8005
+[2017-01-20 17:00:18.652] [ERROR] [default] - Mongo connect error  connection timeout
+[2017-01-20 23:43:23.421] [INFO] [default] - Mongo opened
+[2017-01-20 23:43:23.427] [INFO] [default] - Server listening on 8005
+[2017-01-20 23:56:27.553] [INFO] [default] - Mongo opened
+[2017-01-20 23:56:37.755] [INFO] [default] - Mongo opened
+[2017-01-20 23:58:01.679] [INFO] [default] - Mongo opened
+[2017-01-21 00:01:48.935] [INFO] [default] - Mongo opened
+[2017-01-21 00:01:48.941] [INFO] [default] - Server listening on 8005
+[2017-01-21 15:12:35.422] [INFO] [default] - Mongo opened
+[2017-01-21 15:12:35.427] [INFO] [default] - Server listening on 8005
+[2017-01-21 15:35:54.719] [ERROR] [default] - Mongo connect error  connection timeout
+[2017-01-21 15:40:11.962] [INFO] [default] - Mongo opened
+[2017-01-21 15:40:11.968] [INFO] [default] - Server listening on 8005
+[2017-01-21 16:49:05.478] [INFO] [default] - Mongo opened
+[2017-01-21 16:49:05.483] [INFO] [default] - Server listening on 8005
+[2017-01-21 17:02:35.936] [ERROR] [default] - Mongo connect error  connection timeout
