@@ -7,7 +7,7 @@ import Overlay from 'material-ui/internal/Overlay';
 import TopNav from 'cpn/TopNav';
 import pubsub from 'vanilla-pubsub';
 
-const barStyle = {boxShadow: 0};
+const barStyle = {boxShadow: 0,width:'auto',marginLeft:'256px'};
 const style = {height: '100%'};
 let requestId;
 

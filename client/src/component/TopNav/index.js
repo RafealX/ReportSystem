@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import {Link} from 'react-router';
-import {Drawer, List, MakeSelectable, ListItem, RaisedButton} from 'material-ui';
+import {Drawer, List, MakeSelectable, ListItem, RaisedButton,Divider} from 'material-ui';
 import DescIcn from 'material-ui/svg-icons/action/description';
 import ContentPaste from 'material-ui/svg-icons/content/content-paste';
 import TeamIcn from 'material-ui/svg-icons/action/supervisor-account';
@@ -58,6 +58,7 @@ export default React.createClass({
                     </Link>
                     {this.state.loginUser ? <Logout user={this.state.loginUser} title="退出"/>:null}
                 </div>
+                <Divider />
                 <SelectableList
                     style={{display: this.state.loginUser.groupId ? 'block': 'block'}}
                     value={this.state.current}

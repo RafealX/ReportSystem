@@ -4,7 +4,7 @@
 import React from 'react';
 import {browserHistory} from 'react-router';
 import {FlatButton, Card, CardActions, CardHeader, IconButton,
-    CardText, List, ListItem, Avatar, Divider, Popover, Menu, MenuItem} from 'material-ui';
+    CardText, List, ListItem, Avatar, Divider, Popover, Menu, MenuItem,Step,Stepper,StepLabel,StepContent} from 'material-ui';
 import AddIcon from 'material-ui/svg-icons/content/add';
 import IconMenu from 'material-ui/IconMenu';
 import {fetch} from 'lib/util';
@@ -12,22 +12,34 @@ import popup from 'cpn/popup';
 import {style} from '../../index.scss';
 import pubsub from 'vanilla-pubsub';
 import ListView from 'cpn/ListView';
+import Mock from 'cpn/Mock';
+const StepperStyle = {
+    fontSize:0
+}
+
+const containerStyle = {
+    display:'none'
+}
 
 module.exports = React.createClass({
     getInitialState() {
-        return {rps: [], myTeams: []};
+        return {rps: [], myTeams: [],stepIndex:0, finished: false,show:false,list:Mock.task.my.list};
     },
     componentDidMount() {
         let barConf = {
-            title: '我的简报',
-            iconElementRight:<IconMenu onItemTouchTap={this.handleChange} iconButtonElement={
-                  <IconButton title="新建日报"><AddIcon /></IconButton>
+            title: '新增工作日记',
+            titleStyle:{
+                fontSize:'16px',
+                marginLeft:'-20px'
+            },
+            iconElementLeft:<IconMenu onItemTouchTap={this.handleChange} iconButtonElement={
+                  <IconButton title="新建日报"><AddIcon color={'#fff'}/></IconButton>
                 }
-                targetOrigin={{horizontal: 'right', vertical: 'top'}}
-                anchorOrigin={{horizontal: 'right', vertical: 'top'}}
+                targetOrigin={{horizontal: 'left', vertical: 'top'}}
+                anchorOrigin={{horizontal: 'left', vertical: 'top'}}
               >
-                <MenuItem  value="1" primaryText="普通日报" />
-                <MenuItem  value="2" primaryText="任务日报" />
+                <MenuItem  value="1" primaryText="普通日记" />
+                <MenuItem  value="2" primaryText="任务日记" />
               </IconMenu>
         };
         pubsub.publish('config.appBar', barConf);
@@ -46,8 +58,66 @@ module.exports = React.createClass({
                browserHistory.push('/m/report/my/edit'); 
         }
     },
+    showPAM() {
+        this.setState({
+            show:true
+        })
+    },
+    renderStepActions(step) {
+        const {stepIndex} = this.state;
+
+        return (
+          <div style={{margin: '12px 0'}}>
+            <FlatButton
+              label={stepIndex === 2 ? 'Finish' : 'Next'}
+              disableTouchRipple={true}
+              disableFocusRipple={true}
+              primary={true}
+              onClick={this.showPAM}
+              onTouchTap={this.handleNext}
+              style={{marginRight: 12}}
+            />
+            {step > 0 && (
+              <FlatButton
+                label="Back"
+                disabled={stepIndex === 0}
+                disableTouchRipple={true}
+                disableFocusRipple={true}
+                onTouchTap={this.handlePrev}
+              />
+            )}
+            <p style={{display:this.state.show?'block':'none'}}>For each ad campaign that you create, you can control how much
+                        you're willing to spend on clicks and conversions, which networks
+                        and geographical locations you want your ads to show on, and more.;aksfgalkjsllfjk</p>
+                        <p style={{display:this.state.show?'block':'none'}}>For each ad campaign that you create, you can control how much
+                        you're willing to spend on clicks and conversions, which networks
+                        and geographical locations you want your ads to show on, and more.;aksfgalkjsllfjk</p>
+                        <p style={{display:this.state.show?'block':'none'}}>For each ad campaign that you create, you can control how much
+                        you're willing to spend on clicks and conversions, which networks
+                        and geographical locations you want your ads to show on, and more.;aksfgalkjsllfjk</p>
+          </div>
+        );
+      },
+    handleNext() {
+        const {stepIndex} = this.state;
+        this.setState({
+          stepIndex: stepIndex + 1,
+          finished: stepIndex >= 2,
+        });
+      },
+
+      handlePrev() {
+        const {stepIndex} = this.state;
+        if (stepIndex > 0) {
+          this.setState({stepIndex: stepIndex - 1});
+        }
+      },
     render() {
-        let itemRender = (x, i) => <Card initiallyExpanded key={i} className="item">
+        let itemRender = (x, i) => 
+        <Step active={true} className="step">
+        <StepLabel iconContainerStyle={containerStyle}>{x.periodDesc}</StepLabel>
+        <StepContent>
+          <Card initiallyExpanded key={i} className="item">
             <CardHeader
                 showExpandableButton
                 className="header"
@@ -66,10 +136,16 @@ module.exports = React.createClass({
                             disabled={x.toTeam && !!x.toTeam.teamName}
                             onClick={this._onSend.bind(this, x)}/>
             </CardActions>
-        </Card>;
+        </Card>
+        </StepContent>
+        </Step>
+        ;
         return (
             <div className={style}>
-                <ListView ref="listView" loadList={this._loadList} itemRender={itemRender}/>
+                <Stepper orientation="vertical" linear={false}>
+                  <ListView ref="listView" list={this.state.list} itemRender={itemRender}/>
+                </Stepper>
+                
                 <Popover
                     open={!!this.state.currentRp}
                     anchorEl={this.state.anchorEl}

@@ -2,7 +2,7 @@
  * ListView组件
  */
 import React from 'react';
-import {CircularProgress} from 'material-ui';
+import {CircularProgress,Divder,Card,RaisedButton,Paper} from 'material-ui';
 import Empty from 'cpn/Empty';
 import _ from 'lodash';
 import scss from './index.scss';
@@ -17,8 +17,7 @@ export default React.createClass({
     },
     render() {
         return (<div className={scss.index}>
-            {this.state.list.map(this.props.itemRender)}
-            {this._renderStatus()}
+            {this.props.list.map(this.props.itemRender)}
         </div>);
     },
     _renderStatus() {
@@ -43,27 +42,27 @@ export default React.createClass({
     _loadList() {
         this.state.status = 'loading';
         this.forceUpdate();
-        this.props.loadList(this.state.limit, this.state.list.length)
-            .then(d => {
-                if (d.list && d.list.length) {
-                    Array.prototype.push.apply(this.state.list, d.list);
-                    if (d.total != null) {
-                        this.state.total = d.total;
-                    }
-                    if (this.state.total != null && this.state.list.length >= this.state.total) {
-                        this.state.loaded = true;
-                    }
-                    this.state.status = 'loaded';
-                } else {
-                    this.state.loaded = true;
-                    this.state.status = 'loaded';
-                    !this.state.list.length && (this.state.status = 'empty');
-                }
-                this.forceUpdate();
-            })
-            .catch(e => {
-                this.setState({status: 'error'});
-            });
+        // this.props.loadList(this.state.limit, this.state.list.length)
+        //     .then(d => {
+        //         if (d.list && d.list.length) {
+        //             Array.prototype.push.apply(this.state.list, d.list);
+        //             if (d.total != null) {
+        //                 this.state.total = d.total;
+        //             }
+        //             if (this.state.total != null && this.state.list.length >= this.state.total) {
+        //                 this.state.loaded = true;
+        //             }
+        //             this.state.status = 'loaded';
+        //         } else {
+        //             this.state.loaded = true;
+        //             this.state.status = 'loaded';
+        //             !this.state.list.length && (this.state.status = 'empty');
+        //         }
+        //         this.forceUpdate();
+        //     })
+        //     .catch(e => {
+        //         this.setState({status: 'error'});
+        //     });
     },
     updateItem(id, value) {
         let item = _.find(this.state.list, {id: id});
