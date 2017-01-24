@@ -2,6 +2,7 @@ import React from 'react';
 import {render} from 'react-dom';
 import {Router, Route , browserHistory, IndexRedirect, Link} from 'react-router';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import {Popup} from 'cpn/popup';
 import 'sass/reset.scss';
@@ -23,8 +24,12 @@ const rootRoute = {
     ]
 };
 
+const customMuiTheme = getMuiTheme({
+    fontFamily:'"Microsoft YaHei", "PingFang SC", "仿宋", sans-serif'
+});
+
 render(
-    <MuiThemeProvider><Router history={browserHistory} routes={rootRoute}/></MuiThemeProvider>,
+    <MuiThemeProvider muiTheme={customMuiTheme}><Router history={browserHistory} routes={rootRoute}/></MuiThemeProvider>,
     document.getElementById('app-container'),
     function () {
         if(!location.pathname || location.pathname == '/') {

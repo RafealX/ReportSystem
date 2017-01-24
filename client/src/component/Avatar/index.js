@@ -6,6 +6,7 @@ import {Avatar} from 'material-ui';
 
 export default React.createClass({
     render() {
+    	console.log(this.props.user);
         let {avatarUrl, nickname} = this.props.user;
         return (<Avatar
             style={this.props.style}

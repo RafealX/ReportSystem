@@ -34,7 +34,13 @@ module.exports = React.createClass({
     },
     componentDidMount() {
         let barConf = {
-            title: (this.props.params.id ? '编辑' : '新建') + '简报'
+            title: (this.props.params.id ? '编辑' : '新建') + '简报',
+            iconStyleLeft:{
+                display:'none'
+            },
+            titleStyle:{
+                fontSize:'20px'
+            }
         };
         pubsub.publish('config.appBar', barConf);
     },

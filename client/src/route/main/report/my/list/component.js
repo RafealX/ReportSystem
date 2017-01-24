@@ -3,23 +3,44 @@
  */
 import React from 'react';
 import {browserHistory} from 'react-router';
-import {FlatButton, Card, CardActions, CardHeader, IconButton,
-    CardText, List, ListItem, Avatar, Divider, Popover, Menu, MenuItem} from 'material-ui';
+import {FlatButton, Card, CardActions, CardHeader, IconButton,Dialog,DatePicker,
+    CardText, List, ListItem, Avatar, Divider, Popover, Menu, MenuItem,Step,Stepper,StepLabel,StepContent} from 'material-ui';
 import AddIcon from 'material-ui/svg-icons/content/add';
+import IconMenu from 'material-ui/IconMenu';
 import {fetch} from 'lib/util';
 import popup from 'cpn/popup';
 import {style} from '../../index.scss';
 import pubsub from 'vanilla-pubsub';
 import ListView from 'cpn/ListView';
+import Mock from 'cpn/Mock';
+const StepperStyle = {
+    fontSize:0
+}
+
+const containerStyle = {
+    display:'none'
+}
 
 module.exports = React.createClass({
     getInitialState() {
-        return {rps: [], myTeams: []};
+        return {rps: [], myTeams: [],stepIndex:0, finished: false,show:false,list:Mock.task.my.list};
     },
     componentDidMount() {
         let barConf = {
-            title: '我的简报',
-            iconElementRight: <IconButton onTouchTap={this._create}><AddIcon/></IconButton>
+            title: '新增工作日记',
+            titleStyle:{
+                fontSize:'16px',
+                marginLeft:'-20px'
+            },
+            iconElementLeft:<IconMenu onItemTouchTap={this.handleChange} iconButtonElement={
+                  <IconButton title="新建日报"><AddIcon color={'#fff'}/></IconButton>
+                }
+                targetOrigin={{horizontal: 'left', vertical: 'top'}}
+                anchorOrigin={{horizontal: 'left', vertical: 'top'}}
+              >
+                <MenuItem  value="1" primaryText="普通日记" />
+                <MenuItem  value="2" primaryText="任务日记" />
+              </IconMenu>
         };
         pubsub.publish('config.appBar', barConf);
         fetch('/api/team/myList')
@@ -29,8 +50,39 @@ module.exports = React.createClass({
                 });
             })
     },
+    handleChange(e,c) {
+        switch(c.props.value*1){
+            case 1:
+               this.setState({
+                open:true
+               });
+               break;
+            case 2:
+               
+        }
+    },
+    handleClose() {
+        this.setState({open: false});
+    },
     render() {
-        let itemRender = (x, i) => <Card initiallyExpanded key={i} className="item">
+        const actions = [
+          <FlatButton
+            label="Cancel"
+            primary={true}
+            onTouchTap={this.handleClose}
+          />,
+          <FlatButton
+            label="Submit"
+            primary={true}
+            disabled={true}
+            onTouchTap={this.handleClose}
+          />,
+        ];
+        let itemRender = (x, i) => 
+        <Step active={true} className="step">
+        <StepLabel iconContainerStyle={containerStyle}>{x.periodDesc}</StepLabel>
+        <StepContent>
+          <Card initiallyExpanded key={i} className="item">
             <CardHeader
                 showExpandableButton
                 className="header"
@@ -49,10 +101,25 @@ module.exports = React.createClass({
                             disabled={x.toTeam && !!x.toTeam.teamName}
                             onClick={this._onSend.bind(this, x)}/>
             </CardActions>
-        </Card>;
+        </Card>
+        </StepContent>
+        </Step>
+        ;
         return (
             <div className={style}>
-                <ListView ref="listView" loadList={this._loadList} itemRender={itemRender}/>
+                <Stepper orientation="vertical" linear={false}>
+                  <ListView ref="listView" list={this.state.list} itemRender={itemRender}/>
+                </Stepper>
+                <Dialog
+                  title="新增普通日记"
+                  actions={actions}
+                  modal={false}
+                  open={this.state.open}
+                  onRequestClose={this.handleClose}
+                >
+                  Open a Date Picker dialog from within a dialog.
+                  <DatePicker hintText="Date Picker" />
+                </Dialog>
                 <Popover
                     open={!!this.state.currentRp}
                     anchorEl={this.state.anchorEl}
@@ -72,6 +139,7 @@ module.exports = React.createClass({
         return fetch(`/api/report/my?limit=${limit}&offset=${offset}`);
     },
     _create() {
+
         browserHistory.push('/m/report/my/edit');
     },
     _onAddOrUpdate(rp) {
