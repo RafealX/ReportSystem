@@ -1,19 +1,95 @@
 /**
- * 简报
+ * 日报
  */
 'use strict';
 const _ = require('lodash');
 const router = require('koa-router')({prefix: '/report'});
 const User = require('../model/user');
-const Team = require('../model/team');
+const Group = require('../model/group');
+const Task = require('../model/task');
+const Taskhistory = require('../model/taskhistory');
 const Report = require('../model/report');
-const TeamReport = require('../model/teamReport');
 const logger = require('../lib/logger');
 const auth = require('../lib/auth');
 const util = require('../lib/util');
 const config = require('../config');
 const BusinessError = require('../error/BusinessError');
 const ErrCode = BusinessError.ErrCode;
+
+/**
+ * 获取个人日报
+ */
+router.post('/get', auth.mustLogin(), function* () {
+    let lists = [];
+    let params = this.request.params;
+    let list = yield Report.find({userid: this.state.userid})
+        .sort({updateTime: -1})
+        .skip(parseInt(params.offset) || 0)
+        .limit(parseInt(params.limit) || 15)
+        .forEach(t => {
+            t.tiskids.forEach(m => {
+                let tiskhistory = yield Taskhistory.find({taskid: m});
+                lists.push(tiskhistory);
+            })
+        });
+    //上面是通过taskids获得taskhistory,然后填到list里。
+    list.push(lists);
+
+    this.body = {
+        code: 200,
+        list: list
+    };
+};
+ /**
+ * 添加日报
+ */   
+router.post('/add', auth.mustLogin(), function* () {
+    let rData = this.request.params.report;
+    rData.userid = this.state.userid;
+    rData.groupid = this.state.groupid;
+    let rReport = {};
+    rReport.status = 1;
+    rReport.time = rData.time;
+    rReport.others = rData.others;
+    rReport.userid = rData.userid;
+    rReport.groupid = rData.groupid;
+    rReport.taskids = [];
+    if(!rData){
+        throw new BusinessError(ErrCode.ABSENCE_PARAM);
+    }
+    /**
+    * 添加日报，调用3表
+    * reports
+    * tasks
+    * taskhistorys
+    **/ 
+    rData.tasks.forEach(t => {
+        let otask = yield Task.findById(t.taskid);
+        otask.progress = t.progress;
+        yield otask,save();
+        //history
+        let taskhistory = new Taskhistory(t);
+        yield taskhistory.save();
+        rReport.taskids.push(taskhistory.id);
+    });
+    let oReport = new Report(rReport);
+    yield oReport.save();
+
+};
+/**
+ * 发送日报
+ */
+router.post('/send', auth.mustLogin(), function* () {};
+/**
+ * 编辑、修改日报
+ */
+router.post('/edit', auth.mustLogin(), function* () {};
+/**
+ * 删除日报
+ */
+router.post('/delete', auth.mustLogin(), function* () {};
+
+
 /**
  * 新建简报
  */
@@ -55,7 +131,7 @@ router.post('/update', auth.mustLogin(), function* () {
  */
 router.get('/my', auth.mustLogin(), function* () {
     let params = this.request.params;
-    let list = yield Report.find({userId: this.state.userId})
+    let list = yield Report.find({userid: this.state.userid})
         .sort({updateTime: -1})
         .skip(parseInt(params.offset) || 0)
         .limit(parseInt(params.limit) || 15);

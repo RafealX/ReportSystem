@@ -61,3 +61,68 @@
 [2017-01-19 17:20:58.511] [INFO] [default] - Mongo opened
 [2017-01-19 17:20:58.517] [INFO] [default] - Server listening on 8005
 [2017-01-19 17:25:09.337] [ERROR] [default] - Mongo connect error  connection timeout
+[2017-01-19 19:21:54.214] [INFO] [default] - Mongo opened
+[2017-01-19 19:21:54.221] [INFO] [default] - Server listening on 8005
+[2017-01-19 20:32:42.798] [ERROR] [default] - Mongo connect error  connection timeout
+[2017-01-19 21:05:21.838] [INFO] [default] - Mongo opened
+[2017-01-19 21:05:21.845] [INFO] [default] - Server listening on 8005
+[2017-01-20 20:14:47.234] [INFO] [default] - Mongo opened
+[2017-01-20 20:14:47.241] [INFO] [default] - Server listening on 8005
+[2017-01-20 20:17:29.183] [INFO] [default] - 新注册用户 { updateTime: 2017-01-20T12:17:29.165Z,
+  createTime: 2017-01-20T12:17:29.165Z,
+  salt: 'a8d086208f7cd16aaee8eb8af1516eeaf8e55a5464cc718abb02955c91925832',
+  hash: '3c067595647e3053244ee6cf910d5125e2d69830f4a66697076fac3a302c9b4ae10b6244c394d4f8bb8893aeb78299d2fe2c417bfa6fae4150e3f74e9f3c73b440c4b8a86d214e3d57da6b703ad5d44ec80f2f2e51601253eabeb1c1aec39a88ba90c237a1eaa84efc941853cceced245596826cb7697870407e30f9fdcd954132b38c44c9f87fef672e8f18352af75486963b7faa53c1e9281940e496fe0fcf0303e2b7238db57a977fd8b02c6e345b4831347ae50969f26ce26e1706e9b260a70328b672a7dbb39fd5acfa9fd4dac16062125df9d15c3a24212021fb879186d687d6a91c499a1accd8eae082b30f6e6e1e72484813a821a62107817edb7a82f8584063ce00202970dc08a950d41ebae41dc378cadd995d4764404ad581d1e781c435c89a5e310d1fd565a65d24468f774d9bfa12edc6049805e3b3d51fb8b503250838ba535c8f28031b35e5657877c52449d0237098dfd37f1827df2a047e895f155aed5158a931eec46d5f92de745f24d39e97cda2ef2ab9ec5a82319528156f63bb41b154a4b5a49f6713cfbe19ea86a32d15100f97df0c45ab7701f8f048a6f15c861ed50f95a0ce41b159e22aeac175dff7123d003c85b18105e7d61a553c70437728b60de4515f60e0a8c2d4b5f26223e5afc6d2487c9c81662eee91025abbf4944c383ff8582a6313f934ec8ade6b7315348d1883c6edccd644be7c',
+  workMail: 'hzlinghao@163.com',
+  username: 'hzlinghao@163.com',
+  nickname: 'hzlinghao',
+  id: '5881ffd8ee264529b9881e5b' }
+[2017-01-20 21:08:33.831] [INFO] [default] - Mongo opened
+[2017-01-20 21:08:33.838] [INFO] [default] - Server listening on 8005
+[2017-01-20 21:10:34.944] [INFO] [default] - 新注册用户 { updateTime: 2017-01-20T13:10:34.942Z,
+  createTime: 2017-01-20T13:10:34.942Z,
+  salt: '121338e767ebaf1a2153d7c6901cefab3826de9939b1247dc3930d2c1e2a70b3',
+  hash: 'aa7019578b0ffde21e0c0b29fe7b5825b1ee11bb038efa86f86dff9e4bbede81f33e03b6ea56fb2a69d67c1b8597b3d48199b2f7899b3815bf20bb157a4c401961c93d53dc42cab1de63a408d3d0b4d984c81d15919b72a645e7d510c0470bb611b8260fddf5cc1495c46d7fa7d8c2fa0078f121afb973b98ffcaaec2bbe69e072d59f6e3c5875ded23fbd171c92c168acf8140e989063e94a161245ed2f2c492c891934efd7304340162ebb563242fc32cf29f3fe071c94f2bc4893c85f38643eb9e6e528afcfcff598756de8a75584ec973c5ba689884f6e2c588ff7bd5a89b841b5375438e9a61da8ac740d20b224281b9ce951c6fc95ed945fd17fed4906a4d6db7e533bdf87d78b2ec4e0a231ad3076ff3eb59f8eb13baef18c48c93cb5e1b42b5d2c2e10348750bb7e09d1d79d1f3113e705a17980febcc0fa5e1c876fe56e7ca86f762a03471a91a703120c964add9ed00baebde49067e5924899cd15531f6b6f4f81441bb279be4b74c8b65d76fb5d7a7e5331ff7aec39f745e33fd3353411ca37a63a8517309fe31215f98c8db82a3df63af324f9555db2b11edf8ef4d4d4ce700f67c039bbd8bee86fab46efd3b47f24ad967d5eef5beb6ba638084902c88881c779bacfa2c31aef0c01584995ea8662af37fa5a43e2c870130ada3b6a42cb1647a65f2ab0d1cadd6c5ae27137ef5697469f22f928f129f06a7e05',
+  workMail: 'qatest@163.com',
+  username: 'qatest@163.com',
+  nickname: 'qatest',
+  id: '58820c4a67453f2a4246ec0f' }
+[2017-01-22 19:15:22.126] [INFO] [default] - Mongo opened
+[2017-01-22 19:15:22.145] [INFO] [default] - Server listening on 8005
+[2017-01-22 21:18:22.195] [INFO] [default] - Mongo opened
+[2017-01-22 21:18:22.203] [INFO] [default] - Server listening on 8005
+[2017-01-22 21:45:42.167] [INFO] [default] - Mongo opened
+[2017-01-22 21:45:42.175] [INFO] [default] - Server listening on 8005
+[2017-01-23 09:32:27.331] [INFO] [default] - Mongo opened
+[2017-01-23 09:32:27.337] [INFO] [default] - Server listening on 8005
+[2017-01-23 09:36:13.962] [INFO] [default] - Mongo opened
+[2017-01-23 09:36:13.971] [INFO] [default] - Server listening on 8005
+[2017-01-23 09:59:08.062] [INFO] [default] - Mongo opened
+[2017-01-23 09:59:08.069] [INFO] [default] - Server listening on 8005
+[2017-01-23 09:59:29.045] [INFO] [default] - Mongo opened
+[2017-01-23 09:59:29.052] [INFO] [default] - Server listening on 8005
+[2017-01-23 09:59:49.121] [INFO] [default] - Mongo opened
+[2017-01-23 09:59:49.128] [INFO] [default] - Server listening on 8005
+[2017-01-23 10:00:03.220] [INFO] [default] - Mongo opened
+[2017-01-23 10:00:03.228] [INFO] [default] - Server listening on 8005
+[2017-01-23 10:00:52.799] [INFO] [default] - Mongo opened
+[2017-01-23 10:00:52.806] [INFO] [default] - Server listening on 8005
+[2017-01-23 10:00:54.359] [INFO] [default] - Mongo opened
+[2017-01-23 10:00:54.368] [INFO] [default] - Server listening on 8005
+[2017-01-23 10:01:02.370] [INFO] [default] - Mongo opened
+[2017-01-23 10:01:02.377] [INFO] [default] - Server listening on 8005
+[2017-01-23 10:02:51.647] [INFO] [default] - Mongo opened
+[2017-01-23 10:02:51.655] [INFO] [default] - Server listening on 8005
+[2017-01-23 10:02:52.676] [INFO] [default] - Mongo opened
+[2017-01-23 10:02:52.683] [INFO] [default] - Server listening on 8005
+[2017-01-23 10:09:29.876] [INFO] [default] - Mongo opened
+[2017-01-23 10:09:29.884] [INFO] [default] - Server listening on 8005
+[2017-01-23 10:09:30.904] [INFO] [default] - Mongo opened
+[2017-01-23 10:09:30.912] [INFO] [default] - Server listening on 8005
+[2017-01-23 10:09:34.888] [INFO] [default] - Mongo opened
+[2017-01-23 10:09:34.896] [INFO] [default] - Server listening on 8005
+[2017-01-23 10:09:35.897] [INFO] [default] - Mongo opened
+[2017-01-23 10:09:35.905] [INFO] [default] - Server listening on 8005
+[2017-01-23 10:10:04.995] [INFO] [default] - Mongo opened
+[2017-01-23 10:10:05.004] [INFO] [default] - Server listening on 8005
+[2017-01-23 10:10:33.071] [INFO] [default] - Mongo opened
+[2017-01-23 10:10:33.080] [INFO] [default] - Server listening on 8005
