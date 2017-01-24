@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "project":"start.bat"
+    "project": "start.bat"
   },
   "repository": {
     "type": "git",
@@ -42,6 +42,7 @@
     "lodash": "4.12.0",
     "log4js": "^0.6.38",
     "material-ui": "0.15.4",
+    "mongodb": "^2.2.21",
     "mongoose": "^4.5.9",
     "node-sass": "4.3.0",
     "nodemailer": "^2.5.0",
