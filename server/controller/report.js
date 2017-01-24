@@ -28,7 +28,7 @@ router.post('/get', auth.mustLogin(), function* () {
         .limit(parseInt(params.limit) || 15)
         .forEach(t => {
             t.tiskids.forEach(m => {
-                let tiskhistory = yield Taskhistory.find({taskid: m});
+                let tiskhistory = Taskhistory.find({taskid: m});
                 lists.push(tiskhistory);
             })
         });
@@ -39,7 +39,7 @@ router.post('/get', auth.mustLogin(), function* () {
         code: 200,
         list: list
     };
-};
+});
  /**
  * 添加日报
  */   
@@ -75,19 +75,19 @@ router.post('/add', auth.mustLogin(), function* () {
     let oReport = new Report(rReport);
     yield oReport.save();
 
-};
+});
 /**
  * 发送日报
  */
-router.post('/send', auth.mustLogin(), function* () {};
+router.post('/send', auth.mustLogin(), function* () {});
 /**
  * 编辑、修改日报
  */
-router.post('/edit', auth.mustLogin(), function* () {};
+router.post('/edit', auth.mustLogin(), function* () {});
 /**
  * 删除日报
  */
-router.post('/delete', auth.mustLogin(), function* () {};
+router.post('/delete', auth.mustLogin(), function* () {});
 
 
 /**
