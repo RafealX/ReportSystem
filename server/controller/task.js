@@ -17,18 +17,18 @@ const ErrCode = BusinessError.ErrCode;
 /**
  * 获取个人任务列表
  */
-router.post('/get', auth.mustLogin(), function* () {};
+router.post('/get', auth.mustLogin(), function* () {});
  /**
  * 添加任务
  */   
-router.post('/add', auth.mustLogin(), function* () {};
+router.post('/add', auth.mustLogin(), function* () {});
 /**
  * 编辑、修改任务
  */
-router.post('/edit', auth.mustLogin(), function* () {};
+router.post('/edit', auth.mustLogin(), function* () {});
 /**
  * 删除任务
  */
-router.post('/delete', auth.mustLogin(), function* () {};
+router.post('/delete', auth.mustLogin(), function* () {});
 
 module.exports = router;
