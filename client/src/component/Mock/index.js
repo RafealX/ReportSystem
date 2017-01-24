@@ -121,10 +121,91 @@ let teamTask = {
 
 };
 
+let myProgress = {
+	"code": 200,
+	"list": [{
+		name:'任务一',
+		progress:45,
+		totaltime:4,
+		ticket:'#98545,#65412',
+		description:'兼容D3.js',
+		time:'2016-7-15',
+		status:1,
+		isdelay:false,
+		delayreason:''
+	},{
+		name:'任务二',
+		progress:12,
+		totaltime:4,
+		ticket:'#98545,#65412',
+		description:'兼容D3.js',
+		time:'2016-7-15',
+		status:1,
+		isdelay:true,
+		delayreason:'在IE下表现特别诡异，难以处理'
+	},{
+		name:'任务三',
+		progress:100,
+		totaltime:7,
+		ticket:'#98545,#65412',
+		description:'兼容D3.js',
+		time:'2016-7-18',
+		status:3,
+		isdelay:false,
+		delayreason:''
+	},{
+		name:'任务四',
+		progress:65,
+		totaltime:4,
+		ticket:'#98545,#65412',
+		description:'兼容D3.js',
+		time:'2016-8-22',
+		status:1,
+		isdelay:true,
+		delayreason:'在IE下表现特别诡异，难以处理'
+	},{
+		name:'任务五',
+		progress:33,
+		totaltime:4,
+		ticket:'#98545,#65412',
+		description:'兼容D4.js',
+		time:'2016-7-15',
+		status:1,
+		isdelay:false,
+		delayreason:''
+	},{
+		name:'任务六',
+		progress:100,
+		totaltime:4,
+		ticket:'#98545,#65412',
+		description:'兼容WebGL啊',
+		time:'2016-12-25',
+		status:4,
+		isdelay:true,
+		delayreason:'延期了啊'
+	},{
+		name:'任务七',
+		progress:22,
+		totaltime:4,
+		ticket:'#98545,#65412',
+		description:'兼容D3.js',
+		time:'2016-7-15',
+		status:3,
+		isdelay:true,
+		delayreason:'这是任务器'
+	}]
+};
+myProgress.list.forEach(function(itm,idx){
+	itm.id = idx+1;
+});
+console.log(myProgress.list);
 let Result = {
 	task:{
 		my:myTask,
 		team:teamTask
+	},
+	progress:{
+		my:myProgress
 	}
 }
 export default Result;

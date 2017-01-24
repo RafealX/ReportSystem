@@ -1,23 +1,26 @@
 import React from 'react';
-import {Card, CardText,CardActions, CardHeader,TextField,Dialog,DatePicker,FlatButton,Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui';
+import {SelectField,MenuItem,Card, CardText,CardActions, CardHeader,TextField,Dialog,DatePicker,FlatButton,Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui';
 import _ from 'lodash';
 import Mock from 'cpn/Mock';
 
 /*数据层*/
 
 /*其他配置引用*/
-let reports = [];
-let reportitm = {
-  content:'asdsa',
-  elaspe:0,
-  ticket:''
+let tasks = [];
+let taskitm = {
+  summary:'',
+  elaspe:'',
+  question:''
 };
+//获取数据并且过滤数据
 module.exports = React.createClass({
   getInitialState() {
     console.log(this.props);
     return {
       open:false,
-      reports:[]
+      tasks:[],
+      selecttask:null,
+      sourcetasks:null
     };
   },
   handleClose() {
@@ -69,8 +72,16 @@ module.exports = React.createClass({
       this.props.refresh('normal',reports);
     }
   },
-
+  handleChange(e, k, v) {
+    if(this.state.sourcetasks)
+  },
   render() {
+    //fetch task items
+    let tasks = _.filter(Mock.progress.my.list,(itm,idx)=>{
+      return (itm.status==1||itm.status==2 && itm.progress<100);
+    });
+    console.log('tasks',tasks);
+    this.setState({sourcetasks:tasks});
     return(
         <div>
           <h3>任务事项</h3>
@@ -79,6 +90,14 @@ module.exports = React.createClass({
                 showExpandableButton
                 className="header" style={{'display':'none'}} />
             <CardText expandable>
+              <SelectField
+                  onChange={this.handleChange}
+                  style={{width: '80px', margin: '4px 20px'}}
+                  hintText="类型">
+                 {_.map(this.state.sourcetasks,itm=>{
+                  return <MenuItem key={itm.id} value={itm.name} primaryText={itm.name} />
+                })}
+              </SelectField>
               <TextField id="text-field-default"
                 floatingLabelText="ticket号" ref="ticket"
                 type="text" value={this.state.ticket||''} onChange={e=>{this.setState({ticket:e.target.value})}}
@@ -116,7 +135,7 @@ module.exports = React.createClass({
               showRowHover={true}
               stripedRows={false}
             >
-              {this.state.reports.map( (row, index) => (
+              {this.state.tasks.map( (row, index) => (
                 <TableRow key={index}  selected={row.selected}>
                   <TableRowColumn  style={{textAlign: 'center'}}>{row.content}</TableRowColumn>
                   <TableRowColumn  style={{textAlign: 'center'}}>{row.elaspe}</TableRowColumn>
