@@ -11,4 +11,4 @@ node_modules
 .sass-cache
 bower_components
 log
-*.log
+/server/log/
