@@ -64,12 +64,12 @@ router.post('/add', auth.mustLogin(), function* () {
     * taskhistorys
     **/ 
     rData.tasks.forEach(t => {
-        let otask = yield Task.findById(t.taskid);
+        let otask = Task.findById(t.taskid);
         otask.progress = t.progress;
-        yield otask,save();
+        otask.save();
         //history
         let taskhistory = new Taskhistory(t);
-        yield taskhistory.save();
+        taskhistory.save();
         rReport.taskids.push(taskhistory.id);
     });
     let oReport = new Report(rReport);
