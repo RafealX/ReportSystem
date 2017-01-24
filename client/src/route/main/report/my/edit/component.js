@@ -66,6 +66,16 @@ module.exports = React.createClass({
         console.log(browserHistory);
         browserHistory.goBack();
     },
+    refreshData(type,result) {
+        //mixin targetReport&&returnReport
+        switch(type){
+            case 'normal':
+                break;
+            case 'task':
+                break;
+        }
+        console.log(result);
+    },
     render() {
         let rp = this.state.rp;
         return (
@@ -115,11 +125,12 @@ module.exports = React.createClass({
                             onTouchTap={this._handleSave}/>
                     </ToolbarGroup>
                 </Toolbar>
-                <GridList>
-                    <GridTile style={{height:'auto !important'}}>
-                        <DailyReport report={targetReport} />
+                <GridList cellHeight={500}>
+                    <GridTile>
+                        <DailyReport refresh={this.refreshData}/>
                     </GridTile>
                     <GridTile>
+                        <TaskReport refresh={this.refreshData}/>
                     </GridTile>
                 </GridList>
                 <Editor style={{'display':'none'}} ref="editor" initContent={this.state.rp.content} onSelectionChange={this._onSelectionChange}/>
