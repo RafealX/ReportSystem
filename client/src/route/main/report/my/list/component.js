@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import {browserHistory} from 'react-router';
-import {FlatButton, Card, CardActions, CardHeader, IconButton,Dialog,DatePicker,
+import {FlatButton, Card, CardActions, CardHeader, IconButton,Dialog,DatePicker,Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn,GridList, GridTile,
     CardText, List, ListItem, Avatar, Divider, Popover, Menu, MenuItem,Step,Stepper,StepLabel,StepContent} from 'material-ui';
 import AddIcon from 'material-ui/svg-icons/content/add';
 import IconMenu from 'material-ui/IconMenu';
@@ -13,17 +13,51 @@ import {style} from '../../index.scss';
 import pubsub from 'vanilla-pubsub';
 import ListView from 'cpn/ListView';
 import Mock from 'cpn/Mock';
+import _ from 'lodash';
 const StepperStyle = {
     fontSize:0
 }
-
 const containerStyle = {
     display:'none'
 }
 
+//数据format
+let tasklist = _.map(Mock.task.my.list,(itm,ix)=>{
+    let arr;
+    itm.createtime = new Date(itm.time);
+    if(itm.report){
+        arr = itm.report.split(';');
+
+        if(_.isArray(arr) && arr.length>0){
+            itm.reports = [];
+            _.each(arr,(item)=>{
+                let reportitm = item.split(','),tmp;
+                 tmp= {
+                    content:reportitm[0],
+                    elaspe:reportitm[1]*1,
+                    ticket:reportitm[2]
+                };
+                itm.reports.push(tmp);
+            })
+        }
+    }
+    window.timet = new Date(itm.time);
+    console.log(itm);
+});
+
 module.exports = React.createClass({
     getInitialState() {
-        return {rps: [], myTeams: [],stepIndex:0, finished: false,show:false,list:Mock.task.my.list};
+        return {rps: [], myTeams: [],stepIndex:0, finished: false,show:false,list:Mock.task.my.list,
+        fixedHeader: true,
+      fixedFooter: true,
+      stripedRows: false,
+      showRowHover: false,
+      selectable: true,
+      multiSelectable: false,
+      enableSelectAll: false,
+      deselectOnClickaway: true,
+      showCheckboxes: true,
+      height: '300px'};
     },
     componentDidMount() {
         let barConf = {
@@ -32,15 +66,7 @@ module.exports = React.createClass({
                 fontSize:'16px',
                 marginLeft:'-20px'
             },
-            iconElementLeft:<IconMenu onItemTouchTap={this.handleChange} iconButtonElement={
-                  <IconButton title="新建日报"><AddIcon color={'#fff'}/></IconButton>
-                }
-                targetOrigin={{horizontal: 'left', vertical: 'top'}}
-                anchorOrigin={{horizontal: 'left', vertical: 'top'}}
-              >
-                <MenuItem  value="1" primaryText="普通日记" />
-                <MenuItem  value="2" primaryText="任务日记" />
-              </IconMenu>
+            iconElementLeft:<IconButton title="新增工作日记" onClick={this._create}><AddIcon color={'#fff'}/></IconButton>
         };
         pubsub.publish('config.appBar', barConf);
         fetch('/api/team/myList')
@@ -65,40 +91,91 @@ module.exports = React.createClass({
         this.setState({open: false});
     },
     render() {
-        const actions = [
-          <FlatButton
-            label="Cancel"
-            primary={true}
-            onTouchTap={this.handleClose}
-          />,
-          <FlatButton
-            label="Submit"
-            primary={true}
-            disabled={true}
-            onTouchTap={this.handleClose}
-          />,
-        ];
+        let reportRender = (x,i)=><div><span>{x.content}</span><span>{x.elaspe}</span><span>{x.ticket}</span></div>;
         let itemRender = (x, i) => 
         <Step active={true} className="step">
-        <StepLabel iconContainerStyle={containerStyle}>{x.periodDesc}</StepLabel>
+        <StepLabel iconContainerStyle={containerStyle}>{new Date(x.time).toLocaleDateString()}</StepLabel>
         <StepContent>
           <Card initiallyExpanded key={i} className="item">
             <CardHeader
                 showExpandableButton
-                className="header"
-                title={x.periodDesc}
-                subtitle={x.toTeam && x.toTeam.teamName ? `已发送:${x.toTeam.teamName}` : '未发送'}/>
+                className="header" style={{'display':'none'}}
+                title={x.time}/>
             <CardText expandable>
-                <div className="content" dangerouslySetInnerHTML={{__html: x.content}}></div>
+                <GridList>
+                    <GridTile>
+                          <Table
+                          height={this.state.height}
+                        >
+                          <TableHeader displaySelectAll={false} 
+                          >
+                            <TableRow>
+                              <TableHeaderColumn  style={{textAlign: 'center'}}>content</TableHeaderColumn>
+                              <TableHeaderColumn  style={{textAlign: 'center'}}>elaspe</TableHeaderColumn>
+                              <TableHeaderColumn  style={{textAlign: 'center'}}>ticket</TableHeaderColumn>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody
+                            displayRowCheckbox={false}
+                            deselectOnClickaway={true}
+                            showRowHover={true}
+                            stripedRows={false}
+                          >
+                            {x.reports.map( (row, index) => (
+                              <TableRow key={index}  selected={row.selected}>
+                                <TableRowColumn  style={{textAlign: 'center'}}>{row.content}</TableRowColumn>
+                                <TableRowColumn  style={{textAlign: 'center'}}>{row.elaspe}</TableRowColumn>
+                                <TableRowColumn  style={{textAlign: 'center'}}>{row.ticket}</TableRowColumn>
+                              </TableRow>
+                              ))}
+                          </TableBody>
+                        </Table>
+                    </GridTile>
+                    <GridTile>
+                          <Table
+                          height={this.state.height}
+                        >
+                          <TableHeader displaySelectAll={false}
+                          >
+                            <TableRow>
+                              <TableHeaderColumn  style={{textAlign: 'center'}}>任务名</TableHeaderColumn>
+                              <TableHeaderColumn  style={{textAlign: 'center'}}>进度</TableHeaderColumn>
+                              <TableHeaderColumn  style={{textAlign: 'center'}}>内容</TableHeaderColumn>
+                              <TableHeaderColumn  style={{textAlign: 'center'}}>耗时</TableHeaderColumn>
+                              <TableHeaderColumn  style={{textAlign: 'center'}}>问题</TableHeaderColumn>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody
+                            displayRowCheckbox={false}
+                            deselectOnClickaway={true}
+                            showRowHover={true}
+                            stripedRows={false}
+                          >
+                            {x.tasks.map( (row, index) => (
+                              <TableRow key={index}  selected={row.selected}>
+                                <TableRowColumn  style={{textAlign: 'center'}}>{row.name}</TableRowColumn>
+                                <TableRowColumn  style={{textAlign: 'center'}}>{row.progress+'%'}</TableRowColumn>
+                                <TableRowColumn  style={{textAlign: 'center'}}>{row.summary}</TableRowColumn>
+                                <TableRowColumn  style={{textAlign: 'center'}}>{row.elapse}</TableRowColumn>
+                                <TableRowColumn  style={{textAlign: 'center'}}>{row.question}</TableRowColumn>
+                              </TableRow>
+                              ))}
+                          </TableBody>
+                        </Table>
+                    </GridTile>
+                </GridList>
+                <div className="content" style={{'display':x.reports&&x.reports.length>2?'block':'none'}}>
+                    
+                </div>
             </CardText>
-            <CardActions>
-                <FlatButton label="删除"
+            <CardActions style={{'display':x.status==1?'block':'none'}}>
+                <FlatButton label="删除" disabled={x.status!=1}
                             onClick={this._delete.bind(this, x)}/>
                 <FlatButton label="编辑"
-                            disabled={x.toTeam && !!x.toTeam.teamName}
+                            disabled={x.status!=1}
                             onClick={this._onEdit.bind(this, x)}/>
                 <FlatButton label="发送"
-                            disabled={x.toTeam && !!x.toTeam.teamName}
+                            disabled={x.status!=1}
                             onClick={this._onSend.bind(this, x)}/>
             </CardActions>
         </Card>
@@ -110,16 +187,7 @@ module.exports = React.createClass({
                 <Stepper orientation="vertical" linear={false}>
                   <ListView ref="listView" list={this.state.list} itemRender={itemRender}/>
                 </Stepper>
-                <Dialog
-                  title="新增普通日记"
-                  actions={actions}
-                  modal={false}
-                  open={this.state.open}
-                  onRequestClose={this.handleClose}
-                >
-                  Open a Date Picker dialog from within a dialog.
-                  <DatePicker hintText="Date Picker" />
-                </Dialog>
+                
                 <Popover
                     open={!!this.state.currentRp}
                     anchorEl={this.state.anchorEl}
