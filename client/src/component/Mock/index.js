@@ -3,7 +3,7 @@
  * @type {Object}
  */
 
-, Ta//个人日报
+//个人日报
 let myTask = {
 	"code": 200,
 	"list": [{

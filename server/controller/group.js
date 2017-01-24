@@ -30,39 +30,39 @@ function* injectGroup(next) {
 /**
  * 获取所有小组
  */
-router.post('/get', auth.mustLogin(), function* () {};
+router.post('/get', auth.mustLogin(), function* () {});
 /**
  * 添加小组
  */
-router.post('/add', auth.mustLogin(), function* () {};
+router.post('/add', auth.mustLogin(), function* () {});
 /**
  * 编辑小组
  */
-router.post('/edit', auth.mustLogin(), function* () {};
+router.post('/edit', auth.mustLogin(), function* () {});
 /**
  * 删除小组
  */
-router.post('/delete', auth.mustLogin(), function* () {};
+router.post('/delete', auth.mustLogin(), function* () {});
 /**
  * 获取小组成员
  */
-router.post('/getmember', auth.mustLogin(), function* () {};
+router.post('/getmember', auth.mustLogin(), function* () {});
 /**
  * 添加小组成员
  */
-router.post('/addmember', auth.mustLogin(), function* () {};
+router.post('/addmember', auth.mustLogin(), function* () {});
 /**
  * 删除小组成员
  */
-router.post('/deletemember', auth.mustLogin(), function* () {};
+router.post('/deletemember', auth.mustLogin(), function* () {});
 /**
  * 获取小组任务
  */
-router.post('/gettask', auth.mustLogin(), function* () {};
+router.post('/gettask', auth.mustLogin(), function* () {});
 /**
  * 获取小组日报
  */
-router.post('/getreport', auth.mustLogin(), function* () {};
+router.post('/getreport', auth.mustLogin(), function* () {});
 
 
 /**
