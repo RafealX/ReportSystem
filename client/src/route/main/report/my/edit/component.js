@@ -130,7 +130,7 @@ module.exports = React.createClass({
                         <DailyReport refresh={this.refreshData}/>
                     </GridTile>
                     <GridTile>
-                        <TaskReport refresh={this.refreshData}/>
+                       
                     </GridTile>
                 </GridList>
                 <Editor style={{'display':'none'}} ref="editor" initContent={this.state.rp.content} onSelectionChange={this._onSelectionChange}/>

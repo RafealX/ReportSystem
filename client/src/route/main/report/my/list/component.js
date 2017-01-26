@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import {browserHistory} from 'react-router';
-import {FlatButton, Card, CardActions, CardHeader, IconButton,Dialog,DatePicker,Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn,GridList, GridTile,
+import {FlatButton, Toolbar,ToolbarGroup,ToolbarTitle,Card, CardActions, CardHeader, IconButton,Dialog,DatePicker,Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn,GridList, GridTile,
     CardText, List, ListItem, Avatar, Divider, Popover, Menu, MenuItem,Step,Stepper,StepLabel,StepContent} from 'material-ui';
 import AddIcon from 'material-ui/svg-icons/content/add';
 import IconMenu from 'material-ui/IconMenu';
@@ -14,6 +14,7 @@ import pubsub from 'vanilla-pubsub';
 import ListView from 'cpn/ListView';
 import Mock from 'cpn/Mock';
 import _ from 'lodash';
+import Backend from 'lib/backend';
 const StepperStyle = {
     fontSize:0
 }
@@ -21,29 +22,6 @@ const containerStyle = {
     display:'none'
 }
 
-//数据format
-let tasklist = _.map(Mock.task.my.list,(itm,ix)=>{
-    let arr;
-    itm.createtime = new Date(itm.time);
-    if(itm.report){
-        arr = itm.report.split(';');
-
-        if(_.isArray(arr) && arr.length>0){
-            itm.reports = [];
-            _.each(arr,(item)=>{
-                let reportitm = item.split(','),tmp;
-                 tmp= {
-                    content:reportitm[0],
-                    elaspe:reportitm[1]*1,
-                    ticket:reportitm[2]
-                };
-                itm.reports.push(tmp);
-            })
-        }
-    }
-    window.timet = new Date(itm.time);
-    console.log(itm);
-});
 
 module.exports = React.createClass({
     getInitialState() {
@@ -87,11 +65,22 @@ module.exports = React.createClass({
                
         }
     },
-    handleClose() {
-        this.setState({open: false});
-    },
     render() {
-        let reportRender = (x,i)=><div><span>{x.content}</span><span>{x.elaspe}</span><span>{x.ticket}</span></div>;
+        let reportRender = (x,i)=>
+            <div>
+            <span>{i+1}&nbsp;&nbsp;</span>
+            <span>{x.content}&nbsp;&nbsp;</span>
+            <span>{x.elapse?x.elapse+'小时  ':''}</span>
+            <span>{x.ticket}&nbsp;&nbsp;</span>
+            </div>;
+        let taskRender = (x,i)=><div>
+            <span>{i+1}&nbsp;&nbsp;</span>
+            <span>{x.name}&nbsp;&nbsp;</span>
+            <span>{x.progress?x.progress+'%  ':''}</span>
+            <span>{x.elapse?x.elapse+'小时':''}</span>
+            <h4 style={{fontWeight:'normal',lineHeight:'20px',marginLeft: '18px'}}>问题：{x.question}</h4>
+            <h4 style={{fontWeight:'normal',lineHeight:'20px',marginLeft: '18px'}}>总结：{x.summary}</h4>
+            </div>;
         let itemRender = (x, i) => 
         <Step active={true} className="step">
         <StepLabel iconContainerStyle={containerStyle}>{new Date(x.time).toLocaleDateString()}</StepLabel>
@@ -102,38 +91,38 @@ module.exports = React.createClass({
                 className="header" style={{'display':'none'}}
                 title={x.time}/>
             <CardText expandable>
-                <GridList>
-                    <GridTile>
-                          <Table
-                          height={this.state.height}
-                        >
-                          <TableHeader displaySelectAll={false} 
-                          >
-                            <TableRow>
-                              <TableHeaderColumn  style={{textAlign: 'center'}}>content</TableHeaderColumn>
-                              <TableHeaderColumn  style={{textAlign: 'center'}}>elaspe</TableHeaderColumn>
-                              <TableHeaderColumn  style={{textAlign: 'center'}}>ticket</TableHeaderColumn>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody
-                            displayRowCheckbox={false}
-                            deselectOnClickaway={true}
-                            showRowHover={true}
-                            stripedRows={false}
-                          >
+                <GridList cellHeight={300}>
+                    <GridTile >
+                        <Toolbar>
+                            <ToolbarGroup style={{textAlign:'center',width:'100%'}}>
+                                <ToolbarTitle text="普通事项" style={{textAlign:'center',width:'100%'}}/>
+                            </ToolbarGroup>
+                        </Toolbar>
+                          <List>
                             {x.reports.map( (row, index) => (
-                              <TableRow key={index}  selected={row.selected}>
-                                <TableRowColumn  style={{textAlign: 'center'}}>{row.content}</TableRowColumn>
-                                <TableRowColumn  style={{textAlign: 'center'}}>{row.elaspe}</TableRowColumn>
-                                <TableRowColumn  style={{textAlign: 'center'}}>{row.ticket}</TableRowColumn>
-                              </TableRow>
+                              <ListItem key={index}  selected={row.selected}>
+                                {reportRender(row,index)}
+                                
+                              </ListItem>
                               ))}
-                          </TableBody>
-                        </Table>
+                          </List>  
+                          
                     </GridTile>
                     <GridTile>
+                        <Toolbar>
+                            <ToolbarGroup style={{textAlign:'center',width:'100%'}}>
+                                <ToolbarTitle text="任务事项" style={{textAlign:'center',width:'100%'}}/>
+                            </ToolbarGroup>
+                        </Toolbar>
+                            <List>
+                            {x.tasks.map( (row, index) => (
+                              <ListItem key={index}  selected={row.selected}>
+                                {taskRender(row,index)}
+                              </ListItem>
+                              ))}
+                          </List>  
                           <Table
-                          height={this.state.height}
+                          height={this.state.height} style={{display:'none'}}
                         >
                           <TableHeader displaySelectAll={false}
                           >
@@ -184,8 +173,8 @@ module.exports = React.createClass({
         ;
         return (
             <div className={style}>
-                <Stepper orientation="vertical" linear={false}>
-                  <ListView ref="listView" list={this.state.list} itemRender={itemRender}/>
+                <Stepper orientation="vertical" linear={false} children={[]}>
+                  <ListView ref="listView" loadList={this._loadList} itemRender={itemRender}/>
                 </Stepper>
                 
                 <Popover
@@ -203,48 +192,12 @@ module.exports = React.createClass({
             </div>
         );
     },
-    _loadList(limit, offset) {
-        return fetch(`/api/report/my?limit=${limit}&offset=${offset}`);
+    _loadList(data) {
+        return Backend.report.get(data);
+        //return fetch('/api/report/my?limit=${limit}&offset=${offset}');
     },
     _create() {
-
         browserHistory.push('/m/report/my/edit');
-    },
-    _onAddOrUpdate(rp) {
-        if (rp.id) {
-            fetch('/api/report/update', {
-                method: 'post',
-                body: {
-                    report: rp
-                }
-            })
-                .then(d => {
-                    let oldRp = _.find(this.state.rps, {id: rp.id});
-                    oldRp.content = rp.content;
-                    oldRp.type = rp.type;
-                    oldRp.periodTime = rp.periodTime;
-                    this.forceUpdate();
-                    popup.success('保存成功');
-                })
-                .catch(e => {
-                    popup.success(e.msg || '保存失败');
-                });
-        } else {
-            fetch('/api/report/create', {
-                method: 'post',
-                body: {
-                    report: rp
-                }
-            })
-                .then(d => {
-                    this.state.rps.unshift(d.report);
-                    this.forceUpdate();
-                    popup.success('创建成功');
-                })
-                .catch(e => {
-                    popup.success(e.msg || '创建失败');
-                });
-        }
     },
     _delete(rp) {
         popup.confirm({

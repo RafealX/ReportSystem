@@ -73,7 +73,7 @@ module.exports = React.createClass({
     }
   },
   handleChange(e, k, v) {
-    if(this.state.sourcetasks)
+    //if(this.state.sourcetasks)
   },
   render() {
     //fetch task items
