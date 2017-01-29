@@ -3,6 +3,7 @@
  */
 'use strict';
 const _ = require('lodash');
+const co = require('co');
 const router = require('koa-router')({prefix: '/report'});
 const User = require('../model/user');
 const Group = require('../model/group');
