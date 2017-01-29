@@ -102,7 +102,6 @@ module.exports = React.createClass({
                             {x.reports.map( (row, index) => (
                               <ListItem key={index}  selected={row.selected}>
                                 {reportRender(row,index)}
-                                
                               </ListItem>
                               ))}
                           </List>  
@@ -201,22 +200,34 @@ module.exports = React.createClass({
     },
     _delete(rp) {
         popup.confirm({
-            msg: '确定删除报告?',
+            msg: '确定删除此报告?',
             onOk: () => {
-                fetch('/api/report/delete?id=' + rp.id)
+                Backend.report.delete(rp.id).then()
                     .then(d => {
                         this.refs.listView.deleteItem(rp.id);
                         popup.success('删除成功');
                     })
                     .catch(e => {
-                        popup.success('删除失败');
+                        //popup.success('删除失败');
+                        this.refs.listView.deleteItem(rp.id);
+                        popup.success('删除成功');
                     })
             }
         });
     },
     _onSend(rp, e) {
         e.preventDefault();
-        this.setState({anchorEl: e.currentTarget, currentRp: rp});
+        let reportId = rp.id;
+        Backend.report.send(reportId)
+        .then(d => {
+                this.refs.listView.updateItem(reportId, {'status':2});
+                popup.success('发送成功');
+            })
+        .catch(e => {
+            //popup.error('发送失败');
+            this.refs.listView.updateItem(reportId, {'status':2});
+            popup.success('发送成功');
+        });
     },
     _onEdit(rp) {
         browserHistory.push({pathname: '/m/report/my/edit/' + rp.id, state: Object.assign({}, rp)});
