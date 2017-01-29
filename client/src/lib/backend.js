@@ -7,26 +7,25 @@ import Mock from 'cpn/Mock';
 const prefix = '/api';
 let Backend = {
 	report:{
-		get:function(userid){
+		get:function(data){
 			let url = prefix+'/report'+'/get';
-			var data = {
-				userid:userid
+			var datas = {
+				userid:data.userid,
+				limit:data.limit || 20,
+				offset:data.offset||0
 			}
-			return fetch(url,{body:data,method:'GET'});
+			return fetch(url,{body:datas,method:'GET'});
 		},
 		add:function(data){
 			let url = prefix+'/report'+'/add';
-			let data = data;	
 			return fetch(url,{body:data,method:'POST'});
 		},
 		send:function(data){
 			let url = prefix+'/report'+'/send';
-			let data = data;	
 			return fetch(url,{body:data,method:'POST'});	
 		},
 		edit:function(data){
-			let url = prefix+'/report'+'/send';
-			let data = data;	
+			let url = prefix+'/report'+'/send';	
 			return fetch(url,{body:data,method:'POST'});		
 		},
 		delete:function(id){
@@ -55,13 +54,11 @@ let Backend = {
 			return fetch(url,{body:data,method:'GET'});	
 		},
 		add:function(data){
-			let url = prefix+'/task'+'/add';
-			let data = data;	
+			let url = prefix+'/task'+'/add';	
 			return fetch(url,{body:data,method:'POST'});	
 		},
 		edit:function(data){
 			let url = prefix+'/task'+'/edit';
-			let data = data;	
 			return fetch(url,{body:data,method:'POST'});	
 		},
 		delete:function(id){
@@ -81,13 +78,11 @@ let Backend = {
 			return fetch(url,{body:data,method:'GET'});	
 		},
 		add:function(data){
-			let url = prefix+'/team'+'/add';
-			let data = data;	
+			let url = prefix+'/team'+'/add';	
 			return fetch(url,{body:data,method:'POST'});	
 		},
 		edit:function(data){
 			let url = prefix+'/task'+'/edit';
-			let data = data;	
 			return fetch(url,{body:data,method:'POST'});	
 		},
 		delete:function(id){

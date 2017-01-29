@@ -18,7 +18,7 @@ export default React.createClass({
     },
     render() {
         return (
-            <div className={scss.index}>
+            <div className={scss.index} style={this.props.style}>
                 <iframe ref="iframe" src="about:blank;"></iframe>
             </div>
         );

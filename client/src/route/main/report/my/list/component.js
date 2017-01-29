@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import {browserHistory} from 'react-router';
-import {FlatButton, Card, CardActions, CardHeader, IconButton,Dialog,DatePicker,
+import {FlatButton, Toolbar,ToolbarGroup,ToolbarTitle,Card, CardActions, CardHeader, IconButton,Dialog,DatePicker,Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn,GridList, GridTile,
     CardText, List, ListItem, Avatar, Divider, Popover, Menu, MenuItem,Step,Stepper,StepLabel,StepContent} from 'material-ui';
 import AddIcon from 'material-ui/svg-icons/content/add';
 import IconMenu from 'material-ui/IconMenu';
@@ -13,17 +13,29 @@ import {style} from '../../index.scss';
 import pubsub from 'vanilla-pubsub';
 import ListView from 'cpn/ListView';
 import Mock from 'cpn/Mock';
+import _ from 'lodash';
+import Backend from 'lib/backend';
 const StepperStyle = {
     fontSize:0
 }
-
 const containerStyle = {
     display:'none'
 }
 
+
 module.exports = React.createClass({
     getInitialState() {
-        return {rps: [], myTeams: [],stepIndex:0, finished: false,show:false,list:Mock.task.my.list};
+        return {rps: [], myTeams: [],stepIndex:0, finished: false,show:false,list:Mock.task.my.list,
+        fixedHeader: true,
+      fixedFooter: true,
+      stripedRows: false,
+      showRowHover: false,
+      selectable: true,
+      multiSelectable: false,
+      enableSelectAll: false,
+      deselectOnClickaway: true,
+      showCheckboxes: true,
+      height: '300px'};
     },
     componentDidMount() {
         let barConf = {
@@ -32,15 +44,7 @@ module.exports = React.createClass({
                 fontSize:'16px',
                 marginLeft:'-20px'
             },
-            iconElementLeft:<IconMenu onItemTouchTap={this.handleChange} iconButtonElement={
-                  <IconButton title="新建日报"><AddIcon color={'#fff'}/></IconButton>
-                }
-                targetOrigin={{horizontal: 'left', vertical: 'top'}}
-                anchorOrigin={{horizontal: 'left', vertical: 'top'}}
-              >
-                <MenuItem  value="1" primaryText="普通日记" />
-                <MenuItem  value="2" primaryText="任务日记" />
-              </IconMenu>
+            iconElementLeft:<IconButton title="新增工作日记" onClick={this._create}><AddIcon color={'#fff'}/></IconButton>
         };
         pubsub.publish('config.appBar', barConf);
         fetch('/api/team/myList')
@@ -61,44 +65,105 @@ module.exports = React.createClass({
                
         }
     },
-    handleClose() {
-        this.setState({open: false});
-    },
     render() {
-        const actions = [
-          <FlatButton
-            label="Cancel"
-            primary={true}
-            onTouchTap={this.handleClose}
-          />,
-          <FlatButton
-            label="Submit"
-            primary={true}
-            disabled={true}
-            onTouchTap={this.handleClose}
-          />,
-        ];
+        let reportRender = (x,i)=>
+            <div>
+            <span>{i+1}&nbsp;&nbsp;</span>
+            <span>{x.content}&nbsp;&nbsp;</span>
+            <span>{x.elapse?x.elapse+'小时  ':''}</span>
+            <span>{x.ticket}&nbsp;&nbsp;</span>
+            </div>;
+        let taskRender = (x,i)=><div>
+            <span>{i+1}&nbsp;&nbsp;</span>
+            <span>{x.name}&nbsp;&nbsp;</span>
+            <span>{x.progress?x.progress+'%  ':''}</span>
+            <span>{x.elapse?x.elapse+'小时':''}</span>
+            <h4 style={{fontWeight:'normal',lineHeight:'20px',marginLeft: '18px'}}>问题：{x.question}</h4>
+            <h4 style={{fontWeight:'normal',lineHeight:'20px',marginLeft: '18px'}}>总结：{x.summary}</h4>
+            </div>;
         let itemRender = (x, i) => 
         <Step active={true} className="step">
-        <StepLabel iconContainerStyle={containerStyle}>{x.periodDesc}</StepLabel>
+        <StepLabel iconContainerStyle={containerStyle}>{new Date(x.time).toLocaleDateString()}</StepLabel>
         <StepContent>
           <Card initiallyExpanded key={i} className="item">
             <CardHeader
                 showExpandableButton
-                className="header"
-                title={x.periodDesc}
-                subtitle={x.toTeam && x.toTeam.teamName ? `已发送:${x.toTeam.teamName}` : '未发送'}/>
+                className="header" style={{'display':'none'}}
+                title={x.time}/>
             <CardText expandable>
-                <div className="content" dangerouslySetInnerHTML={{__html: x.content}}></div>
+                <GridList cellHeight={300}>
+                    <GridTile >
+                        <Toolbar>
+                            <ToolbarGroup style={{textAlign:'center',width:'100%'}}>
+                                <ToolbarTitle text="普通事项" style={{textAlign:'center',width:'100%'}}/>
+                            </ToolbarGroup>
+                        </Toolbar>
+                          <List>
+                            {x.reports.map( (row, index) => (
+                              <ListItem key={index}  selected={row.selected}>
+                                {reportRender(row,index)}
+                              </ListItem>
+                              ))}
+                          </List>  
+                          
+                    </GridTile>
+                    <GridTile>
+                        <Toolbar>
+                            <ToolbarGroup style={{textAlign:'center',width:'100%'}}>
+                                <ToolbarTitle text="任务事项" style={{textAlign:'center',width:'100%'}}/>
+                            </ToolbarGroup>
+                        </Toolbar>
+                            <List>
+                            {x.tasks.map( (row, index) => (
+                              <ListItem key={index}  selected={row.selected}>
+                                {taskRender(row,index)}
+                              </ListItem>
+                              ))}
+                          </List>  
+                          <Table
+                          height={this.state.height} style={{display:'none'}}
+                        >
+                          <TableHeader displaySelectAll={false}
+                          >
+                            <TableRow>
+                              <TableHeaderColumn  style={{textAlign: 'center'}}>任务名</TableHeaderColumn>
+                              <TableHeaderColumn  style={{textAlign: 'center'}}>进度</TableHeaderColumn>
+                              <TableHeaderColumn  style={{textAlign: 'center'}}>内容</TableHeaderColumn>
+                              <TableHeaderColumn  style={{textAlign: 'center'}}>耗时</TableHeaderColumn>
+                              <TableHeaderColumn  style={{textAlign: 'center'}}>问题</TableHeaderColumn>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody
+                            displayRowCheckbox={false}
+                            deselectOnClickaway={true}
+                            showRowHover={true}
+                            stripedRows={false}
+                          >
+                            {x.tasks.map( (row, index) => (
+                              <TableRow key={index}  selected={row.selected}>
+                                <TableRowColumn  style={{textAlign: 'center'}}>{row.name}</TableRowColumn>
+                                <TableRowColumn  style={{textAlign: 'center'}}>{row.progress+'%'}</TableRowColumn>
+                                <TableRowColumn  style={{textAlign: 'center'}}>{row.summary}</TableRowColumn>
+                                <TableRowColumn  style={{textAlign: 'center'}}>{row.elapse}</TableRowColumn>
+                                <TableRowColumn  style={{textAlign: 'center'}}>{row.question}</TableRowColumn>
+                              </TableRow>
+                              ))}
+                          </TableBody>
+                        </Table>
+                    </GridTile>
+                </GridList>
+                <div className="content" style={{'display':x.reports&&x.reports.length>2?'block':'none'}}>
+                    
+                </div>
             </CardText>
-            <CardActions>
-                <FlatButton label="删除"
+            <CardActions style={{'display':x.status==1?'block':'none'}}>
+                <FlatButton label="删除" disabled={x.status!=1}
                             onClick={this._delete.bind(this, x)}/>
                 <FlatButton label="编辑"
-                            disabled={x.toTeam && !!x.toTeam.teamName}
+                            disabled={x.status!=1}
                             onClick={this._onEdit.bind(this, x)}/>
                 <FlatButton label="发送"
-                            disabled={x.toTeam && !!x.toTeam.teamName}
+                            disabled={x.status!=1}
                             onClick={this._onSend.bind(this, x)}/>
             </CardActions>
         </Card>
@@ -107,19 +172,10 @@ module.exports = React.createClass({
         ;
         return (
             <div className={style}>
-                <Stepper orientation="vertical" linear={false}>
-                  <ListView ref="listView" list={this.state.list} itemRender={itemRender}/>
+                <Stepper orientation="vertical" linear={false} children={[]}>
+                  <ListView ref="listView" loadList={this._loadList} itemRender={itemRender}/>
                 </Stepper>
-                <Dialog
-                  title="新增普通日记"
-                  actions={actions}
-                  modal={false}
-                  open={this.state.open}
-                  onRequestClose={this.handleClose}
-                >
-                  Open a Date Picker dialog from within a dialog.
-                  <DatePicker hintText="Date Picker" />
-                </Dialog>
+                
                 <Popover
                     open={!!this.state.currentRp}
                     anchorEl={this.state.anchorEl}
@@ -135,67 +191,43 @@ module.exports = React.createClass({
             </div>
         );
     },
-    _loadList(limit, offset) {
-        return fetch(`/api/report/my?limit=${limit}&offset=${offset}`);
+    _loadList(data) {
+        return Backend.report.get(data);
+        //return fetch('/api/report/my?limit=${limit}&offset=${offset}');
     },
     _create() {
-
         browserHistory.push('/m/report/my/edit');
-    },
-    _onAddOrUpdate(rp) {
-        if (rp.id) {
-            fetch('/api/report/update', {
-                method: 'post',
-                body: {
-                    report: rp
-                }
-            })
-                .then(d => {
-                    let oldRp = _.find(this.state.rps, {id: rp.id});
-                    oldRp.content = rp.content;
-                    oldRp.type = rp.type;
-                    oldRp.periodTime = rp.periodTime;
-                    this.forceUpdate();
-                    popup.success('保存成功');
-                })
-                .catch(e => {
-                    popup.success(e.msg || '保存失败');
-                });
-        } else {
-            fetch('/api/report/create', {
-                method: 'post',
-                body: {
-                    report: rp
-                }
-            })
-                .then(d => {
-                    this.state.rps.unshift(d.report);
-                    this.forceUpdate();
-                    popup.success('创建成功');
-                })
-                .catch(e => {
-                    popup.success(e.msg || '创建失败');
-                });
-        }
     },
     _delete(rp) {
         popup.confirm({
-            msg: '确定删除报告?',
+            msg: '确定删除此报告?',
             onOk: () => {
-                fetch('/api/report/delete?id=' + rp.id)
+                Backend.report.delete(rp.id).then()
                     .then(d => {
                         this.refs.listView.deleteItem(rp.id);
                         popup.success('删除成功');
                     })
                     .catch(e => {
-                        popup.success('删除失败');
+                        //popup.success('删除失败');
+                        this.refs.listView.deleteItem(rp.id);
+                        popup.success('删除成功');
                     })
             }
         });
     },
     _onSend(rp, e) {
         e.preventDefault();
-        this.setState({anchorEl: e.currentTarget, currentRp: rp});
+        let reportId = rp.id;
+        Backend.report.send(reportId)
+        .then(d => {
+                this.refs.listView.updateItem(reportId, {'status':2});
+                popup.success('发送成功');
+            })
+        .catch(e => {
+            //popup.error('发送失败');
+            this.refs.listView.updateItem(reportId, {'status':2});
+            popup.success('发送成功');
+        });
     },
     _onEdit(rp) {
         browserHistory.push({pathname: '/m/report/my/edit/' + rp.id, state: Object.assign({}, rp)});

@@ -54,5 +54,8 @@
                 display:none
             }
         }
+        div[icon]{
+            border-left: 1px dashed rgb(189, 189, 189) !important;
+        }
     }
 }
