@@ -46,12 +46,36 @@ let Backend = {
 		}
 	},
 	task:{
-		get:function(userid){
-			let url = prefix+'/task'+'/get';
-			let data = {
-				id:userid
-			};	
-			return fetch(url,{body:data,method:'GET'});	
+		get:{
+			list:function(params){
+				let url = prefix+'/task'+'/get/list';
+				let data = {
+					id:params.userid?params.userid:'',
+					limit:params.limit?params.limit:20,
+					offset:params.offset?params.offset:0
+				};	
+				return fetch(url,{body:data,method:'GET'});	
+			},
+			unfinished:function(params){
+				let url = prefix+'/task'+'/get/unfinished';
+				let data = {
+					id:params.userid?params.userid:'',
+					status:params.status?params.status:2,
+					limit:params.limit?params.limit:0,
+					offset:params.offset?params.offset:0
+				};	
+				return fetch(url,{body:data,method:'GET'});
+			},
+			delay:function(params){
+				let url = prefix+'/task'+'/get/delay';
+				let data = {
+					id:params.userid?params.userid:'',
+					delay:true,
+					limit:params.limit?params.limit:0,
+					offset:params.offset?params.offset:0
+				};	
+				return fetch(url,{body:data,method:'GET'});
+			}
 		},
 		add:function(data){
 			let url = prefix+'/task'+'/add';	

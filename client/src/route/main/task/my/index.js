@@ -1,8 +1,8 @@
 module.exports = {
-	path:'my',
-	getComponent(nextState,callback){
-		require.ensure([],function(require){
-			callback(null,require('./component'));
-		})
-	}
-}
+    path: 'my',
+    component: props => props.children,
+    childRoutes: [
+        require('./list'),
+        require('./edit')
+    ]
+};

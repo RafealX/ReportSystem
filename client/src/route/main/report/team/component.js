@@ -18,7 +18,13 @@ module.exports = React.createClass({
     },
     componentDidMount() {
         let barConf = {
-            title: '小组简报'
+            title: '小组简报',
+            titleStyle:{
+                fontSize:'16px',
+                marginLeft:'-20px'
+            },
+            iconElementLeft:<IconButton title="新增工作日记"><AddIcon color={'#fff'}/></IconButton>,
+            iconStyleLeft:{visibility:'hidden'}
         };
         pubsub.publish('config.appBar', barConf);
     },

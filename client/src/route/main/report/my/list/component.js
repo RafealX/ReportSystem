@@ -15,6 +15,9 @@ import ListView from 'cpn/ListView';
 import Mock from 'cpn/Mock';
 import _ from 'lodash';
 import Backend from 'lib/backend';
+
+
+
 const StepperStyle = {
     fontSize:0
 }
@@ -182,11 +185,7 @@ module.exports = React.createClass({
                     anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
                     targetOrigin={{horizontal: 'left', vertical: 'top'}}
                     onRequestClose={e => this.setState({currentRp: null})}>
-                    <Menu onChange={this._sendToTeam}>
-                        {
-                            this.state.myTeams.map(t => <MenuItem key={t.id} value={t.id} primaryText={t.name}/>)
-                        }
-                    </Menu>
+                    
                 </Popover>
             </div>
         );
@@ -231,22 +230,5 @@ module.exports = React.createClass({
     },
     _onEdit(rp) {
         browserHistory.push({pathname: '/m/report/my/edit/' + rp.id, state: Object.assign({}, rp)});
-    },
-    _sendToTeam(e, teamId) {
-        let reportId = this.state.currentRp.id;
-        fetch('/api/report/send', {
-            method: 'post',
-            body: {
-                reportId: this.state.currentRp.id,
-                teamId: teamId
-            }
-        }).then(d => {
-                this.refs.listView.updateItem(reportId, {toTeam: d.toTeam});
-                popup.success('发送成功');
-            })
-            .catch(e => {
-                popup.error('发送失败');
-            });
-        this.setState({anchorEl: null, currentRp: null});
     }
 });

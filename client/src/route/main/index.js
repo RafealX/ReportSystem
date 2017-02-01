@@ -84,6 +84,7 @@ module.exports = {
         require('./group'),
         require('./report'),
         require('./team'),
+        require('./task'),
         require('./profile')
     ]
 };

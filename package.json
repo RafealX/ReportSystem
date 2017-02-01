@@ -21,10 +21,7 @@
     "babel-preset-react": "6.3.13",
     "babel-preset-stage-2": "6.11.0",
     "blueimp-md5": "^2.3.0",
-<<<<<<< HEAD
     "co": "^4.6.0",
-=======
->>>>>>> d3b45f4a8aff0e4bfe8b13dd481705ce3d366756
     "css-loader": "0.21.0",
     "date-format": "0.0.2",
     "extract-text-webpack-plugin": "1.0.1",
@@ -46,11 +43,9 @@
     "lodash": "4.12.0",
     "log4js": "^0.6.38",
     "material-ui": "0.15.4",
-<<<<<<< HEAD
-=======
     "mongodb": "^2.2.22",
->>>>>>> d3b45f4a8aff0e4bfe8b13dd481705ce3d366756
     "mongoose": "^4.5.9",
+    "mui-data-table": "^0.1.5",
     "node-sass": "4.3.0",
     "nodemailer": "^2.5.0",
     "passport-local-mongoose": "^4.0.0",

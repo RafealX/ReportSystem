@@ -8,7 +8,9 @@ import _ from 'lodash';
 import Mock from 'cpn/Mock';
 
 import scss from './index.scss';
+
 let user = window.user || {name:123,id:19283877};
+
 //数据format
 let tasklist = _.map(Mock.task.my.list,(itm)=>{
     let arr;
