@@ -125,14 +125,14 @@ let myProgress = {
 	"code": 200,
 	"list": [{
 		name:'任务一',
-		progress:45,
-		totaltime:4,
-		ticket:'#98545,#65412',
-		description:'兼容D3.js',
-		time:'2016-7-15',
-		status:1,
 		isdelay:false,
 		delayreason:''
+		progress:45,
+		totaltime:4,
+		time:'2016-7-15',
+		status:1,
+		ticket:'#98545,#65412',
+		description:'兼容D3.js',
 	},{
 		name:'任务二',
 		progress:12,

@@ -17,42 +17,15 @@ import pubsub from 'vanilla-pubsub';
 import Editor from 'cpn/Editor';
 import format from 'date-format';
 import Mock from 'cpn/Mock';
-import { MuiDataTable } from 'mui-data-table';
+import { ExtendTable } from 'cpn/ExtendTable';
 import _ from 'lodash';
 import Backend from 'lib/backend';
 
 let user = window.user || {name:123,id:19283877};
+
 const cardStyle = {
   height:'100%'
 }
-const data = [
-  { id: 1, name: 'Chikwa Eligson', age: 24, location: 'Lagos', level: 'stage-1', mood: 'happy' },
-  { id: 2, name: 'Bamidele Johnson', age: 18, location: 'Anambra', level: 'stage-4', mood: 'anxious' },
-  { id: 3, name: 'John Lee', age: 20, location: 'Abuja', level: 'stage-2', mood: 'indifferent' },
-  { id: 4, name: 'Binta Pelumi', age: 22, location: 'Jos', level: 'stage-3', mood: 'sad' },
-  { id: 5, name: 'Cassidy Ferangamo', age: 30, location: 'Lagos', level: 'stage-4', mood: 'angry' },
-  { id: 6, name: 'Damian Swaggbag', age: 35, location: 'PortHarcourt', level: 'stage-1', mood: 'bitter' },
-  { id: 7, name: 'Loveth Sweetstick', age: 20, location: 'Imo', level: 'stage-3', mood: 'happy' },
-  { id: 8, name: 'Zzaz Zuzzi', age: 19, location: 'Bayelsa', level: 'stage-2', mood: 'party-mood' },
-  { id: 9, name: 'Ian Sweetmouth', age: 18, location: 'Enugu', level: 'stage-4', mood: 'happy' },
-  { id: 10, name: 'Elekun Bayo', age: 21, location: 'Zamfara', level: 'stage-4', mood: 'anxious' },
-];
-
-const config = {
-  paginated: true,
-  search: 'name',   
-  data: data,
-  columns: [
-    { property: 'id', title: 'S/N'},
-    { property: 'name', title: 'Name' },
-    { property: 'age', title: 'Age' },
-    { property: 'location', title: 'Location' },
-    { property: 'level', title: 'level' },
-    { title: 'Mood', renderAs: function (data) {
-      return `${data.name} is in a ${data.mood} mood.`;
-    }},
-  ]
-};
 
 const styles = {
   headline: {
@@ -62,27 +35,168 @@ const styles = {
     fontWeight: 400,
   },
 };
-let tabs = [{
-    id:12,
-    name:'未完成',
-    items:[]
-  },{
-    id:13,
-    name:'延期',
-    items:[]
-  },{
-    id:14,
+let maps = {
+  name:{
+    title:'任务名'
+  },
+  progress:{
+    title:'进度',
+    formatter:function(data){
+      return data.progress? data.progress+'%' : '';
+    }
+  },
+  totaltime:{
+    title:'耗时',
+    formatter:function(data){
+      return data.totaltime? data.totaltime+'h' : '';
+    }
+  },
+  ticket:{
+    title:'ticket'
+  },
+  time:{
+    title:'截止时间',
+    formatter:function(data){
+      return data.time? data.time : '';
+    }
+  },
+  status:{
+    title:'任务状态',
+    formatter:function(data){
+      let result = '';
+      switch(data.status+''){
+        case '1':
+          result = '未开始';
+          break;
+        case '2':
+          result='进行中';
+          break;
+        case '3':
+          result='已完成';
+          break;
+        case '4':
+          result='已删除';
+          break;
+      }
+      return result;
+    }
+  },
+  description:{
+    title:'描述'
+  },
+};
+let tabs = {'12':{
+    name:'未完成',//分成今日需完成以及所有未完成
+    items:[],
+    hiddenfields:['ticket','status','totaltime'],
+    renderfunc:function(items){
+      if(_.isArray(items) && items.length>0){
+        let firstItm = _.first(items);
+        let columns = [];
+        _.forIn(firstItm,(value,key)=>{
+          if(maps[key])
+            columns.push({
+              property:key,
+              title:maps[key].title,
+              renderAs:maps[key].formatter?maps[key].formatter : function(data){
+               return data[key]
+              }
+            });
+        });
+        columns.push({
+          title:'延期及原因',renderAs:function(data){
+            let result = '延期了，因为';
+            data.isdelay ? (result+=data.delayreason):(result="没有延期");
+            return result;
+          }
+        })
+        let config = {
+          paginated: true,
+          search: 'name',   
+          data: items,
+          columns: columns
+        };
+        return <ExtendTable config={config} />
+      }else
+        return null;
+    }
+  },'13':{
+    name:'延期任务',//列出延期任务
+    items:[],
+    hiddenfields:['ticket','status','totaltime'],
+    renderfunc:function(items){
+      if(_.isArray(items) && items.length>0){
+        let firstItm = _.first(items);
+        let columns = [];
+        _.forIn(firstItm,(value,key)=>{
+          if(maps[key])
+            columns.push({
+              property:key,
+              title:maps[key].title,
+              renderAs:maps[key].formatter?maps[key].formatter : function(data){
+               return data[key]
+              }
+            });
+        });
+        columns.push({
+          title:'延期及原因',renderAs:function(data){
+            let result = '延期了，因为';
+            data.isdelay ? (result+=data.delayreason):(result="没有延期");
+            return result;
+          }
+        })
+        let config = {
+          paginated: true,
+          search: 'name',   
+          data: items,
+          columns: columns
+        };
+        return <ExtendTable config={config} />
+      }else
+        return null;
+    }
+  },'14':{
     name:'所有任务',
-    items:[]
+    items:[],
+    hiddenfields:['ticket','status','totaltime'],
+    renderfunc:function(items){
+      if(_.isArray(items) && items.length>0){
+        let firstItm = _.first(items);
+        let columns = [];
+        _.forIn(firstItm,(value,key)=>{
+          if(maps[key])
+            columns.push({
+              property:key,
+              title:maps[key].title,
+              renderAs:maps[key].formatter?maps[key].formatter : function(data){
+               return data[key]
+              }
+            });
+        });
+        columns.push({
+          title:'延期及原因',renderAs:function(data){
+            let result = '延期了，因为';
+            data.isdelay ? (result+=data.delayreason):(result="没有延期");
+            return result;
+          }
+        })
+        let config = {
+          paginated: true,
+          search: 'name',   
+          data: items,
+          columns: columns
+        };
+        return <ExtendTable config={config} />
+      }else
+        return null;
+    }
   }
-];
-
-
+};
 
 module.exports = React.createClass({
 	getInitialState() {
     this.fetchAll();
-		return {tabdata:{'12':[],'13':[],'14':[]},labelValue:12};
+		return {unfinished:null,delay:null,list:null,labelValue:12};
 	},
   fetchAll() {
     let unfinished = this.fetchunFinished();
@@ -90,10 +204,10 @@ module.exports = React.createClass({
 
     }.bind(this))
     .catch(function(e){
-      let result = _.filter(tabs,tab=>{
+      let result = _.filter(Mock.progress.my.list,tab=>{
         return tab.progress<100 && tab.progress>0;
       });
-      this.setState({tabdata:{'12':result}});
+      this.setState({unfinished:_.clone(result,true)});
     }.bind(this));
 
     let delays = this.fetchDelay();
@@ -101,10 +215,10 @@ module.exports = React.createClass({
 
     }.bind(this))
     .catch(function(e){
-      let result = _.filter(tabs,tab=>{
+      let result = _.filter(Mock.progress.my.list,tab=>{
         return tab.isdelay;
       });
-      this.setState({tabdata:{'13':result}});
+      this.setState({delay:result});
     }.bind(this));
 
     let list = this.fetchList();
@@ -113,7 +227,7 @@ module.exports = React.createClass({
     }.bind(this))
     .catch(function(e){
       
-      this.setState({tabdata:{'14':result}});
+      this.setState({list:Mock.progress.my.list});
     }.bind(this));
   },
   fetchList(limit,offset) {
@@ -166,11 +280,6 @@ module.exports = React.createClass({
 	componentWillUnMount() {
 
 	},
-	_loadList(data) {
-        return Backend.task.get(data);
-        //return fetch('/api/report/my?limit=${limit}&offset=${offset}');
-  },
-
 	render() {
         return (
             <div className={style}>
@@ -180,16 +289,30 @@ module.exports = React.createClass({
                       value={this.state.labelValue}
                       onChange={this.handleChange}
                     >
-                    {tabs.map((tab)=>(
-                      <Tab label={tab.name} value={tab.id}>
-                        {this.state.tabdata[tab.id]&&this.state.tabdata[tab.id].length>0?(<div>
-                          
-                          </div>):(
+                    <Tab label={'未完成'} value={12}>
+                      {this.state.unfinished&&this.state.unfinished.length>0?
+                      (<div>{tabs['12'].renderfunc(this.state.unfinished)}</div>):(
                           <div>
                           无数据
-                          </div>)}
-                      </Tab>
-                    ))}
+                          </div>)
+                      }
+                    </Tab>
+                    <Tab label={'延期'} value={13}>
+                      {this.state.delay&&this.state.delay.length>0?
+                      (<div>{tabs['13'].renderfunc(this.state.delay)}</div>):(
+                          <div>
+                          无数据
+                          </div>)
+                      }
+                    </Tab>
+                    <Tab label={'所有'} value={14}>
+                      {this.state.list&&this.state.list.length>0?
+                      (<div>{tabs['14'].renderfunc(this.state.list)}</div>):(
+                          <div>
+                          无数据
+                          </div>)
+                      }
+                    </Tab>
                     </Tabs>
                   </CardText>
                 </Card>
