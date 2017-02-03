@@ -1,0 +1,10 @@
+:local(.style) {
+	background:#000;
+    & table.ExtendTable{
+    	&.hiddeninput{
+    		thead tr th:first-child,tbody tr td:first-child{
+    			display:none !important;
+    		}
+    	}
+    }
+}

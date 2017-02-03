@@ -123,6 +123,7 @@ let teamTask = {
 
 let myProgress = {
 	"code": 200,
+	"count":70,
 	"list": [{
 		name:'任务一',
 		isdelay:false,
@@ -170,7 +171,7 @@ let myProgress = {
 		ticket:'#98545,#65412',
 		description:'兼容D4.js',
 		time:'2016-7-15',
-		status:1,
+		status:2,
 		isdelay:false,
 		delayreason:''
 	},{
@@ -190,11 +191,15 @@ let myProgress = {
 		ticket:'#98545,#65412',
 		description:'兼容D3.js',
 		time:'2016-7-15',
-		status:3,
+		status:2,
 		isdelay:true,
 		delayreason:'这是任务器'
 	}]
 };
+for(let i=0;i<8;i++){
+	myProgress.list = myProgress.list.concat(_.clone(myProgress.list,true));	
+}
+
 myProgress.list.forEach(function(itm,idx){
 	itm.id = idx+1;
 });

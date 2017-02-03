@@ -92,7 +92,8 @@ let tabs = {'12':{
     name:'未完成',//分成今日需完成以及所有未完成
     items:[],
     hiddenfields:['ticket','status','totaltime'],
-    renderfunc:function(items){
+    renderfunc:function(target){
+      let items = target.list;
       if(_.isArray(items) && items.length>0){
         let firstItm = _.first(items);
         let columns = [];
@@ -114,9 +115,10 @@ let tabs = {'12':{
           }
         })
         let config = {
-          paginated: true,
+          paginated:true,
           search: 'name',   
           data: items,
+          count:target.count,
           columns: columns
         };
         return <ExtendTable config={config} />
@@ -127,7 +129,8 @@ let tabs = {'12':{
     name:'延期任务',//列出延期任务
     items:[],
     hiddenfields:['ticket','status','totaltime'],
-    renderfunc:function(items){
+    renderfunc:function(target){
+      let items = target.list;
       if(_.isArray(items) && items.length>0){
         let firstItm = _.first(items);
         let columns = [];
@@ -152,6 +155,7 @@ let tabs = {'12':{
           paginated: true,
           search: 'name',   
           data: items,
+          count:target.count,
           columns: columns
         };
         return <ExtendTable config={config} />
@@ -162,12 +166,13 @@ let tabs = {'12':{
     name:'所有任务',
     items:[],
     hiddenfields:['ticket','status','totaltime'],
-    renderfunc:function(items){
+    renderfunc:function(target){
+      let items = target.list;
       if(_.isArray(items) && items.length>0){
         let firstItm = _.first(items);
         let columns = [];
         _.forIn(firstItm,(value,key)=>{
-          if(maps[key])
+          if(maps[key] && this.hiddenfields.indexOf(key)<0)
             columns.push({
               property:key,
               title:maps[key].title,
@@ -187,6 +192,7 @@ let tabs = {'12':{
           paginated: true,
           search: 'name',   
           data: items,
+          count:target.count,
           columns: columns
         };
         return <ExtendTable config={config} />
@@ -208,9 +214,13 @@ module.exports = React.createClass({
     }.bind(this))
     .catch(function(e){
       let result = _.filter(Mock.progress.my.list,tab=>{
-        return tab.progress<100 && tab.progress>0;
+        return tab.progress<100 && tab.progress>0 && tab.status==2;
       });
-      this.setState({unfinished:_.clone(result,true)});
+      let target = {
+        list:_.clone(result,true),
+        count:60
+      }
+      this.setState({unfinished:target});
     }.bind(this));
 
     let delays = this.fetchDelay();
@@ -221,7 +231,11 @@ module.exports = React.createClass({
       let result = _.filter(Mock.progress.my.list,tab=>{
         return tab.isdelay;
       });
-      this.setState({delay:result});
+      let target = {
+        list:_.clone(result,true),
+        count:60
+      }
+      this.setState({delay:target});
     }.bind(this));
 
     let list = this.fetchList();
@@ -230,7 +244,7 @@ module.exports = React.createClass({
     }.bind(this))
     .catch(function(e){
       
-      this.setState({list:Mock.progress.my.list});
+      this.setState({list:Mock.progress.my});
     }.bind(this));
   },
   fetchList(limit,offset) {
@@ -294,77 +308,98 @@ module.exports = React.createClass({
    this.refs.showdetailcpn.switchType(1);
   },
   onDetail(data) {
-     data ={
-      name:'任务一',
-      isdelay:false,
-      delayreason:'',
-      progress:45,
-      totaltime:4,
-      time:'2016-7-15',
-      status:1,
-      ticket:'#98545,#65412',
-      description:'兼容D3.js',
-    };
     this.refs.showdetailcpn.switchType(3,data);
   },
   onEdit(data){
     //mock
-    data ={
-      name:'任务一',
-      isdelay:false,
-      delayreason:'',
-      progress:45,
-      totaltime:4,
-      time:'2016-7-15',
-      status:1,
-      ticket:'#98545,#65412',
-      description:'兼容D3.js',
-    };
     this.refs.showdetailcpn.switchType(2,data);
-
+  
+  },
+  onDelete(data){
+    
+  },
+  handleOpers(row,type) {
+    switch(type+''){
+      case '2':
+        this.onEdit(row);
+        break;
+      case '3':
+        this.onDetail(row);
+        break;
+      case '5'://申请延期
+        this.onDelay(row);
+        break;
+      case '0'://删除
+        this.onDelete(row);
+        break;
+    }
+  },
+  renderTable(curTab,target) {
+      let items = target.list;
+      if(_.isArray(items) && items.length>0){
+        let firstItm = _.first(items);
+        let columns = [];
+        _.forIn(firstItm,(value,key)=>{
+          if(maps[key] && curTab.hiddenfields.indexOf(key)<0)
+            columns.push({
+              property:key,
+              title:maps[key].title,
+              renderAs:maps[key].formatter?maps[key].formatter : function(data){
+               return data[key]
+              }
+            });
+        });
+        columns.push({
+          title:'延期及原因',renderAs:function(data){
+            let result = '延期了，因为';
+            data.isdelay ? (result+=data.delayreason):(result="没有延期");
+            return result;
+          }
+        })
+        let config = {
+          paginated: true,
+          search: 'name',   
+          data: items,
+          count:target.count,
+          columns: columns,
+          opers:this.handleOpers
+        };
+        return <ExtendTable config={config} />
+      }else
+        return null;
   },
 	render() {
         pubsub.subscribe('task.list.reload', this.reloadList);
         return (
             <div className={style}>
-                <div>
-                  <FlatButton label="查看详情" secondary={true} onClick={this.onDetail} />
-                  <FlatButton label="编辑" primary={true} onClick={this.onEdit}/>
-                </div>
                  <ShowDetail ref="showdetailcpn" />
-                <Card initiallyExpanded style={cardStyle}>
-                  <CardText>
-                   <Tabs
-                      value={this.state.labelValue}
-                      onChange={this.handleChange}
+                <Tabs
                     >
                     <Tab label={'未完成'} value={12}>
-                      {this.state.unfinished&&this.state.unfinished.length>0?
-                      (<div>{tabs['12'].renderfunc(this.state.unfinished)}</div>):(
+                      {this.state.unfinished?
+                      (<div>{this.renderTable(tabs['12'],this.state.unfinished)}</div>):(
                           <div>
                           无数据
                           </div>)
                       }
                     </Tab>
                     <Tab label={'延期'} value={13}>
-                      {this.state.delay&&this.state.delay.length>0?
-                      (<div>{tabs['13'].renderfunc(this.state.delay)}</div>):(
+                      {this.state.delay?
+                      (<div>{this.renderTable(tabs['13'],this.state.delay)}</div>):(
                           <div>
                           无数据
                           </div>)
                       }
                     </Tab>
                     <Tab label={'所有'} value={14}>
-                      {this.state.list&&this.state.list.length>0?
-                      (<div>{tabs['14'].renderfunc(this.state.list)}</div>):(
+                      {this.state.list?
+                      (<div>{this.renderTable(tabs['14'],this.state.list)}</div>):(
                           <div>
                           无数据
                           </div>)
                       }
                     </Tab>
                     </Tabs>
-                  </CardText>
-                </Card>
             </div>
         );
     }
