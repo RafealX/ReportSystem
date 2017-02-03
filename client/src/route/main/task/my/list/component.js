@@ -20,8 +20,7 @@ import Mock from 'cpn/Mock';
 import { ExtendTable } from 'cpn/ExtendTable';
 import _ from 'lodash';
 import Backend from 'lib/backend';
-
-let user = window.user || {name:123,id:19283877};
+import {TaskDetail as ShowDetail} from './detail.js'
 
 const cardStyle = {
   height:'100%'
@@ -35,6 +34,10 @@ const styles = {
     fontWeight: 400,
   },
 };
+
+let user = window.user || {name:123,id:19283877};
+let history = Mock.progress.history;
+console.log('history',history);
 let maps = {
   name:{
     title:'任务名'
@@ -196,7 +199,7 @@ let tabs = {'12':{
 module.exports = React.createClass({
 	getInitialState() {
     this.fetchAll();
-		return {unfinished:null,delay:null,list:null,labelValue:12};
+		return {unfinished:null,delay:null,list:null,labelValue:12,open:false};
 	},
   fetchAll() {
     let unfinished = this.fetchunFinished();
@@ -255,6 +258,17 @@ module.exports = React.createClass({
     };
     return Backend.task.get.unfinished(params);
   },
+  reloadList() {
+    alert('reload list');
+    let list = this.fetchList();
+    list.then(function(d){
+
+    }.bind(this))
+    .catch(function(e){
+      
+      this.setState({list:Mock.progress.my.list});
+    }.bind(this));
+  },
 	componentDidMount() {
 		let barConf = {
             title: '新增任务',
@@ -262,13 +276,9 @@ module.exports = React.createClass({
                 fontSize:'16px',
                 marginLeft:'-20px'
             },
-            iconElementLeft:<IconButton title="新增任务" onClick={this._create}><AddIcon color={'#fff'}/></IconButton>
+            iconElementLeft:<IconButton title="新增任务" onClick={this.onAdd}><AddIcon color={'#fff'}/></IconButton>
         };
         pubsub.publish('config.appBar', barConf);
-	},
-	_create() {
-    //弹窗出来进行编辑或创建
-		//browserHistory.push('/m/task/my/edit');
 	},
 
   handleChange(value) {
@@ -280,9 +290,48 @@ module.exports = React.createClass({
 	componentWillUnMount() {
 
 	},
+  onAdd() {
+   this.refs.showdetailcpn.switchType(1);
+  },
+  onDetail(data) {
+     data ={
+      name:'任务一',
+      isdelay:false,
+      delayreason:'',
+      progress:45,
+      totaltime:4,
+      time:'2016-7-15',
+      status:1,
+      ticket:'#98545,#65412',
+      description:'兼容D3.js',
+    };
+    this.refs.showdetailcpn.switchType(3,data);
+  },
+  onEdit(data){
+    //mock
+    data ={
+      name:'任务一',
+      isdelay:false,
+      delayreason:'',
+      progress:45,
+      totaltime:4,
+      time:'2016-7-15',
+      status:1,
+      ticket:'#98545,#65412',
+      description:'兼容D3.js',
+    };
+    this.refs.showdetailcpn.switchType(2,data);
+
+  },
 	render() {
+        pubsub.subscribe('task.list.reload', this.reloadList);
         return (
             <div className={style}>
+                <div>
+                  <FlatButton label="查看详情" secondary={true} onClick={this.onDetail} />
+                  <FlatButton label="编辑" primary={true} onClick={this.onEdit}/>
+                </div>
+                 <ShowDetail ref="showdetailcpn" />
                 <Card initiallyExpanded style={cardStyle}>
                   <CardText>
                    <Tabs

@@ -75,6 +75,14 @@ let Backend = {
 					offset:params.offset?params.offset:0
 				};	
 				return fetch(url,{body:data,method:'GET'});
+			},
+			history:function(params){
+				let url = prefix+'/task'+'/get/history';
+				let data = {
+					id:params.userid?params.userid:'',
+					taskid:params.taskid?params.taskid:'-1'
+				};	
+				return fetch(url,{body:data,method:'GET'});
 			}
 		},
 		add:function(data){
@@ -91,7 +99,8 @@ let Backend = {
 				id:id
 			};	
 			return fetch(url,{body:data,method:'POST'});	
-		}
+		},
+
 	},
 	team:{
 		get:function(id){

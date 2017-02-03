@@ -126,7 +126,7 @@ let myProgress = {
 	"list": [{
 		name:'任务一',
 		isdelay:false,
-		delayreason:''
+		delayreason:'',
 		progress:45,
 		totaltime:4,
 		time:'2016-7-15',
@@ -199,13 +199,38 @@ myProgress.list.forEach(function(itm,idx){
 	itm.id = idx+1;
 });
 console.log(myProgress.list);
+
+let taskHistory = {
+	taskid:1,
+	historys:[{
+		time:'2017-1-1',
+		elapse:4,
+		summary:'做了水水水水的',
+		question:'碰到了这个问题',
+
+	},{
+		time:'2016-12-30',
+		elapse:2,
+		summary:'做了水水水水的',
+		question:'碰到了这个问题',
+
+	},{
+		time:'2016-10-2',
+		elapse:8,
+		summary:'做了水水水水的',
+		question:'碰到了这个问题',
+
+	}]
+}
 let Result = {
 	task:{
 		my:myTask,
-		team:teamTask
+		team:teamTask,
+
 	},
 	progress:{
-		my:myProgress
+		my:myProgress,
+		history:taskHistory
 	}
 }
 export default Result;
