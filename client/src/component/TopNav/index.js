@@ -22,7 +22,7 @@ import Avatar from 'cpn/Avatar';
 
 const SelectableList = MakeSelectable(List);
 const navList = 
-    ['/m/report/my', '/m/report/team', '/m/task/my', '/m/task/team','/m/group','/m/privilege'];
+    ['/m/report/my', '/m/report/team', '/m/task/my','/m/group','/m/privilege'];
 const indexMap = {0: 'list', 2: 'list'};
 const innerDiv = {paddingLeft: 50};
 const nestStyle = {color: '#555', fontSize: '14px'};
@@ -94,18 +94,12 @@ export default React.createClass({
                             value={2}
                              leftIcon={<FaceIcn/>}
                             innerDivStyle={innerDiv}
-                            primaryText="我的"/>,
-                        <ListItem
-                            style={nestStyle}
-                            value={3}
-                            innerDivStyle={innerDiv}
-                            leftIcon={<TeamateIcn/>}
-                            primaryText="小组"/>
+                            primaryText="我的"/>
                     ]}/>
                     <ListItem
                         primaryTogglesNestedList
                         primaryText="管理员"
-                        leftIcon={<AdminIcn/>}
+                        leftIcon={<AdminIcn/>} style={{display:'none'}}
                         innerDivStyle={innerDiv}
                         nestedItems={[
                         <ListItem

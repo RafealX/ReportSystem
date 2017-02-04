@@ -1,0 +1,9 @@
+:local(.index) {
+    .loading {
+        display: block !important;
+        margin: 0 auto !important;
+        svg {
+            transform: scale(0.8) !important;
+        }
+    }
+}

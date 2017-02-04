@@ -361,18 +361,6 @@ export class ExtendTable extends React.Component {
           }
         })
       });
-    // const paginationInfo = this.paginationObject();
-    // let data = this.state.paginatedIdempotentData;
-
-    // if (this.state.isSearching) {
-    //   const tableData = this.state.searchData;
-    //   data = new Paginate(tableData);
-    // }
-
-    // this.setState({
-    //   tableData: data.perPage(val).page(paginationInfo.currentPage),
-    //   perPageSelection: val
-    // });
   }
   navigateRight() {
     if(this.state.pageOptions.currentPage+1>this.state.pageOptions.maxPage){

@@ -118,7 +118,95 @@ console.log(myTask.list);
 
 //小组日报
 let teamTask = {
+	"code": 200,
+	"list": [{
+		time:'2017-01-18T12:36:39.387Z',
+		details:[{
+			name:'测试人员1',
+			report:'今天完成了啥啥啥内容,3,#98652;研究了react,5,;做完了日志系统,6,#98541',
+			tasks:[{
+				name:'完成D3.js集成',
+				progress:65,
+				elapse:3,
 
+				question:'兼容性哟普问题,是不是改变方向？;有些API表现形式怪异，不合预期',
+				summary:'这个是个坑',
+				totaltime:4
+			},{
+				name:'完成D3.js集成',
+				progress:30,
+				elapse:2,
+				totaltime:5,
+				question:'兼容性哟普问题,是不是改变方向？;有些API表现形式怪异，不合预期',
+				summary:'这个是个坑',
+				totaltime:4
+			}],
+		},{
+			name:'测试人员2',
+			report:'今天完成了啥啥啥内容,3,#98652;研究了react,5,;做完了日志系统,6,#98541',
+			tasks:[{
+				name:'完成D3.js集成',
+				progress:65,
+				elapse:3,
+
+				question:'兼容性哟普问题,是不是改变方向？;有些API表现形式怪异，不合预期',
+				summary:'这个是个坑',
+				totaltime:4
+			},{
+				name:'完成D3.js集成',
+				progress:30,
+				elapse:2,
+				totaltime:5,
+				question:'兼容性哟普问题,是不是改变方向？;有些API表现形式怪异，不合预期',
+				summary:'这个是个坑',
+				totaltime:4
+			}],
+		}]
+	},{
+		//日报时间，作为title用
+		time:'2017-01-14T12:36:39.387Z',
+		details:[{
+			name:'测试人员1',
+			report:'今天完成了啥啥啥内容,3,#98652;研究了react,5,;做完了日志系统,6,#98541',
+			tasks:[{
+				name:'完成D3.js集成',
+				progress:65,
+				elapse:3,
+
+				question:'兼容性哟普问题,是不是改变方向？;有些API表现形式怪异，不合预期',
+				summary:'这个是个坑',
+				totaltime:4
+			},{
+				name:'完成D3.js集成',
+				progress:30,
+				elapse:2,
+				totaltime:5,
+				question:'兼容性哟普问题,是不是改变方向？;有些API表现形式怪异，不合预期',
+				summary:'这个是个坑',
+				totaltime:4
+			}],
+		},{
+			name:'测试人员2',
+			report:'今天完成了啥啥啥内容,3,#98652;研究了react,5,;做完了日志系统,6,#98541',
+			tasks:[{
+				name:'完成D3.js集成',
+				progress:65,
+				elapse:3,
+
+				question:'兼容性哟普问题,是不是改变方向？;有些API表现形式怪异，不合预期',
+				summary:'这个是个坑',
+				totaltime:4
+			},{
+				name:'完成D3.js集成',
+				progress:30,
+				elapse:2,
+				totaltime:5,
+				question:'兼容性哟普问题,是不是改变方向？;有些API表现形式怪异，不合预期',
+				summary:'这个是个坑',
+				totaltime:4
+			}],
+		}]
+	}]
 };
 
 let myProgress = {
