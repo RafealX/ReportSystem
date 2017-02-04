@@ -4,9 +4,16 @@
 
 import React from 'react';
 import {browserHistory} from 'react-router';
-import {FlatButton, SelectField, TextField, MenuItem,FontIcon, IconButton,Step,Stepper,StepLabel,StepContent,List, ListItem,Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn,GridList, GridTile,
+import {FlatButton, Dialog,SelectField, TextField, MenuItem,FontIcon, IconButton,Step,Stepper,StepLabel,StepContent,List, ListItem,Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn,GridList, GridTile,
     Card, CardTitle,CardText,CardActions, CardHeader,DatePicker,Toolbar,ToolbarGroup,ToolbarTitle, RaisedButton, ToolbarSeparator,Popover,Tabs, Tab} from 'material-ui';
+
 import AddIcon from 'material-ui/svg-icons/content/add';
+import EditIcn from 'material-ui/svg-icons/editor/mode-edit';//编辑
+import DeleteIcn from 'material-ui/svg-icons/action/delete';//删除
+import InfoIcn from 'material-ui/svg-icons/action/info';//查看详情
+import DelayIcn from 'material-ui/svg-icons/social/mood-bad';//申请延期
+import {cyan300,blue300, red300, deepOrange300} from 'material-ui/styles/colors';
+
 import Bulleted from 'material-ui/svg-icons/editor/format-list-bulleted';
 import Numbered from 'material-ui/svg-icons/editor/format-list-numbered';
 import Title from 'material-ui/svg-icons/editor/title';
@@ -91,7 +98,7 @@ let maps = {
 let tabs = {'12':{
     name:'未完成',//分成今日需完成以及所有未完成
     items:[],
-    hiddenfields:['ticket','status','totaltime'],
+    hiddenfields:['ticket','totaltime'],
     renderfunc:function(target){
       let items = target.list;
       if(_.isArray(items) && items.length>0){
@@ -218,7 +225,7 @@ module.exports = React.createClass({
       });
       let target = {
         list:_.clone(result,true),
-        count:60
+        count:result.length+1000
       }
       this.setState({unfinished:target});
     }.bind(this));
@@ -312,29 +319,63 @@ module.exports = React.createClass({
   },
   onEdit(data){
     //mock
-    this.refs.showdetailcpn.switchType(2,data);
+    this.refs.showdetailcpn.switchType(2,data,function(data){
+      var result = _.findIndex(this.refs[this.refname].state.tableData,(itm)=>{
+        return data.id==itm.id;
+      });
+      if(result>=0)
+        this.refs[this.refname].state.tableData[result] = data;
+      this.refs[this.refname].forceUpdate();
+    }.bind(this));
   
   },
   onDelete(data){
-    
+    this.setState({deleterow:data});
   },
-  handleOpers(row,type) {
+  deleteRow(data){
+    var result = _.findIndex(this.refs[this.refname].state.tableData,(itm)=>{
+      return data.id==itm.id;
+    });
+    if(result>=0)
+      this.refs[this.refname].state.tableData[result].status = 4;
+    this.refs[this.refname].forceUpdate();
+    //this.refs[this.refname].setState({tableData:});
+  },
+  onDelay(data) {
+    this.setState({delayrow:data})
+    //Backend.task.delay(data.id);
+  },
+  delayRow(data,reason) {
+    //Backend.task.delay(data.id);
+    var result = _.findIndex(this.refs[this.refname].state.tableData,(itm)=>{
+      return data.id==itm.id;
+    });
+    if(result>=0){
+      this.refs[this.refname].state.tableData[result].isdelay = true;
+      this.refs[this.refname].state.tableData[result].delayreason = reason;
+    }
+
+    this.refs[this.refname].forceUpdate();
+  },
+  handleOpers(row,type,refname) {
+    this.refname = refname;
+    console.log(this.refname);
     switch(type+''){
-      case '2':
+      case 'edit':
         this.onEdit(row);
         break;
-      case '3':
+      case 'info':
         this.onDetail(row);
         break;
-      case '5'://申请延期
+      case 'delay'://申请延期
         this.onDelay(row);
         break;
-      case '0'://删除
+      case 'delete'://删除
         this.onDelete(row);
         break;
     }
   },
-  renderTable(curTab,target) {
+  renderTable(curTab,target,refname) {
       let items = target.list;
       if(_.isArray(items) && items.length>0){
         let firstItm = _.first(items);
@@ -343,6 +384,7 @@ module.exports = React.createClass({
           if(maps[key] && curTab.hiddenfields.indexOf(key)<0)
             columns.push({
               property:key,
+              width:'10%',
               title:maps[key].title,
               renderAs:maps[key].formatter?maps[key].formatter : function(data){
                return data[key]
@@ -350,34 +392,119 @@ module.exports = React.createClass({
             });
         });
         columns.push({
-          title:'延期及原因',renderAs:function(data){
+          title:'延期及原因',width:'30%',renderAs:function(data){
             let result = '延期了，因为';
             data.isdelay ? (result+=data.delayreason):(result="没有延期");
             return result;
           }
         })
+        // let config = {
+        //   paginated: true,
+        //   search: 'name',   
+        //   data: target,
+        //   count:target.count,
+        //   columns: columns,
+        //   opers:this.handleOpers
+        // };
+        var rect = this.refs.TaskContainer.getBoundingClientRect();
         let config = {
-          paginated: true,
-          search: 'name',   
-          data: items,
-          count:target.count,
-          columns: columns,
-          opers:this.handleOpers
-        };
-        return <ExtendTable config={config} />
+          tablemode:2,
+          data:target,
+          maxWidth:rect.width,
+          body:{
+            columns:columns,
+            hasOpers:true,
+            //传递需要渲染的opers，如果不传递，并且hasOpers为true，那么将会渲染出默认提供的操作方式
+            handleCb:this.handleOpers,
+            style:{isSelect:false},
+            opers:[
+              {
+                name:'edit',
+                title:'编辑',
+                creator:function(self,row){
+                  let showorhidden = row.status!=3&&row.status!=4;
+                  return <IconButton onClick={this.handleCb.bind(this,row,self.name,refname)} style={{display:showorhidden?'inline-block':'none'}} title={self.title} key={self.name}><EditIcn color={cyan300}/></IconButton>
+                },
+              },
+              {
+                name:'delete',
+                title:'删除',
+                creator:function(self,row){
+                  let showorhidden = row.status!=4;
+                  return <IconButton style={{display:showorhidden?'inline-block':'none'}} onClick={this.handleCb.bind(this,row,self.name,refname)}  title={self.title} key={self.name}><DeleteIcn color={red300}/></IconButton>
+                },
+              },
+              {
+                name:'info',
+                title:'查看详情',
+                creator:function(self,row){
+
+                  return <IconButton onClick={this.handleCb.bind(this,row,self.name,refname)}  title={self.title} key={self.name}><InfoIcn color={blue300}/></IconButton>
+                },
+              },
+              {
+                name:'delay',
+                title:'申请延期',
+                creator:function(self,row){
+                  let showorhidden =!row.isdelay &&row.status!=4;
+                  return <IconButton onClick={this.handleCb.bind(this,row,self.name,refname)} title={self.title} key={self.name} style={{display:showorhidden?'inline-block':'none'}}><DelayIcn color={deepOrange300}/></IconButton>
+                },
+              }
+            ],
+            
+          },
+          toolbar:{
+            pagenation:{
+              rowsPerPage:[5,10,20],
+              foldCallback:Backend.task.get.list,
+              locate:'top'
+            },
+            search:{
+              field:'name',
+              foldCallback:Backend.task.search,
+              condition:'',
+              locate:'top'
+            }
+          }
+        }
+        return <ExtendTable ref={refname} config={config} />
       }else
         return null;
   },
 	render() {
+        const deleteActions = [
+          <FlatButton
+            label="取消"
+            onTouchTap={e=>{this.setState({deleterow:null})}}
+          />,
+          <FlatButton
+            label="确定"
+            primary={true}
+            keyboardFocused={true}
+            onTouchTap={e=>{this.deleteRow(this.state.deleterow);this.setState({deleterow:null})}}
+          />,
+        ];
+        const delayActions = [
+            <FlatButton
+              label="取消"
+              onTouchTap={e=>{this.setState({delayrow:null})}}
+            />,
+            <FlatButton
+              label="确定"
+              primary={true}
+              keyboardFocused={true}
+              onTouchTap={e=>{this.delayRow(this.state.delayrow,this.refs.delayreson.getValue());this.setState({delayrow:null})}}
+            />,
+          ];
         pubsub.subscribe('task.list.reload', this.reloadList);
         return (
-            <div className={style}>
+            <div className={style} ref='TaskContainer'>
                  <ShowDetail ref="showdetailcpn" />
                 <Tabs
                     >
                     <Tab label={'未完成'} value={12}>
                       {this.state.unfinished?
-                      (<div>{this.renderTable(tabs['12'],this.state.unfinished)}</div>):(
+                      (<div>{this.renderTable(tabs['12'],this.state.unfinished,'unfinished')}</div>):(
                           <div>
                           无数据
                           </div>)
@@ -385,7 +512,7 @@ module.exports = React.createClass({
                     </Tab>
                     <Tab label={'延期'} value={13}>
                       {this.state.delay?
-                      (<div>{this.renderTable(tabs['13'],this.state.delay)}</div>):(
+                      (<div>{this.renderTable(tabs['13'],this.state.delay,'delay')}</div>):(
                           <div>
                           无数据
                           </div>)
@@ -393,13 +520,33 @@ module.exports = React.createClass({
                     </Tab>
                     <Tab label={'所有'} value={14}>
                       {this.state.list?
-                      (<div>{this.renderTable(tabs['14'],this.state.list)}</div>):(
+                      (<div>{this.renderTable(tabs['14'],this.state.list,'list')}</div>):(
                           <div>
                           无数据
                           </div>)
                       }
                     </Tab>
                     </Tabs>
+                    {!!this.state.deleterow?
+                      <Dialog 
+                      title="确定删除？"
+                     actions={deleteActions}
+                     modal={false}
+                     open={!!this.state.deleterow?true:false}>
+                     
+                    </Dialog>
+                      :null}
+                    {!!this.state.delayrow?
+                      <Dialog title="确定延期？"
+                     actions={delayActions}
+                     modal={false}
+                     open={!!this.state.delayrow?true:false}>
+                      <TextField ref='delayreson'
+                        defaultValue=""
+                        floatingLabelText="请填写延期理由"
+                      />
+                    </Dialog>
+                      :null}
             </div>
         );
     }

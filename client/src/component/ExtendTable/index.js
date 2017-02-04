@@ -1,5 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
+import _ from 'lodash';
 import { 
   Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn, TableFooter
 } from 'material-ui/Table';
@@ -9,6 +10,7 @@ import MenuItem from 'material-ui/MenuItem';
 
 import Paper from 'material-ui/Paper';
 
+import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
 import {IconButton} from 'material-ui';
 import EditIcn from 'material-ui/svg-icons/editor/mode-edit';//编辑
 import DeleteIcn from 'material-ui/svg-icons/action/delete';//删除
@@ -68,8 +70,8 @@ const navigationStyle = {
 
 //代表table所处的模式，默认为正常，如果在AJAX模式下，点击下一页以及搜索时均会尝试发请求
 const TableMode = {
-  NORMAL:0,
-  AJAX:1
+  NORMAL:1,
+  AJAX:2
 }
 
 const opers = {
@@ -107,35 +109,142 @@ const opers = {
   },
 }
 
+const Util = {
+  isFunction:function(source){
+    return Object.prototype.toString(source).toLowerCase().indexOf('function')>=0;
+  },
+  isArray:function(source){
+    return Object.prototype.toString(source).toLowerCase().indexOf('array')>=0;
+  }
+}
+
+/*
+   <IconButton tooltip="查看详情"  onClick={(e)=>{this.handeOpers(item,3);}}><InfoIcn color={blue300}/></IconButton>
+    <IconButton tooltip="删除" onClick={(e)=>{this.handeOpers(item,0);}}><DeleteIcn color={red300}/></IconButton>
+    <IconButton style={{display:(item.status!=3&&item.status!=4)?'inline-block':'none'}} tooltip="编辑" onClick={(e)=>{this.handeOpers(item,2);}}><EditIcn color={cyan300}/></IconButton>
+    <IconButton style={{display:!item.isdelay?'inline-block':'none'}} tooltip="申请延期" onClick={(e)=>{this.handeOpers(item,5);}}><DelayIcn color={deepOrange300}/></IconButton>
+ */
 export class ExtendTable extends React.Component {
   constructor(props) {
     super();
     this.sourceprops = props;
-    let tableData = props.config.data || [];
-    let rowsPerPage = props.config.paginated.constructor === Object ? props.config.paginated.rowsPerPage : 5;
+    let config = props.config;
+    if(!config || !config.data.list){
+      return null;
+    }
+    this.maxWidth = config.maxWidth;
+    //处理数据
+    this.mode = config.tablemode || TableMode.NORMAL;
+    this.data = config.data;
+    this.count = this.data.count || 0;
 
-    tableData = props.config.paginated ? new Paginate(tableData).perPage(rowsPerPage) : tableData;
+    //处理column
+    let tablebodyconfig = config.body;
+    this.columns = _.clone(tablebodyconfig.columns,true);
+    this.hasOpers = tablebodyconfig.hasOpers;
+    this.moreOperConfig = {
+      hasOpers:tablebodyconfig.hasOpers,
+      opers:tablebodyconfig.opers,
+      showName:tablebodyconfig.opersTitle||'操作',
+      handleCb:tablebodyconfig.handleCb,
+      width:tablebodyconfig.hasOpers?(tablebodyconfig.operWidth?tablebodyconfig.operWidth:'auto'):null
+    }
+    //计算每个column宽度,暂时设置为没设置的为auto
+    // if(tablebodyconfig.hasOpers&&this.maxWidth){
+    //   if(_.isArray(tablebodyconfig.opers) && tablebodyconfig.opers.length>0){
+    //     let settingwidth = 0;
+    //     let pixelwidth = [];
+    //     let percentwidth = [];
+    //     let nonewidth = [];
+    //     _.each(this.columns,(itm,idx)=>{
+    //       if(itm.width){
+    //         _.isNumber(itm.width.replace('px','')*1)?(settingwidth+=itm.width.replace('px','')*1):(settingwidth+=0);
+    //       }
+    //       if(itm.width){
+    //         if(_.isNumber(itm.width.replace('px','')*1)){
+    //           pixelwidth.push(idx);
+    //         }else if(_.isNumber(itm.width.replace('%','')*1)){
+    //           percentwidth.push(idx);
+    //         }else{
+    //           nonewidth.push(idx);  
+    //         }
+    //       }else{
+    //         nonewidth.push(idx);
+    //       }
+    //       //!itm.width ? (itm.width = 'auto'):'';
+    //     });
+    //     _.isNumber(this.moreOperConfig.width.replace('px','')*1)?(settingwidth+=this.moreOperConfig.width.replace('px','')*1):(settingwidth+=0);
+    //     //至少要有200像素多余
+    //     if((this.maxWidth-200)<=settingwidth && pixelwidth.length<=this.columns.length){
+    //       //全部用auto设置
+    //       _.each(this.columns,(itm,idx)=>{
+    //         itm.width = 'auto';
+    //       });
+    //     }else{
+    //       let remainwidth = this.maxWidth - settingwidth;
+
+    //     }
+    //   }else{
+    //     //设置默认的操作
+    //   }
+    // }else{
+    //    _.each(this.columns,(itm,idx)=>{
+    //       itm.width = 'auto';
+    //     });
+    // }
+    if(tablebodyconfig.hasOpers){
+      _.each(this.columns,(itm)=>{
+        !itm.width?(itm.width='auto'):'';
+      });
+    }else{
+
+    }
+    //处理table样式
+    
+    
+    
+    
+    let tableData = config.data.list || [];
+    //let rowsPerPage = props.config.paginated.constructor === Object ? props.config.paginated.rowsPerPage : 5;
+
+    //tableData = props.config.paginated ? new Paginate(tableData).perPage(rowsPerPage) : tableData;
 
     if (tableData instanceof Paginate) {
       tableData = tableData.page(1);
     }
-    this.mode = props.mode || TableMode.NORMAL;
     this.state = {
       disabled: true,
       style: searchStyle,
-      idempotentData: props.config.data,
-      paginatedIdempotentData: new Paginate(props.config.data),
-      perPageSelection: props.config.paginated.rowsPerPage || 5,
       tableData: tableData,
       searchData: [],
       isSearching: false,
       navigationStyle,
       iconStyleSearch,
-      showSelect:props.config.canselect || false,//是否展示左侧checkbox
+      showSelect:config.canselect || false,//是否展示左侧checkbox
     };
-    
-    console.log('tableStyle',this.state);
-    this.columns = injectProp(props.config.columns);
+    //处理toolbar，后面处理
+    let toolbar = config.toolbar;
+    let pagenation = toolbar.pagenation;
+    if(pagenation && this.count){
+      pagenation.rowsPerPage = pagenation.rowsPerPage || [5,10,15];
+      this.state.pageOptions = {
+        curPerPage:pagenation.rowsPerPage[0],
+        rowsPerPage:pagenation.rowsPerPage,
+        currentPage:1,
+        maxPage:Math.ceil(this.count/pagenation.rowsPerPage[0]),
+        changeCallBack:pagenation.foldCallback,
+        count:this.count,
+        isShow:true,
+        offset:0,
+
+      }
+    }else{
+      this.state.pageOptions = {
+        isShow:false
+      };
+    }
+
+    //this.columns = injectProp(props.config.columns);
     this.toggleSearch = this.toggleSearch.bind(this);
     this.searchData = this.searchData.bind(this);
     this.handlePerPageChange = this.handlePerPageChange.bind(this);
@@ -149,19 +258,318 @@ export class ExtendTable extends React.Component {
     }
   }
 
-  handlePerPageChange(evt, index, val) {
-    const paginationInfo = this.paginationObject();
-    let data = this.state.paginatedIdempotentData;
-
-    if (this.state.isSearching) {
-      const tableData = this.state.searchData;
-      data = new Paginate(tableData);
+  handleCb(row,type,refname) {
+    console.log(row,type);
+    if(_.isFunction(this.moreOperConfig.handleCb)){
+      this.moreOperConfig.handleCb(row,type,refname);
     }
+  }
 
-    this.setState({
-      tableData: data.perPage(val).page(paginationInfo.currentPage),
-      perPageSelection: val
-    });
+  handlePerPageChange(evt, index, val) {
+    console.log(arguments);
+    let options = {
+      limit:val,
+      offset:0
+    };
+     this.state.pageOptions.changeCallBack(options).then(d=>{
+
+      }).catch(e=>{
+        let data = [
+            {
+              name:'任务一',
+              isdelay:false,
+              delayreason:'',
+              progress:45,
+              totaltime:4,
+              time:'2016-7-15',
+              status:1,
+              ticket:'#98545,#65412',
+              description:'兼容D3.js',
+            },{
+              name:'任务二',
+              progress:12,
+              totaltime:4,
+              ticket:'#98545,#65412',
+              description:'兼容D3.js',
+              time:'2016-7-15',
+              status:1,
+              isdelay:true,
+              delayreason:'在IE下表现特别诡异，难以处理'
+            },{
+              name:'任务三',
+              progress:100,
+              totaltime:7,
+              ticket:'#98545,#65412',
+              description:'兼容D3.js',
+              time:'2016-7-18',
+              status:3,
+              isdelay:false,
+              delayreason:''
+            },{
+              name:'任务四',
+              progress:65,
+              totaltime:4,
+              ticket:'#98545,#65412',
+              description:'兼容D3.js',
+              time:'2016-8-22',
+              status:1,
+              isdelay:true,
+              delayreason:'ffffffff'
+            },{
+              name:'任务五',
+              progress:33,
+              totaltime:4,
+              ticket:'#98545,#65412',
+              description:'dfgdfhgs.js',
+              time:'2016-7-15',
+              status:2,
+              isdelay:false,
+              delayreason:''
+            },{
+              name:'任务六',
+              progress:100,
+              totaltime:4,
+              ticket:'#98545,#65412',
+              description:'兼容WebGL啊',
+              time:'2016-12-25',
+              status:4,
+              isdelay:true,
+              delayreason:'212'
+            },{
+              name:'任务七',
+              progress:22,
+              totaltime:4,
+              ticket:'#98545,#65412',
+              description:'兼容D3.js',
+              time:'2016-7-15',
+              status:2,
+              isdelay:true,
+              delayreason:'234234'
+            }
+          ];
+        this.setState({
+          tableData:data,
+          pageOptions:{
+            curPerPage:val,
+            rowsPerPage:this.state.pageOptions.rowsPerPage,
+            currentPage:1,
+            maxPage:Math.ceil(this.count/val),
+            changeCallBack:this.state.pageOptions.changeCallBack,
+            count:this.count,
+            isShow:true,
+            offset:0
+          }
+        })
+      });
+    // const paginationInfo = this.paginationObject();
+    // let data = this.state.paginatedIdempotentData;
+
+    // if (this.state.isSearching) {
+    //   const tableData = this.state.searchData;
+    //   data = new Paginate(tableData);
+    // }
+
+    // this.setState({
+    //   tableData: data.perPage(val).page(paginationInfo.currentPage),
+    //   perPageSelection: val
+    // });
+  }
+  navigateRight() {
+    if(this.state.pageOptions.currentPage+1>this.state.pageOptions.maxPage){
+
+    }else{
+      if(this.mode==TableMode.NORMAL){
+        //不需要重新请求，直接展示结果
+      }else{
+        //需要重新请求
+        let options = {
+          limit:this.state.pageOptions.curPerPage,
+          offset:this.state.pageOptions.currentPage*this.state.pageOptions.curPerPage
+        }
+        this.state.pageOptions.changeCallBack(options).then(d=>{
+
+        }).catch(e=>{
+          let data = [
+            {
+              name:'任务一',
+              isdelay:false,
+              delayreason:'',
+              progress:45,
+              totaltime:4,
+              time:'2016-7-15',
+              status:1,
+              ticket:'#98545,#65412',
+              description:'兼容D3.js',
+            },{
+              name:'任务二',
+              progress:12,
+              totaltime:4,
+              ticket:'#98545,#65412',
+              description:'兼容D3.js',
+              time:'2016-7-15',
+              status:1,
+              isdelay:true,
+              delayreason:'在IE下表现特别诡异，难以处理'
+            },{
+              name:'任务三',
+              progress:100,
+              totaltime:7,
+              ticket:'#98545,#65412',
+              description:'兼容D3.js',
+              time:'2016-7-18',
+              status:3,
+              isdelay:false,
+              delayreason:''
+            },{
+              name:'任务四',
+              progress:65,
+              totaltime:4,
+              ticket:'#98545,#65412',
+              description:'兼容D3.js',
+              time:'2016-8-22',
+              status:1,
+              isdelay:true,
+              delayreason:'ffffffff'
+            },{
+              name:'任务五',
+              progress:33,
+              totaltime:4,
+              ticket:'#98545,#65412',
+              description:'dfgdfhgs.js',
+              time:'2016-7-15',
+              status:2,
+              isdelay:false,
+              delayreason:''
+            },{
+              name:'任务六',
+              progress:100,
+              totaltime:4,
+              ticket:'#98545,#65412',
+              description:'兼容WebGL啊',
+              time:'2016-12-25',
+              status:4,
+              isdelay:true,
+              delayreason:'212'
+            },{
+              name:'任务七',
+              progress:22,
+              totaltime:4,
+              ticket:'#98545,#65412',
+              description:'兼容D3.js',
+              time:'2016-7-15',
+              status:2,
+              isdelay:true,
+              delayreason:'asd'
+            }
+          ];
+          this.state.pageOptions.currentPage = this.state.pageOptions.currentPage+1;
+          this.setState({
+            tableData:data
+          });
+          this.forceUpdate();
+        });
+      }
+    }
+    console.log(this.state.pageOptions.currentPage+1);
+  }
+
+  navigateLeft() {
+    if(this.state.pageOptions.currentPage-1==0){
+
+    }else{
+      if(this.mode==TableMode.NORMAL){
+        //不需要重新请求，直接展示结果
+      }else{
+        //需要重新请求
+        let options = {
+          limit:this.state.pageOptions.curPerPage,
+          offset:(this.state.pageOptions.currentPage-1)*this.state.pageOptions.curPerPage
+        }
+        this.state.pageOptions.changeCallBack(options).then(d=>{
+
+        }).catch(e=>{
+          let data = [
+            {
+              name:'任务一',
+              isdelay:false,
+              delayreason:'',
+              progress:45,
+              totaltime:4,
+              time:'2016-7-15',
+              status:1,
+              ticket:'#98545,#65412',
+              description:'兼容D3.js',
+            },{
+              name:'任务二',
+              progress:12,
+              totaltime:4,
+              ticket:'#98545,#65412',
+              description:'兼容D3.js',
+              time:'2016-7-15',
+              status:1,
+              isdelay:true,
+              delayreason:'在IE下表现特别诡异，难以处理'
+            },{
+              name:'任务三',
+              progress:100,
+              totaltime:7,
+              ticket:'#98545,#65412',
+              description:'兼容D3.js',
+              time:'2016-7-18',
+              status:3,
+              isdelay:false,
+              delayreason:''
+            },{
+              name:'任务四',
+              progress:65,
+              totaltime:4,
+              ticket:'#98545,#65412',
+              description:'兼容D3.js',
+              time:'2016-8-22',
+              status:1,
+              isdelay:true,
+              delayreason:'ffffffff'
+            },{
+              name:'任务五',
+              progress:33,
+              totaltime:4,
+              ticket:'#98545,#65412',
+              description:'dfgdfhgs.js',
+              time:'2016-7-15',
+              status:2,
+              isdelay:false,
+              delayreason:''
+            },{
+              name:'任务六',
+              progress:100,
+              totaltime:4,
+              ticket:'#98545,#65412',
+              description:'兼容WebGL啊',
+              time:'2016-12-25',
+              status:4,
+              isdelay:true,
+              delayreason:'212'
+            },{
+              name:'任务七',
+              progress:22,
+              totaltime:4,
+              ticket:'#98545,#65412',
+              description:'兼容D3.js',
+              time:'2016-7-15',
+              status:2,
+              isdelay:true,
+              delayreason:'asd'
+            }
+          ];
+          this.state.pageOptions.currentPage = this.state.pageOptions.currentPage-1;
+          this.setState({
+            tableData:data
+          });
+          this.forceUpdate();
+        });
+      }
+    }
+    console.log(this.state.pageOptions.currentPage-1); 
   }
 
   paginationObject() {
@@ -189,48 +597,21 @@ export class ExtendTable extends React.Component {
     return this.paginationObject().currentlyShowing;
   }
 
-  navigateRight() {
-    const paginationInfo = this.paginationObject();
-    let data = this.state.paginatedIdempotentData;
-
-    if (this.state.isSearching) {
-      const tableData = this.state.searchData;
-      data = new Paginate(tableData);
-    }
-
-    this.setState({
-      tableData: data.perPage(paginationInfo.perPage).page(paginationInfo.nextPage)
-    });
-  }
-
-  navigateLeft() {
-    const paginationInfo = this.paginationObject();
-    let data = this.state.paginatedIdempotentData;
-
-    if (!paginationInfo.previousPage) return;
-
-    if (this.state.isSearching) {
-      const tableData = this.state.searchData;
-      data = new Paginate(tableData);
-    }
-
-    this.setState({
-      tableData: data.perPage(paginationInfo.perPage).page(paginationInfo.previousPage)
-    });
-  }
-
+ 
   mapColumnsToElems(cols) {
     let result = cols.map((item, index) => (
-      <TableHeaderColumn key={index}>{item.title}</TableHeaderColumn>
+      <TableHeaderColumn key={index} style={{width:item.width}}>{item.title}</TableHeaderColumn>
     ));
-    result.push(<TableHeaderColumn>操作</TableHeaderColumn>);
+    if(this.moreOperConfig.hasOpers){
+      result.push(<TableHeaderColumn key={cols.length} >{this.moreOperConfig.showName}</TableHeaderColumn>);  
+    }
     return result;
   }
 
 
-  mapDataToProperties(properties, obj) {
+  mapDataToProperties(properties, obj,cols) {
     return properties.map((prop, index) => (
-      <TableRowColumn key={index}>
+      <TableRowColumn key={index} style={{width:cols[index].width,maxWidth:cols[index].width,paddingTop:'10px',paddingBottom:'10px',whiteSpace:'normal'}}>
         {this.renderTableData(obj, prop)}
       </TableRowColumn>
     ));
@@ -247,16 +628,30 @@ export class ExtendTable extends React.Component {
       if (item.paginationInfo) return undefined;
       return (
         <TableRow key={index}>
-          {this.mapDataToProperties(properties, item)}
-          <TableRowColumn>
-          <IconButton tooltip="查看详情"  onClick={(e)=>{this.handeOpers(item,3);}}><InfoIcn color={blue300}/></IconButton>
-          <IconButton tooltip="删除" onClick={(e)=>{this.handeOpers(item,0);}}><DeleteIcn color={red300}/></IconButton>
-          <IconButton style={{display:(item.status!=3&&item.status!=4)?'inline-block':'none'}} tooltip="编辑" onClick={(e)=>{this.handeOpers(item,2);}}><EditIcn color={cyan300}/></IconButton>
-          <IconButton style={{display:!item.isdelay?'inline-block':'none'}} tooltip="申请延期" onClick={(e)=>{this.handeOpers(item,5);}}><DelayIcn color={deepOrange300}/></IconButton>
+          {this.mapDataToProperties(properties, item,cols)}
+          <TableRowColumn style={{display:this.moreOperConfig.hasOpers?'block':'none'}}>
+            {this.renderMoreOps(item)}
           </TableRowColumn>
         </TableRow>
       );
     });
+  }
+  
+  renderMoreOps(row) {
+    if(!this.moreOperConfig.hasOpers){
+      return null;
+    }else{
+      return this.moreOperConfig.opers.map((itm,index)=>{
+        return (
+          itm.creator.call(this,itm,row)
+        )
+      })
+    }
+  }
+
+  test(rowNumber,columnId,event) {
+    var target = event.target;
+    console.log(target);
   }
 
   calcColSpan(cols) {
@@ -267,13 +662,14 @@ export class ExtendTable extends React.Component {
     const styleObj = {
       display: (item ? '' : 'none')
     };
-
-    return styleObj;
+    
+    return {display:'none'};
   }
 
   shouldShowMenu(defaultStyle) {
     if (this.props.config.paginated && this.props.config.paginated.constructor === Boolean) return defaultStyle;
-
+    
+    
     const menuOptions = this.props.config.paginated.menuOptions;
 
     return menuOptions ? defaultStyle : { display: 'none' };
@@ -355,7 +751,7 @@ export class ExtendTable extends React.Component {
     ));
   }
 
-  handleRowSelection(obj) {
+  handleRowSelection2(obj) {
     if ( obj && obj.constructor === Boolean ) {
       return this.setRowSelection('', obj);
     } else if ( obj && obj.constructor === Object ) {
@@ -363,6 +759,20 @@ export class ExtendTable extends React.Component {
     } else {
       return;
     }
+  }
+  
+  handleRowSelection(perpages) {
+    return perpages.map((num, index) => (
+      <MenuItem value={num} primaryText={num} key={index} />
+    ));
+  }
+
+  renderTopTool() {
+    return null
+  }
+  
+  renderBottomTool(){
+    return null;
   }
 
   render() {
@@ -372,7 +782,8 @@ export class ExtendTable extends React.Component {
     });
     return (
       <Paper zDepth={1} className={style}>
-        <Table className={btnClass} selectable={this.state.showSelect}>
+        <Toolbar className="toptoolbar" style={{display:this.showTop?'block':'none'}}>{this.renderTopTool()}</Toolbar>        
+        <Table className={btnClass} selectable={this.state.showSelect} >
           <TableHeader>
             <TableRow style={this.shouldShowItem(this.props.config.search)}>
               <TableHeaderColumn
@@ -390,31 +801,30 @@ export class ExtendTable extends React.Component {
 
             <TableRow>
               {this.mapColumnsToElems(this.columns)}
-
             </TableRow>
           </TableHeader>
 
           <TableBody showRowHover>
             {this.populateTableWithdata(this.state.tableData, this.columns)}
           </TableBody>
-
-          <TableFooter style={this.shouldShowItem(this.props.config.paginated)}>
+          {this.state.pageOptions.isShow?(
+            <TableFooter style={{display:this.state.pageOptions.isShow?'block':'none'}}>
             <TableRow>
               <TableRowColumn
                 style={{ textAlign: 'right', verticalAlign: 'middle', width: '70%' }}
               >
-                <span style={this.shouldShowMenu({ paddingRight: 15 })}>Rows per page:</span>
+                <span style={{}}>每页:</span>
                 <SelectField
-                  value={this.state.perPageSelection}
-                  style={this.shouldShowMenu({ width: 35, fontSize: 13, top: 0 })}
+                  value={this.state.pageOptions.curPerPage}
+                  style={{}}
                   onChange={this.handlePerPageChange}
                 >
-                  { this.handleRowSelection(this.props.config.paginated) }
+                  { this.handleRowSelection(this.state.pageOptions.rowsPerPage) }
                 </SelectField>
               </TableRowColumn>
 
               <TableRowColumn style={{ textAlign: 'right', verticalAlign: 'middle' }}>
-                <span> {this.showPaginationInfo()} </span>
+                <span> 当前第{this.state.pageOptions.currentPage}页</span>
               </TableRowColumn>
 
               <TableRowColumn style={{ textAlign: 'right', verticalAlign: 'middle' }}>
@@ -423,11 +833,11 @@ export class ExtendTable extends React.Component {
               </TableRowColumn>
             </TableRow>
           </TableFooter>
+          ):null}
+
 
         </Table>
-        <div>
-          <ExtendTableFooter/>
-        </div>
+        <Toolbar className="bottomtoolbar" style={{display:this.showBottom?'block':'none'}}>{this.renderBottomTool()}</Toolbar>
       </Paper>
     );
   }

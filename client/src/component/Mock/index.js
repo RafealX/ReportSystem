@@ -196,7 +196,7 @@ let myProgress = {
 		delayreason:'这是任务器'
 	}]
 };
-for(let i=0;i<8;i++){
+for(let i=0;i<2;i++){
 	myProgress.list = myProgress.list.concat(_.clone(myProgress.list,true));	
 }
 

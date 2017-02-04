@@ -90,6 +90,9 @@ export class TaskDetail extends React.Component {
 				Backend.task.edit(params).then(d=>{
 
 				}).catch(e=>{
+					if(this.callback){
+						this.callback(data);
+					}
 					pubsub.publish('task.list.reload');
 				});
 				break;
@@ -101,7 +104,12 @@ export class TaskDetail extends React.Component {
 	handleShow(isshow) {
 		this.setState({open:isshow||false});
 	};
-	switchType(type,data) {
+	switchType(type,data,callback) {
+		if(_.isFunction(callback)){
+			this.callback = callback;
+		}else{
+			this.callback = null;
+		}
 		if(type+''=='3'){
 			this.fetchTaskHistory(data.id).then(d=>{
 
@@ -115,10 +123,6 @@ export class TaskDetail extends React.Component {
 			this.setState({type:type,data:data||this.fakedata,title:this.title[type]||'新增任务'});	
 			this.setState({open:true});
 		}
-		
-		// if(this.state.type+''=='3'){
-		
-		// }
 	};
 	close() {
 		this.setState({open:false});
