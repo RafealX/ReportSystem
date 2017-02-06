@@ -617,7 +617,7 @@ export class ExtendTable extends React.Component {
       return (
         <TableRow key={index}>
           {this.mapDataToProperties(properties, item,cols)}
-          <TableRowColumn style={{display:this.moreOperConfig.hasOpers?'block':'none'}}>
+          <TableRowColumn style={{display:this.moreOperConfig.hasOpers?'block':'none',paddingTop:'10px',paddingBottom:'10px'}}>
             {this.renderMoreOps(item)}
           </TableRowColumn>
         </TableRow>

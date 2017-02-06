@@ -345,7 +345,7 @@ module.exports = React.createClass({
     this.setState({delayrow:data})
     //Backend.task.delay(data.id);
   },
-  delayRow(data,reason) {
+  delayRow(data,reason,time) {
     //Backend.task.delay(data.id);
     var result = _.findIndex(this.refs[this.refname].state.tableData,(itm)=>{
       return data.id==itm.id;
@@ -353,6 +353,7 @@ module.exports = React.createClass({
     if(result>=0){
       this.refs[this.refname].state.tableData[result].isdelay = true;
       this.refs[this.refname].state.tableData[result].delayreason = reason;
+      this.refs[this.refname].state.tableData[result].time = reason;
     }
 
     this.refs[this.refname].forceUpdate();
@@ -491,9 +492,9 @@ module.exports = React.createClass({
             />,
             <FlatButton
               label="确定"
-              primary={true}
+              primary={true} 
               keyboardFocused={true}
-              onTouchTap={e=>{this.delayRow(this.state.delayrow,this.refs.delayreson.getValue());this.setState({delayrow:null})}}
+              onTouchTap={e=>{if(!this.refs.delayreson.getValue() || !this.refs.delaytime.state.date){popup.error('请填写延期理由及时间');return;} this.delayRow(this.state.delayrow,this.refs.delayreson.getValue(),this.refs.delaytime.state.date);this.setState({delayrow:null})}}
             />,
           ];
         pubsub.subscribe('task.list.reload', this.reloadList);
@@ -545,6 +546,13 @@ module.exports = React.createClass({
                         defaultValue=""
                         floatingLabelText="请填写延期理由"
                       />
+                      <DatePicker 
+                          locale="zh-Hans-CN" ref='delaytime'
+                          DateTimeFormat={Intl.DateTimeFormat}
+                          cancelLabel="取消" okLabel="确定" 
+                          style={{width: '120px'}}
+                          textFieldStyle={{width: '120px'}}
+                          hintText="选择日期" minDate={new Date}/>
                     </Dialog>
                       :null}
             </div>
