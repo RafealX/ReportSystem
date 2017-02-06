@@ -4,18 +4,20 @@
 import React from 'react';
 import {browserHistory} from 'react-router';
 import {FlatButton, SelectField, TextField, MenuItem,FontIcon, IconButton,GridList, GridTile,
+    Card, CardActions, CardHeader,CardText,Divider,DropDownMenu,Slider,
     DatePicker, Toolbar, ToolbarGroup, RaisedButton, ToolbarSeparator} from 'material-ui';
+//colors
+import {red300,red200,lightBlue300,cyan300} from 'material-ui/styles/colors';
 import Bulleted from 'material-ui/svg-icons/editor/format-list-bulleted';
 import Numbered from 'material-ui/svg-icons/editor/format-list-numbered';
 import Title from 'material-ui/svg-icons/editor/title';
 import BackIcn from 'material-ui/svg-icons/Hardware/keyboard-backspace';
-import {fetch} from 'lib/util';
+import {fetch,uuid} from 'lib/util';
 import popup from 'cpn/popup';
 import pubsub from 'vanilla-pubsub';
 import Editor from 'cpn/Editor';
 import format from 'date-format';
-import DailyReport from './dailyreport.js';
-import TaskReport from './taskreport.js';
+import {Report,UnFinish} from './model.js';
 
 
 const types = [
@@ -26,9 +28,8 @@ const types = [
 
 const iconStyle = {fontSize: '16px', fontWeight: 'bold', marginTop: '4px'};
 const style = {
-    margin: '30px',
-    height: 'calc(100% - 60px)',
-    boxShadow: 'rgba(0, 0, 0, 0.117647) 0px 1px 6px, rgba(0, 0, 0, 0.117647) 0px 1px 4px'
+    margin: '10px',
+    height: 'calc(100% - 60px)'
 };
 
 //发送日报模板
@@ -46,10 +47,12 @@ let targetReport = {
 
 let today = new Date();
 let theDayBeforeYester = new Date(today.setDate(today.getDate()-2));
+
+let firstLoad = true;
 module.exports = React.createClass({
     getInitialState() {
-        console.log(this.props);
-        return {rp: this.props.location.state || {}};
+        console.log(Report.get().time);
+        return {saving:false,report:Report.get().report,task:Report.get().task,fakereport:Report.fake.report(),faketask:Report.fake.task(),time:Report.get().time,unfinishtask:null,selectedtask:null}
     },
     componentDidMount() {
         let barConf = {
@@ -66,74 +69,363 @@ module.exports = React.createClass({
         console.log(browserHistory);
         browserHistory.goBack();
     },
-    refreshData(type,result) {
-        //mixin targetReport&&returnReport
-        switch(type){
-            case 'normal':
-                break;
-            case 'task':
-                break;
+    handleTime() {
+
+    },
+    handle:{
+        unfinish:function(){
+            this.setState({'unfinishtask':UnFinish.get()})
+            console.log('unfinishtask',this.state.unfinishtask);
+        },
+        add(type) {
+            let addedData;
+            switch(type){
+                case 'report':
+                    addedData = this.state.fakereport;
+                    if(!addedData.elapse || !addedData.ticket || !addedData.content){
+                        popup.error('有东西没写，还不能添加');
+                        return;
+                    }
+                    Report.set.report(addedData);
+                    this.setState({report:Report.get().report,fakereport:Report.fake.report()});
+                    break;
+                case 'task':
+                    addedData = this.state.faketask;
+                    if(!addedData.elapse || (!addedData.summary && !addedData.question)){
+                        popup.error('有东西没写，还不能添加');
+                        return;
+                    }
+                    console.log(addedData);
+                    //1.设置task日志
+                    //2.去除已写日志的task
+                    let selectedtask = this.state.selectedtask;
+                    let unfinishtask = this.state.unfinishtask.slice(0);
+                    
+                    _.each(unfinishtask,(itm)=>{
+                        if(itm.id===selectedtask.id){
+                            console.log(itm);
+                            itm.status=0;
+                        }
+                    });
+                    Report.set.task(addedData);
+                    this.setState({task:Report.get().task,faketask:Report.fake.task(),unfinishtask:unfinishtask,selectedtask:null});
+                    break;
+            }
+        },
+        report:{
+            edit(itm) {
+                itm.status=0;
+                this.setState({report:Report.get().report});
+            },
+            confirm(itm) {
+                itm.status=1;
+                this.setState({report:Report.get().report});
+            },
+            cancel(itm) {
+                itm.status=1;
+                this.setState({report:Report.get().report});
+            },
+            delete(itm) {
+                popup.confirm({
+                    msg: '确定删除这条普通事项?',
+                    onOk: () => {
+                        Report.delete.report(itm);
+                        this.setState({report:Report.get().report});
+                    }
+                });
+                
+            },
+        },
+        task:{
+            edit(itm) {
+                itm.status=0;
+                this.setState({task:Report.get().task});
+            },
+            confirm(itm) {
+                itm.status=1;
+                this.setState({task:Report.get().task});
+            },
+            cancel(itm) {
+                itm.status=1;
+                this.setState({task:Report.get().task});
+            },
+            delete(itm) {
+                popup.confirm({
+                    msg: '确定删除这条任务事项?',
+                    onOk: () => {
+                        Report.delete.task(itm);
+                        let unfinishtask = this.state.unfinishtask;
+                        _.each(unfinishtask,(item)=>{
+                            item.id===itm.id?(item.status=1):'';
+                        });
+                        this.setState({task:Report.get().task,unfinishtask:unfinishtask});
+
+                    }
+                });
+            },
+        },
+        save() {
+            this.setState({saving:true});
+            Report.send().then(d=>{
+                popup.success('保存成功');
+                browserHistory.replace('/m/report/my/list');
+            })
+            .catch(e=>{
+                popup.success('保存失败');
+                browserHistory.replace('/m/report/my/list');
+            });
         }
-        console.log(result);
+    },
+    componentWillUnmount() {
+        UnFinish.clear();
+        Report.clear();
+        firstLoad = true;
     },
     render() {
-        let rp = this.state.rp;
+        if(firstLoad){
+            UnFinish.listen(this.handle.unfinish.bind(this));
+            if(this.props.location.state){
+                Report.init.edit(this.props.location.state,()=>{
+                    console.log(Report.get().time);
+                    this.setState({report:Report.get().report,task:Report.get().task,time:Report.get().time,unfinishtask:UnFinish.get()});
+                });
+            }
+            UnFinish.init();   
+            firstLoad = false;
+        }
+        
+
         return (
             <div style={style}>
                 
                 <Toolbar >
                     <ToolbarGroup firstChild>
-                        <SelectField
-                            value={rp.type}
-                            style={{width: '80px', margin: '4px 20px',display:'none'}}
-                            onChange={(e, k, v) => {this.state.rp.type = v;this.forceUpdate();}}
-                            hintText="类型">
-                            {types}
-                        </SelectField>
                         <DatePicker 
                           locale="zh-Hans-CN"
                           DateTimeFormat={Intl.DateTimeFormat}
-                          cancelLabel="取消"
-                          style={{width: '120px', marginTop: '4px'}}
-                          textFieldStyle={{width: '120px'}}
-                          hintText="日期" minDate={theDayBeforeYester} maxDate={new Date}/>
+                          cancelLabel="取消" okLabel="确定" value={this.state.time}
+                          style={{width: '120px', marginTop: '4px',marginLeft: '15px'}}
+                          textFieldStyle={{width: '120px'}} onChange={(n,newdate)=>{this.setState({time:newdate})}}
+                          hintText="选择日期" minDate={theDayBeforeYester} maxDate={new Date}/>
                     </ToolbarGroup>
                     <ToolbarGroup lastChild>
-                        <IconButton 
-                            disabled={this._iconDisabled('h2')}
-                            style={{'display':'none'}}
-                            onTouchTap={this._toggleHeading}>
-                            <Title color={this._iconColor('h2')}/>
-                        </IconButton>
-                        <IconButton
-                            disabled={this._iconDisabled('ul')}
-                            style={{'display':'none'}}
-                            onTouchTap={this._toggleUl}>
-                            <Bulleted color={this._iconColor('ul')}/>
-                        </IconButton>
-                        <IconButton
-                            disabled={this._iconDisabled('ol')}
-                            style={{'display':'none'}}
-                            onTouchTap={this._toggleOl}>
-                            <Numbered color={this._iconColor('ol')}/>
-                        </IconButton>
-                        <ToolbarSeparator/>
                         <RaisedButton
                             primary
-                            disabled={this.state.saving}
+                            disabled={this.state.saving || (!this.state.time || this.state.report.length==0 || this.state.task.length==0)}
                             label={this.state.saving ? '保存中...': '保存'}
-                            onTouchTap={this._handleSave}/>
+                            onTouchTap={this.handle.save.bind(this)}/>
                     </ToolbarGroup>
                 </Toolbar>
-                <GridList cellHeight={500}>
-                    <GridTile>
-                        <DailyReport refresh={this.refreshData}/>
+                <GridList cellHeight={'auto'}>
+                    <GridTile style={{paddingTop:'5px'}}>
+                        <Card style={{margin:'0 6px'}}>
+                            <CardText>
+                                <TextField                                  
+                                  floatingLabelText="耗时"
+                                  type='number'
+                                  value={this.state.fakereport.elapse}
+                                  onChange={(e,news)=>{let report=this.state.fakereport;report.elapse = news;this.setState({fakereport:report})}}
+                                />
+                                <TextField style={{marginLeft:'5px'}}             
+                                  floatingLabelText="ticket"
+                                  value={this.state.fakereport.ticket}
+                                  onChange={(e,news)=>{let report=this.state.fakereport;report.ticket = news;this.setState({fakereport:report})}}
+                                />
+                                <TextField                                  
+                                  floatingLabelText="内容"
+                                  type='textarea' multiLine={true}
+                                  value={this.state.fakereport.content}
+                                  rows={4}
+                                  rowsMax={10} fullWidth={true}
+                                  onChange={(e,news)=>{let report=this.state.fakereport;report.content = news;this.setState({fakereport:report})}}
+                                />
+
+                            </CardText>
+                             <CardActions>
+                              <RaisedButton label="新增普通事项" onClick={this.handle.add.bind(this,'report')}/>
+                            </CardActions>
+                        </Card>
+                        {this.state.report&&this.state.report.length>0&&<Divider style={{marginTop:'10px'}}/>}
+                        {this.state.report&&this.state.report.length>0&&this.state.report.map((itm,idx)=>{
+                            return (
+                                 <Card style={{margin:'10px 6px'}} key={idx}>
+                            <CardText >
+                                <TextField                                  
+                                  floatingLabelText="耗时"
+                                  type='number' disabled={itm.status==1?true:false}
+                                  defaultValue={itm.elapse}
+                                  onChange={(e,news)=>{itm.elapse = news}}
+                                />
+                                <TextField  style={{marginLeft:'5px'}}                              
+                                  floatingLabelText="ticket" disabled={itm.status==1?true:false}
+                                  defaultValue={itm.ticket}
+                                  onChange={(e,news)=>{itm.ticket = news}}
+                                />
+                                <TextField                                  
+                                  floatingLabelText="内容" disabled={itm.status==1?true:false}
+                                  type='textarea' multiLine={true}
+                                  defaultValue={itm.content}
+                                  rows={4}
+                                  rowsMax={10} fullWidth={true}
+                                  onChange={(e,news)=>{itm.content = news}}
+                                />
+
+                                </CardText>
+                                 <CardActions>
+                                 {itm.status==1?(
+                                    <div>
+                                    <RaisedButton label="编辑" labelColor={'#fff'} backgroundColor={lightBlue300} onClick={this.handle.report.edit.bind(this,itm)} />
+                                    <RaisedButton label="删除" labelColor={'#fff'}  style={{marginLeft:'10px'}} backgroundColor={red300} onClick={this.handle.report.delete.bind(this,itm)} />
+                                    </div>
+                                    ):(
+                                    <div>
+                                    <RaisedButton label="确定" labelColor={'#fff'}  style={{marginRight:'10px'}} backgroundColor={cyan300} onClick={this.handle.report.confirm.bind(this,itm)} />
+                                    <RaisedButton label="取消" onClick={this.handle.report.cancel.bind(this,itm)} />
+                                    </div>
+                                 )}
+                                  
+                                </CardActions>
+                            </Card>
+                            );
+                        })}
                     </GridTile>
-                    <GridTile>
-                       
+                    <GridTile style={{paddingTop:'5px'}}>
+                       <Card style={{margin:'0 6px'}}>
+                            <CardText>
+                                {this.state.unfinishtask&&this.state.unfinishtask.length>0?(
+                                    <SelectField
+                                        autoWidth={true}
+                                        value={this.state.selectedtask}
+                                        onChange={(e, k, payload) => {let fake = Report.fake.task();fake.id=payload.id;fake.name=payload.name;fake.progress=payload.progress;this.setState({selectedtask:payload,faketask:fake})}}
+                                        hintText="请选择任务">
+                                         {this.state.unfinishtask.map((itm,idx)=>(
+                                            <MenuItem value={itm} primaryText={itm.name} label={itm.name} style={{display:itm.status==1?'inline-block':'none'}}/>
+                                        ))}
+                                    </SelectField>
+                                ):('')}
+                                {this.state.selectedtask?(
+                                    <div>
+                                    <TextField 
+                                      type="number"
+                                      name="currentprogress"
+                                      min={Math.floor(this.state.faketask.progress/10)*10}
+                                      max={100}
+                                      hintText="进度"
+                                      floatingLabelText="进度选择"
+                                      step={5}
+                                      value={this.state.faketask.progress}
+                                      onChange={(e,n)=>{let faketask=this.state.faketask;faketask.progress=n;this.setState({faketask:faketask});}}
+                                    />
+                                    <TextField style={{marginLeft:'10px'}}
+                                        type="number"
+                                        name="elapse"
+                                        hintText="耗时"
+                                        floatingLabelText="耗时"
+                                        min={0}
+                                        value={this.state.faketask.elapse}
+                                        onChange={(e,n)=>{let faketask=this.state.faketask;faketask.elapse=n;this.setState({faketask:faketask});}}
+                                    />
+                                    <TextField 
+                                        type="textarea"
+                                        fullWidth={true}
+                                        rows={4}
+                                        rowsMax={6}
+                                        name="summary"
+                                        hintText="内容概要"
+                                        floatingLabelText="内容概要"
+                                        value={this.state.faketask.summary}
+                                        onChange={(e,n)=>{let faketask=this.state.faketask;faketask.summary=n;this.setState({faketask:faketask});}}
+                                    />
+                                    <TextField 
+                                        type="textarea"
+                                        rows={4}
+                                        fullWidth={true}
+                                        rowsMax={6}
+                                        name="question"
+                                        hintText="遇到的问题"
+                                        floatingLabelText="遇到的问题"
+                                        value={this.state.faketask.question}
+                                        onChange={(e,n)=>{let faketask=this.state.faketask;faketask.question=n;this.setState({faketask:faketask});}}
+                                    />
+                                    </div>
+                                ):('')}
+
+                            </CardText>
+                             <CardActions>
+                              <RaisedButton label="新增任务事项" onClick={this.handle.add.bind(this,'task')}/>
+                            </CardActions>
+                        </Card>
+                        {this.state.task&&this.state.task.length>0&&<Divider style={{marginTop:'10px',marginBottom:'10px'}}/>}
+                        {this.state.task&&this.state.task.length>0&&this.state.task.map((itm,idx)=>{
+                            return (
+                                 <Card style={{margin:'10px 6px'}} key={idx}>
+                                <CardText >
+                                <TextField 
+                                      name="progressname"
+                                      value={itm.name} disabled={true}
+                                    />
+                                 <TextField 
+                                      type="number" style={{margin:'2px 0 0 6px'}}
+                                      name="currentprogress"
+                                      min={Math.floor(itm.progress/10)*10}
+                                      max={100}
+                                      hintText="进度"
+                                      floatingLabelText="进度选择"
+                                      step={5} disabled={itm.status==1?true:false}
+                                      defaultValue={itm.progress}
+                                      onChange={(e,n)=>{itm.progress = n;}}
+                                    />
+                                    <TextField
+                                        type="number"
+                                        name="elapse"
+                                        hintText="耗时"
+                                        floatingLabelText="耗时"
+                                        min={0}
+                                        defaultValue={itm.elapse} disabled={itm.status==1?true:false}
+                                        onChange={(e,n)=>{itm.elapse=n}}
+                                    />
+                                    <TextField 
+                                        type="textarea"
+                                        fullWidth={true}
+                                        rows={4}
+                                        rowsMax={6}
+                                        name="summary"
+                                        hintText="内容概要"
+                                        floatingLabelText="内容概要"
+                                        defaultValue={itm.summary} disabled={itm.status==1?true:false}
+                                        onChange={(e,n)=>{itm.summary=n;}}
+                                    />
+                                    <TextField 
+                                        type="textarea"
+                                        rows={4}
+                                        fullWidth={true}
+                                        rowsMax={6}
+                                        name="question"
+                                        hintText="遇到的问题"
+                                        floatingLabelText="遇到的问题"
+                                        defaultValue={itm.question} disabled={itm.status==1?true:false}
+                                        onChange={(e,n)=>{itm.question=n;}}
+                                    />
+                                </CardText>
+                                 <CardActions>
+                                 {itm.status==1?(
+                                    <div>
+                                    <RaisedButton label="编辑" labelColor={'#fff'} backgroundColor={lightBlue300} onClick={this.handle.task.edit.bind(this,itm)} />
+                                    <RaisedButton label="删除" labelColor={'#fff'}  style={{marginLeft:'10px'}} backgroundColor={red300} onClick={this.handle.task.delete.bind(this,itm)} />
+                                    </div>
+                                    ):(
+                                    <div>
+                                    <RaisedButton label="确定" labelColor={'#fff'}  style={{marginRight:'10px'}} backgroundColor={cyan300} onClick={this.handle.task.confirm.bind(this,itm)} />
+                                    <RaisedButton label="取消" onClick={this.handle.task.cancel.bind(this,itm)} />
+                                    </div>
+                                 )}
+                                  
+                                </CardActions>
+                            </Card>
+                            );
+                        })}
                     </GridTile>
                 </GridList>
-                <Editor style={{'display':'none'}} ref="editor" initContent={this.state.rp.content} onSelectionChange={this._onSelectionChange}/>
             </div>
         );
     },

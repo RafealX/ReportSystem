@@ -15,6 +15,7 @@ let myTask = {
 		status:1,
 		tasks:[{
 			name:'完成D3.js集成',
+			id:1,
 			progress:65,
 			elapse:3,
 			question:'兼容性哟普问题,是不是改变方向？;有些API表现形式怪异，不合预期',
@@ -23,6 +24,7 @@ let myTask = {
 		},{
 			name:'完成D3.js集成',
 			progress:30,
+			id:2,
 			elapse:2,
 			totaltime:5,
 			question:'兼容性哟普问题,是不是改变方向？;有些API表现形式怪异，不合预期',
@@ -42,6 +44,7 @@ let myTask = {
 			name:'完成D3.js集成',
 			progress:65,
 			elapse:3,
+			id:2,
 			question:'兼容性哟普问题,是不是改变方向？;有些API表现形式怪异，不合预期',
 			summary:'这个是个坑',
 			totaltime:4
@@ -49,6 +52,7 @@ let myTask = {
 			name:'完成D3.js集成',
 			progress:30,
 			elapse:2,
+			id:3,
 			totaltime:5,
 			question:'兼容性哟普问题,是不是改变方向？;有些API表现形式怪异，不合预期',
 			summary:'这个是个坑',
@@ -67,6 +71,7 @@ let myTask = {
 			name:'完成D3.js集成',
 			progress:65,
 			elapse:3,
+			id:4,
 			question:'兼容性哟普问题,是不是改变方向？;有些API表现形式怪异，不合预期',
 			summary:'这个是个坑',
 			totaltime:4
@@ -75,6 +80,7 @@ let myTask = {
 			progress:30,
 			totaltime:5,
 			elapse:2,
+			id:2,
 			question:'兼容性哟普问题,是不是改变方向？;有些API表现形式怪异，不合预期',
 			summary:'这个是个坑',
 			totaltime:4
@@ -92,7 +98,7 @@ let myTask = {
 			name:'完成D3.js集成',
 			progress:65,
 			elapse:3,
-
+			id:3,
 			question:'兼容性哟普问题,是不是改变方向？;有些API表现形式怪异，不合预期',
 			summary:'这个是个坑',
 			totaltime:4
@@ -101,6 +107,7 @@ let myTask = {
 			progress:30,
 			elapse:2,
 			totaltime:5,
+			id:4,
 			question:'兼容性哟普问题,是不是改变方向？;有些API表现形式怪异，不合预期',
 			summary:'这个是个坑',
 			totaltime:4
@@ -172,11 +179,12 @@ let teamTask = {
 				name:'完成D3.js集成',
 				progress:65,
 				elapse:3,
-
+				id:'0',
 				question:'兼容性哟普问题,是不是改变方向？;有些API表现形式怪异，不合预期',
 				summary:'这个是个坑',
 				totaltime:4
 			},{
+				id:'0',
 				name:'完成D3.js集成',
 				progress:30,
 				elapse:2,
@@ -192,7 +200,7 @@ let teamTask = {
 				name:'完成D3.js集成',
 				progress:65,
 				elapse:3,
-
+				id:'0',
 				question:'兼容性哟普问题,是不是改变方向？;有些API表现形式怪异，不合预期',
 				summary:'这个是个坑',
 				totaltime:4
@@ -203,7 +211,8 @@ let teamTask = {
 				totaltime:5,
 				question:'兼容性哟普问题,是不是改变方向？;有些API表现形式怪异，不合预期',
 				summary:'这个是个坑',
-				totaltime:4
+				totaltime:4,
+				id:'0',
 			}],
 		},{
 			name:'测试人员3',
@@ -212,7 +221,7 @@ let teamTask = {
 				name:'完成D3.js集成',
 				progress:65,
 				elapse:3,
-
+				id:'0',
 				question:'兼容性哟普问题,是不是改变方向？;有些API表现形式怪异，不合预期',
 				summary:'这个是个坑',
 				totaltime:4
@@ -221,6 +230,7 @@ let teamTask = {
 				progress:30,
 				elapse:2,
 				totaltime:5,
+				id:'0',
 				question:'兼容性哟普问题,是不是改变方向？;有些API表现形式怪异，不合预期',
 				summary:'这个是个坑',
 				totaltime:4

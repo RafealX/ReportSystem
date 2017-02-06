@@ -48,3 +48,6 @@ export function checkEnter(cb) {
         }
     }
 }
+export function uuid(){
+    return Math.random().toString(26).slice(2);
+} 
