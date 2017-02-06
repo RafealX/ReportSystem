@@ -10,15 +10,24 @@ const labelColor = '#00bcd4';
 const btnStyle = {marginRight: '20px'};
 
 module.exports = React.createClass({
+    getInitialState() {
+        let next = this.props.location.state;
+        let defaultState = {continue:next&&next.nextState?next.nextState:'/m/report/my/list'};
+        console.log(defaultState);
+        return defaultState;
+    },
     render() {
         return (
             <div className={style}>
                 <div className="banner">
-                    <h1>简报</h1>
-                    <p>简单好用的日报、周报、月报管理系统</p>
-                    <p>免费的信息同步工具</p>
+                    <h1>云音乐工作日报</h1>
+                    <p>基于任务的日报系统</p>
                     <div className="btn">
-                        <RaisedButton onClick={e => browserHistory.push('/account/login')} label="登录" labelColor={labelColor} style={btnStyle}/>
+                        <form action="/api/login" method="POST">
+                            <input ref="login" type="hidden" name="last"  value={this.state.continue}/>
+                            <RaisedButton type="submit" label="OpenID登录" labelColor={labelColor} style={btnStyle}/>
+                        </form>
+                        
                     </div>
                 </div>
             </div>

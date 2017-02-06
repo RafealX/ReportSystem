@@ -33,7 +33,7 @@ export function isMail(str) {
 export function mustLogin(nextState, replace) {
     if (!_user.id) {
         replace({
-            pathname: '/account/login',
+            pathname: '/index',
             state: {
                 nextPathname: nextState.location.pathname
             }

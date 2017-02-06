@@ -39,6 +39,12 @@ router.post('/login', function* () {
     }
 });
 
+router.get('/login/openid', function* (next) {
+    console.log('openid!!!!!');
+    this.redirect('http://www.baidu.com');
+    
+});
+
 /**
  * 用户注册
  */

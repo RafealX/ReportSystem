@@ -1,13 +1,8 @@
+import {mustLogin} from 'lib/util';
 module.exports = {
     path: 'index',
     onEnter(nextState, replace) {
-        if(_user.id) {
-            if(_user.groupId) {
-                replace('/m/report/my/list');
-            } else {
-                replace('/m/guide');
-            }
-        }
+        console.log(nextState);
     },
     getComponent(nextState, callback) {
         require.ensure([], function (require) {
