@@ -44,9 +44,3 @@ module.exports.resolveUser = function () {
         yield next;
     }
 };
-
-module.exports.openId = function(){
-    return function* (next){
-        
-    }
-}

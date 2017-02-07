@@ -23,7 +23,7 @@ module.exports = React.createClass({
                     <h1>云音乐工作日报</h1>
                     <p>基于任务的日报系统</p>
                     <div className="btn">
-                        <form action="/api/login" method="POST">
+                        <form action="/api/user/login/openid" method="POST">
                             <input ref="login" type="hidden" name="last"  value={this.state.continue}/>
                             <RaisedButton type="submit" label="OpenID登录" labelColor={labelColor} style={btnStyle}/>
                         </form>

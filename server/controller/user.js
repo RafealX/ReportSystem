@@ -2,6 +2,7 @@
  * 用户api
  */
 'use strict';
+const rq = require('request-promise');
 const router = require('koa-router')({prefix: '/user'});
 const User = require('../model/user');
 const Group = require('../model/group');
@@ -13,7 +14,7 @@ const util = require('../lib/util');
 const BusinessError = require('../error/BusinessError');
 const _ = require('lodash');
 const ErrCode = BusinessError.ErrCode;
-
+const OpenId = require('../lib/openid');
 /**
  * 用户登录
  */
@@ -40,11 +41,24 @@ router.post('/login', function* () {
 });
 
 router.get('/login/openid', function* (next) {
-    console.log('openid!!!!!');
-    this.redirect('http://www.baidu.com');
-    
+    logger.info(this.request);
+    let getAssociate = OpenId.association(next);
+    let request = yield getAssociate.next();
+    let associateKeys = getAssociate.next(request.value.body).value;
+    logger.info(this.header);
+    logger.info(associateKeys);
+    /*logger.info(result);
+    let redirectUrl = 'https://login.netease.com/accounts/login';
+    this.redirect('http://www.baidu.com');*/
+
 });
 
+router.get('/login/openid/cb', function* (next) {
+    console.log('openid!!!!!');
+    let redirectUrl = 'https://login.netease.com/accounts/login';
+    this.redirect('http://www.baidu.com');
+
+});
 /**
  * 用户注册
  */

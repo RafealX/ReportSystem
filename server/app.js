@@ -15,7 +15,7 @@ const paramsMiddleware = require('./middleware/params');
 const apiMiddleware = require('./middleware/api');
 const render = require('koa-ejs');
 const path = require('path');
-
+console.log(encodeURI('http://'));
 app.proxy = true;
 
 app.use(bodyParser());
