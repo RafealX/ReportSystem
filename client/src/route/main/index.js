@@ -80,7 +80,6 @@ const Cpn = React.createClass({
 module.exports = {
     path: 'm',
     component: Cpn,
-    onEnter:mustLogin,
     childRoutes: [
         require('./guide'),
         require('./group'),
