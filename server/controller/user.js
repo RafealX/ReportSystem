@@ -3,6 +3,8 @@
  */
 'use strict';
 const rq = require('request-promise');
+const jose = require('node-jose');
+const jwt = require('jsonwebtoken');
 const router = require('koa-router')({prefix: '/user'});
 const User = require('../model/user');
 const Group = require('../model/group');
@@ -15,6 +17,16 @@ const BusinessError = require('../error/BusinessError');
 const _ = require('lodash');
 const ErrCode = BusinessError.ErrCode;
 const OpenId = require('../lib/openid');
+const koarequest = require('koa-request');
+
+
+OpenId.set.options({
+    "client_id":'92d874daec3e11e6911c5cf3fc96a72c',
+    "client_secret":"6d05d72d2ba746959fb845c775f585b592d87b24ec3e11e6911c5cf3fc96a72c",
+    "cb_router":'/api/user/login/openid/cb',
+    'fail_url':'/index'
+});
+
 /**
  * 用户登录
  */
@@ -40,55 +52,117 @@ router.post('/login', function* () {
     }
 });
 
-router.get('/login/openid', function* (next) {
-    logger.info(this.request);
-    let getAssociate = OpenId.association(next);
-    let request = yield getAssociate.next();
-    let associateKeys = getAssociate.next(request.value.body).value;
-    logger.info(this.header);
-    logger.info(associateKeys);
-    /*logger.info(result);
-    let redirectUrl = 'https://login.netease.com/accounts/login';
-    this.redirect('http://www.baidu.com');*/
+router.post('/login/openid', function* (next) {
+    logger.info(this.request.body.last);
+    //let last_url = this.request.body.last ? this.request.body.last : "/m/report/my/list";
+
+    //openIdInstance.set.lasturl(last_url);
+
+    OpenId.connect(this);
+
+    /*let resulturl = this.request.header.origin;
+    let state = util.uuid();
+
+    this.session.state = state;
+    this.session.backUrl = last_url;
+    resulturl+='/api/user/login/openid/cb';
+    let redirectUrl = OpenId.generateAuthURL(resulturl,state);
+    this.redirect(redirectUrl);*/
 
 });
+router.all('/login/openid/cb', function* (next) {
+    let self = this;
+    let callBackGenerator = OpenId.callback(this);
+    let authorization = yield callBackGenerator.next();
+    let verifyresponse = yield callBackGenerator.next(authorization.value);
+    callBackGenerator.next(verifyresponse.value);
 
-router.get('/login/openid/cb', function* (next) {
-    console.log('openid!!!!!');
-    let redirectUrl = 'https://login.netease.com/accounts/login';
-    this.redirect('http://www.baidu.com');
 
-});
-/**
- * 用户注册
- */
-router.post('/register', function* () {
-    let params = this.request.params;
-    if (params.username && params.nickname && params.password) {
-        if (!util.isMail(params.username)) {
-            throw new BusinessError(ErrCode.INVALID_PARAM, '邮箱格式不正确');
-        }
-        try {
-            let user = yield thunkify(User.register).call(User,
-                Object.assign({workMail: params.username}, params),
-                params.password);
-            auth.login(this, user);
-            this.body = {
-                code: 200,
-                user: user
-            };
-            logger.info('新注册用户', user);
-        } catch (e) {
-            if (e instanceof passportLocalMongoose.errors.UserExistsError) {
-                throw new BusinessError(420, '该用户已注册');
-            } else {
-                logger.error('注册失败', e);
-                throw e;
-            }
-        }
-    } else {
-        throw new BusinessError(ErrCode.ABSENCE_PARAM);
+    /*let code = this.request.params.code;
+    let state = this.request.params.state;
+    let err_descript = this.request.params['error_description'];
+    let session_state = this.session.state;
+    if(!session_state || state!=session_state){
+        //两次state状态不一致，说明源不一致，可能是假请求，需要重新登录
+        this.redirect(failed_url);
     }
+    let result = '';
+    if(code!=null){
+        let options = {
+            method:'POST',
+            formData:{
+                "grant_type":"authorization_code",
+                code:code,
+                'redirect_uri':redirect_url,
+                'client_id':client_id,
+                'client_secret':client_secret
+            }
+        };
+        let response = yield koarequest(token_endpoint,options);
+        if(response.statusCode){
+            let body = JSON.parse(response.body);
+            let access_token = body["access_token"];
+            let id_token = body["id_token"];
+
+            var output= jwt.decode(id_token,{complete: true});
+            //获取结果解析数据
+            let payload = output.payload;
+            //获取算法数据
+            let alg = output.header.alg;
+            if(!payload){
+                this.redirect();
+            }
+            if(payload.iss!=oidc_server){
+                //iss 必须与网易的 OIDC Server 地址一致
+                this.redirect(failed_url);
+            }
+            if(payload.aud!=client_id){
+                // aud 必须包含client_id，网易这里只会有一个 aud，检查是否一致即可
+                this.redirect(failed_url);
+            }
+            if(Math.floor(new Date().getTime()/1000)>payload.exp){
+                //超时
+                this.redirect(failed_url);
+            }
+            //进行签名校验
+            if(alg=="HS256"){
+                var verifyResult = jwt.verify(id_token,client_secret);
+                if(verifyResult){
+                    //可以获取用户信息了
+                    let options = {
+                        method:'GET',
+                        qs:{
+                            'access_token':access_token
+                        },
+                        headers: {
+                            'User-Agent': 'ReportSystemUA'
+                        },
+                        json: true
+                    };
+                    let verifyRequest = yield koarequest(userinfo_endpoint,options);
+                    if(verifyRequest.statusCode==200){
+                        //self.body = JSON.stringify(verifyRequest.body);
+                        self.cookies.set('report_uinfo',JSON.stringify(verifyRequest.body));
+                        this.redirect();
+                    }else{
+
+                    }
+                }
+            }else{
+                //此处是使用RSA256加密的tokenid 看了Java代码，不知道怎么写，而且目前返回的结果都是HS256加密的
+            }
+            logger.info(output);
+        }else
+            this.redirect(failed_url);
+    }else if(err_descript!=""){
+        //登录失败，要传回消息给客户端
+        this.redirect(failed_url);
+    }else{
+        //登录失败，要传回消息给客户端
+        this.redirect(failed_url);
+    }
+
+    logger.info(state,session_state);*/
 });
 /**
  * 退出登录

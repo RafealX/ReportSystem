@@ -1,2 +1,2 @@
 start cmd /K "cd client&&gulp &"
-start cmd /K "cd server&&node app.js &"
+--start cmd /K "cd client&&gulp &"

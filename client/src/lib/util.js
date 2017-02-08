@@ -2,6 +2,7 @@
  * 工具方法
  */
 import 'whatwg-fetch';
+import cookie from 'react-cookie';
 
 export function fetch(url, option) {
     option && option.method && (option.method = option.method.toUpperCase());
@@ -31,7 +32,15 @@ export function isMail(str) {
 }
 
 export function mustLogin(nextState, replace) {
-    if (!_user.id) {
+    console.log("cookie",cookie.load("report_uinfo"));
+    let report_info = cookie.load("report_uinfo") || '';
+    let result = new Buffer(report_info, 'base64').toString();//str是base64编码的字符串
+    if(result){
+        result = JSON.parse(result);
+        console.log("cookie",result);
+        window.user = result;
+    }
+    if (!window.user) {
         replace({
             pathname: '/index',
             state: {

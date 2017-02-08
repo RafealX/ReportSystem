@@ -15,9 +15,19 @@ const paramsMiddleware = require('./middleware/params');
 const apiMiddleware = require('./middleware/api');
 const render = require('koa-ejs');
 const path = require('path');
-console.log(encodeURI('http://'));
-app.proxy = true;
+const session = require('koa-session');
 
+
+app.proxy = true;
+app.keys = ['reportSystem','ReactAndKOA'];
+var CONFIG = {
+    key: 'koa:sse', /** (string) cookie key (default is koa:sess) */
+    maxAge: 86400000, /** (number) maxAge in ms (default is 1 days) */
+    overwrite: true, /** (boolean) can overwrite or not (default true) */
+    httpOnly: true, /** (boolean) httpOnly or not (default true) */
+    signed: true, /** (boolean) signed or not (default true) */
+};
+app.use(session(CONFIG,app));
 app.use(bodyParser());
 app.use(paramsMiddleware());
 app.use(auth.resolveUser());
@@ -35,7 +45,7 @@ mongoose.connect(config.db.url);
 
 mongoose.connection.once('open', function () {
     logger.info('Mongo opened');
-    app.listen(config.server.listenPort, () => logger.info('Server listening on', config.server.listenPort));
+    app.listen(config.server.listenPort,'0.0.0.0', () => logger.info('Server listening on', config.server.listenPort));
 });
 
 mongoose.connection.once('error', err => logger.error('Mongo connect error ', err.message));
