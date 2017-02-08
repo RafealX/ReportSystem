@@ -27,7 +27,6 @@ export default React.createClass({
 			onClick={this._logout}><LogoutIcn color={red200}/></IconButton>);
 	},
 	_logout() {
-		alert(12);
 		this.setState({
             loading: true
         });
