@@ -9,11 +9,13 @@ const teamController = require('./team');
 const reportController = require('./report');
 
 module.exports.initialize = function (app) {
-	router.all('/',  function*(next){
+	router.all('*',mustLogin(),  function*(next){
         console.log(this.request);
         yield next;
 
     });
+
+
     router.use(userController.routes());
     router.use(groupController.routes());
     router.use(teamController.routes());
