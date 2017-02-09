@@ -46,7 +46,8 @@ const schema = helper.schema({
     id: Number,
     time: Number,
     others: String,
-    taskids: String,
+    tasks: String,
+    taskhistorys: String,
     userid: Number,
     groupid: Number,
 }, {
