@@ -81,11 +81,9 @@ module.exports = {
     path: 'm',
     component: Cpn,
     childRoutes: [
-        require('./guide'),
         require('./group'),
         require('./report'),
         require('./team'),
         require('./task'),
-        require('./profile')
     ]
 };

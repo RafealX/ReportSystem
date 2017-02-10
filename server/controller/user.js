@@ -64,25 +64,23 @@ router.all('/login/openid/cb', function* (next) {
 
     let result = callBackGenerator.next(verifyresponse.value);
     let UserInfo = result.value;
-
-    let remove = yield User.remove({});
-
     let list = yield User.find({nickname:UserInfo.nickname});
     if(list.length==1){
         var user = list[0].toObject();
         OpenId.goBack(this,user)
         console.log(list);
     }else{
-        let insertResult = yield User.insertMany([{
+        let insertResult = new User({
             name: UserInfo.fullname,
             groupid: 1,
             nickname:UserInfo.nickname,
             email:UserInfo.email,
             role: 1,
             id:util.uuid()
-        }]);
-        console.log(insertResult[0].toObject());
-        OpenId.goBack(this,insertResult[0].toObject());
+        });
+        insertResult.save();
+        console.log(insertResult.toObject());
+        OpenId.goBack(this,insertResult.toObject());
     }
        /* .sort({updateTime: -1})
         .skip(parseInt(params.offset) || 0)

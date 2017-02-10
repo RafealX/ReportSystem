@@ -51,12 +51,6 @@ module.exports = React.createClass({
             iconElementLeft:<IconButton title="新增工作日记" onClick={this._create}><AddIcon color={'#fff'}/></IconButton>
         };
         pubsub.publish('config.appBar', barConf);
-        fetch('/api/team/myList')
-            .then(d => {
-                this.setState({
-                    myTeams: d.teams
-                });
-            })
     },
     handleChange(e,c) {
         switch(c.props.value*1){
@@ -95,7 +89,7 @@ module.exports = React.createClass({
                 className="header" style={{'display':'none'}}
                 title={x.time}/>
             <CardText expandable>
-                <GridList cellHeight={300}>
+                <GridList cellHeight={300} cols={2}>
                     <GridTile >
                         <Toolbar>
                             <ToolbarGroup style={{textAlign:'center',width:'100%'}}>
@@ -111,6 +105,7 @@ module.exports = React.createClass({
                           </List>  
                           
                     </GridTile>
+
                     <GridTile>
                         <Toolbar>
                             <ToolbarGroup style={{textAlign:'center',width:'100%'}}>
