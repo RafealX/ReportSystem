@@ -37,5 +37,5 @@ module.exports.schema = function (def, options) {
 };
 
 module.exports.model = function (name, schema) {
-    return mongoose.model(name, schema);
+    return mongoose.model(name, schema,name);
 };

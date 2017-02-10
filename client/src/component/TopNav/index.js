@@ -54,7 +54,7 @@ export default React.createClass({
                 <h2>云音乐的工作日记</h2>
                 <div className="user">
                     <Link to="/m/profile" style={{marginLeft:'20px'}}>
-                        {this.state.loginUser.fullname}
+                        {this.state.loginUser.name}
                     </Link>
                     {this.state.loginUser ? <Logout user={this.state.loginUser} title="退出"/>:null}
                 </div>

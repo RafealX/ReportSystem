@@ -27,11 +27,11 @@ function* injectGroup(next) {
         }
     }
 }
+router.all('*',auth.mustLogin());
 /**
  * 获取所有小组
  */
-//router.all('*',auth.mustLogin());
-router.post('/get', auth.mustLogin(), function* () {
+router.get('/get', function* () {
     let groups = yield Group.find();
     let lists = [];
     groups.forEach(m => {
@@ -45,7 +45,7 @@ router.post('/get', auth.mustLogin(), function* () {
 /**
  * 添加小组
  */
-router.post('/add', auth.mustLogin(), injectGroup,function* () {
+router.post('/add', injectGroup,function* () {
     let name = this.request.params.name;
     let user = User.findById(this.state.userid).exec();
     if (!name) {
@@ -67,7 +67,7 @@ router.post('/add', auth.mustLogin(), injectGroup,function* () {
 /**
  * 编辑小组
  */
-router.post('/edit', auth.mustLogin(), injectGroup,function* () {
+router.post('/edit', injectGroup,function* () {
     let name = this.request.params.name;
     let ret = {};
     if (!name) {
@@ -83,7 +83,7 @@ router.post('/edit', auth.mustLogin(), injectGroup,function* () {
 /**
  * 删除小组
  */
-router.post('/delete', auth.mustLogin(), injectGroup,function* () {
+router.post('/delete',  injectGroup,function* () {
     let group = Group.findById(this.request.params.id);
     if (group.owner != this.state.userid) {
             throw new BusinessError(433, '没有权限');
@@ -96,7 +96,7 @@ router.post('/delete', auth.mustLogin(), injectGroup,function* () {
 /**
  * 获取小组成员
  */
-router.post('/getmember', auth.mustLogin(), injectGroup,function* () {
+router.post('/getmember', injectGroup,function* () {
     let group = Group.findById(this.request.params.id);
     let members = group.members;
     let lists = [];
@@ -111,7 +111,7 @@ router.post('/getmember', auth.mustLogin(), injectGroup,function* () {
 /**
  * 添加小组成员
  */
-router.post('/addmember', auth.mustLogin(), injectGroup,function* () {
+router.post('/addmember', injectGroup,function* () {
     let mail = this.request.params.mail;
     if (!mail) throw new BusinessError(ErrCode.ABSENCE_PARAM);
     let group = this.state.group;
@@ -130,7 +130,7 @@ router.post('/addmember', auth.mustLogin(), injectGroup,function* () {
 /**
  * 删除小组成员
  */
-router.post('/deletemember', auth.mustLogin(), injectGroup,function* () {
+router.post('/deletemember', injectGroup,function* () {
     let memberId = this.request.params.id;
     if (!memberId) throw new BusinessError(ErrCode.ABSENCE_PARAM);
     let group = this.state.group;
@@ -147,7 +147,7 @@ router.post('/deletemember', auth.mustLogin(), injectGroup,function* () {
 /**
  * 获取小组任务
  */
-router.post('/gettask', auth.mustLogin(), injectGroup,function* () {
+router.post('/gettask', injectGroup,function* () {
     let group = this.state.group;
     let task = Task.find({groupid: group.id}).exec();
     this.body = {
@@ -158,7 +158,7 @@ router.post('/gettask', auth.mustLogin(), injectGroup,function* () {
 /**
  * 获取小组日报
  */
-router.post('/getreport', auth.mustLogin(), function* () {
+router.post('/getreport', function* () {
     let params = this.request.params;
     let list = yield Report.find({groupid: this.state.group.id})
         .sort({updateTime: -1})

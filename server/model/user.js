@@ -21,14 +21,16 @@
 let helper = require('./helper');
 let passportLocalMongoose = require('passport-local-mongoose');
 let schema = helper.schema({
-    _id: String,
+    id: String,
     name: String,
     groupid: Number,
+    nickname:String,
+    email:String,
     role: Number
 }, {
-    ignores: ['salt', 'hash']
+    ignores: ['salt', 'hash'],
+    collection:'User'
 });
 
-schema.set('collection', 'users');
 schema.plugin(passportLocalMongoose);
 module.exports = helper.model('User', schema);

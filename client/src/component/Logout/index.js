@@ -32,8 +32,8 @@ export default React.createClass({
         });
         fetch('/api/user/logout')
             .then(d => {
-                window._user = {};
-                browserHistory.push('/index');
+                window.user = null;
+                browserHistory.replace('/login');
             })
             .catch(e => {
                 popup.error('退出失败');

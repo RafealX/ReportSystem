@@ -25,35 +25,12 @@ module.exports.sendMail = function (mail) {
     });
 };
 
-module.exports.encrypt = function (clear) {
-    let cipher = crypto.createCipher('aes192', skey);
-    let encrypted = cipher.update(clear, 'utf8', 'hex');
-    encrypted += cipher.final('hex');
-    return encrypted;
-};
-
-module.exports.decrypt = function (encrypted) {
-    let decipher = crypto.createDecipher('aes192', skey);
-    let decrypted = decipher.update(encrypted, 'hex', 'utf8');
-    decrypted += decipher.final('utf8');
-    return decrypted;
-};
-
 module.exports.isMail = function (str) {
     return /^\w+@\w+/.test(str);
 };
-module.exports.getIPAddress = function () {
-    var interfaces = require('os').networkInterfaces();
-    for(var devName in interfaces){
-        var iface = interfaces[devName];
-        for(var i=0;i<iface.length;i++){
-            var alias = iface[i];
-            if(alias.family === 'IPv4' && alias.address !== '127.0.0.1' && !alias.internal){
-                return alias.address;
-            }
-        }
-    }
-}
 module.exports.uuid = function (){
+    return Math.random().toString(26).slice(2);
+}
+module.exports.guid = function (){
     return Math.random().toString(26).slice(2);
 }

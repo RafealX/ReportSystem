@@ -22,6 +22,22 @@ module.exports.login = function (ctx, user) {
 
 module.exports.mustLogin = function () {
     return function* (next) {
+        let report_info = this.cookies.get('report_uinfo');
+        console.log(report_info);
+        if(report_info){
+            let result = new Buffer(report_info, 'base64').toString();//str是base64编码的字符串
+            if(result){
+                result = JSON.parse(result);
+                if(result.id){
+                    let user = yield User.findOne({id:result.id}).count();
+                    if(user>0){
+                        this.state.loginUser = result;
+                    }
+
+                }
+            }
+        }
+
         if (this.state.loginUser) {
             yield next;
         } else {
@@ -35,12 +51,38 @@ module.exports.mustLogin = function () {
 
 module.exports.resolveUser = function () {
     return function* (next) {
-        let key = this.cookies.get('s_key');
-        let security = key && JSON.parse(util.decrypt(key));
-        if (security && security.expires > Date.now()) {
-            this.state.userId = security.userId;
-            this.state.loginUser = yield User.findById(security.userId);
+        /*let report_info = this.cookies.get('report_uinfo');
+        //let security = key && JSON.parse(util.decrypt(key));
+        if(report_info){
+            let result = new Buffer(report_info, 'base64').toString();//str是base64编码的字符串
+            if(result){
+                result = JSON.parse(result);
+                if(result.id){
+                    let user = yield User.findOne({id:result.id}).count();
+                    if(user>0){
+                        this.state.loginUser = result;
+                        this.state.userId = result.id;
+                    }
+
+                }
+            }
         }
+*/
+        /*let report_info = this.cookies.get('report_uinfo');
+        console.log(report_info);
+        if(report_info){
+            let result = new Buffer(report_info, 'base64').toString();//str是base64编码的字符串
+            if(result){
+                result = JSON.parse(result);
+                if(result.id){
+                    let user = yield User.findOne({id:result.id}).count();
+                    if(user>0){
+                        this.state.loginUser = result;
+                    }
+
+                }
+            }
+        }*/
         yield next;
     }
 };

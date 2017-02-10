@@ -16,6 +16,10 @@ let Backend = {
 			}
 			return fetch(url,{body:datas,method:'GET'});
 		},
+		test:function(){
+			let url = prefix+'/report'+'/test';
+			return fetch(url,{method:'GET'});
+		},
 		add:function(data){
 			let url = prefix+'/report'+'/add';
 			return fetch(url,{body:data,method:'POST'});

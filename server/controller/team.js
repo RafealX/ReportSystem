@@ -141,6 +141,7 @@ router.post('/updateRole', auth.mustLogin(), injectTeam, function* () {
  * 我所在的小组列表
  */
 router.get('/myList', auth.mustLogin(), function* () {
+    console.log(this.state.loginUser);
     let userId = this.state.userId;
     let teams = yield Team.find({members: {$elemMatch: {userId: userId}}}).exec();
     this.body = {
