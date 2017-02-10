@@ -20,7 +20,7 @@ const ErrCode = BusinessError.ErrCode;
 /**
  * 获取个人日报
  */
-router.post('/get', auth.mustLogin(), function* () {
+router.post('/get', function* () {
     let params = this.request.params;
     let list = yield Report.find({userid: this.state.userid})
         .sort({updateTime: -1})
@@ -44,7 +44,7 @@ router.post('/get', auth.mustLogin(), function* () {
  /**
  * 添加日报
  */   
-router.post('/add', auth.mustLogin(), function* () {
+router.post('/add', function* () {
     let rData = this.request.params.report;
     rData.userid = this.state.userid;
     rData.groupid = this.state.groupId;
@@ -84,7 +84,7 @@ router.post('/add', auth.mustLogin(), function* () {
 /**
  * 发送日报
  */
-router.post('/send', auth.mustLogin(), function* () {
+router.post('/send', function* () {
     let report = yield Report.findById(this.request.query.id);
     if (!report) {
         throw new BusinessError(ErrCode.NOT_FIND);
@@ -99,7 +99,7 @@ router.post('/send', auth.mustLogin(), function* () {
 /**
  * 编辑、修改日报
  */
-router.post('/edit', auth.mustLogin(), function* () {
+router.post('/edit', function* () {
     let rData = this.request.params.report;
     //let report = yield Report.findById(this.request.query.id);
     let report = yield Report.findById(rData.id);
@@ -132,7 +132,19 @@ router.post('/edit', auth.mustLogin(), function* () {
 /**
  * 删除日报
  */
-router.post('/delete', auth.mustLogin(), function* () {
+router.post('/delete',function* () {
+    let report = yield Report.findById(this.request.query.id);
+    if (!report) {
+        throw new BusinessError(ErrCode.NOT_FIND);
+    }
+    report.status = 3;
+    yield report.save();
+    this.body = {
+        code: 200
+    };
+});
+
+router.post('/team/get',function* () {
     let report = yield Report.findById(this.request.query.id);
     if (!report) {
         throw new BusinessError(ErrCode.NOT_FIND);

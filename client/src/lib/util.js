@@ -2,7 +2,10 @@
  * 工具方法
  */
 import 'whatwg-fetch';
+import {browserHistory} from 'react-router';
 import cookie from 'react-cookie';
+
+export const indexroute = '/m/report/my/list';
 
 export function fetch(url, option) {
     option && option.method && (option.method = option.method.toUpperCase());
@@ -21,7 +24,13 @@ export function fetch(url, option) {
         .then(data => {
             if (data.code == 200) {
                 return data;
-            } else {
+            } else if(data.code && data.code==403){
+                //走登录流程
+                browserHistory.replace({
+                    pathname:'/login',
+                    state: { nextState: window.location.path?window.location.path:'/m/report/my/list' }
+                })
+            } else{
                 throw data;
             }
         });
@@ -32,21 +41,32 @@ export function isMail(str) {
 }
 
 export function mustLogin(nextState, replace) {
-    console.log("cookie",cookie.load("report_uinfo"));
+    if (!window.user) {
+        replace({
+            pathname: '/login',
+            state: {
+                nextPathname: nextState.location.pathname
+            }
+        });
+    }else{
+        if(nextState&&nextState.location&&nextState.location.state){
+            replace({
+                pathname: nextState.location.state
+            });
+        }
+    }
+}
+
+
+export function resolveUser() {
     let report_info = cookie.load("report_uinfo") || '';
     let result = new Buffer(report_info, 'base64').toString();//str是base64编码的字符串
     if(result){
         result = JSON.parse(result);
         console.log("cookie",result);
         window.user = result;
-    }
-    if (!window.user) {
-        replace({
-            pathname: '/index',
-            state: {
-                nextPathname: nextState.location.pathname
-            }
-        });
+    }else{
+        window.user = null;
     }
 }
 

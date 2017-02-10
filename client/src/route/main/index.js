@@ -6,7 +6,7 @@ import {AppBar} from 'material-ui';
 import Overlay from 'material-ui/internal/Overlay';
 import TopNav from 'cpn/TopNav';
 import pubsub from 'vanilla-pubsub';
-import {mustLogin} from 'lib/util';
+import {User} from 'lib/auth';
 
 const barStyle = {boxShadow: 0,width:'auto',marginLeft:'256px',backgroundColor:'#68a5c3'};
 const style = {height: '100%'};
@@ -80,7 +80,6 @@ const Cpn = React.createClass({
 module.exports = {
     path: 'm',
     component: Cpn,
-    onEnter:mustLogin,
     childRoutes: [
         require('./guide'),
         require('./group'),

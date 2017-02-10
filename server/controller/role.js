@@ -11,7 +11,8 @@ const ErrCode = BusinessError.ErrCode;
 
 /**
  * 设置权限
- */   
-router.post('/set', auth.mustLogin(), function* () {};
+ */
+router.all('*',auth.mustLogin());
+router.post('/set', function* () {});
 
 module.exports = router;

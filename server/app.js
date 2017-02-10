@@ -18,6 +18,11 @@ const path = require('path');
 const session = require('koa-session');
 
 
+if(process.env.NODE_ENV=='local'){
+    mongoose.set('debug',true);
+    console.log(process.env.NODE_ENV);
+}
+
 app.proxy = true;
 app.keys = ['reportSystem','ReactAndKOA'];
 var CONFIG = {
