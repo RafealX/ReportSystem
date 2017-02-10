@@ -23,10 +23,10 @@ let passportLocalMongoose = require('passport-local-mongoose');
 let schema = helper.schema({
     id: String,
     name: String,
-    groupid: Number,
+    groupid: {type:Number,default:1},
     nickname:String,
     email:String,
-    role: Number
+    role: {type:Number,default:1}
 }, {
     ignores: ['salt', 'hash'],
     collection:'User'

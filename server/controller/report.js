@@ -20,6 +20,7 @@ const ObjectId = require('mongodb').ObjectId;
 /**
  * 获取个人日报
  */
+
 router.get('/get', function* () {
     // let params = this.request.params;
     // let list = yield Report.find({userid: params.userid})
@@ -40,8 +41,22 @@ router.get('/get', function* () {
     //     code: 200,
     //     lists: list
     // };
+
+    let temp = new Report({
+        status: 1,
+        time: 3,
+        others:"sdfdsgdfgskd",
+        tasks: "1,2,3,3",
+        taskhistorys: String,
+        userid: this.request.body.userid,
+        groupid: 1,
+    });
+
+    temp.save();
     let params = this.request.params;
     let reports = [];
+    let tempd = yield Report.find({userid: params.userid});
+    console.log(temp);
     let list = yield Report.find({userid: params.userid})
     .skip(parseInt(params.offset) || 0)
     .limit(parseInt(params.limit) || 15);
@@ -92,9 +107,21 @@ router.get('/get', function* () {
 /**
  * 添加日报
  */   
-router.post('/add', function* () {
+router.post('/add', auth.mustLogin(),function* () {
     let rData = this.request.params;
-    let tasks = eval(rData.tasks);
+    let userid = this.request.params.userid;
+    let content = JSON.parse(this.request.body.content);
+    let tasks = [];
+    let reports = content.report;
+    let tempTasks = content.tasks;
+
+    //第一步，写入report表数据
+    //1.组织数据
+
+
+
+
+    //let tasks = eval(rData.tasks);
     let rReport = {};
     rReport.status = 1;
     rReport.time = new Date().getTime();
@@ -200,15 +227,14 @@ router.post('/edit', function* () {
  * 删除日报
  */
 router.post('/delete',function* () {
-    let report = yield Report.findById(this.request.query.id);
-    if (!report) {
-        throw new BusinessError(ErrCode.NOT_FIND);
+    let report = yield Report.findById(this.request.body.id);
+    if(report){
+        yield Report.update({id:this.request.body.id},{status:3});
+        this.body = {
+            code: 200
+        };
     }
-    report.status = 3;
-    yield report.save();
-    this.body = {
-        code: 200
-    };
+
 });
 
 router.post('/team/get',function* () {

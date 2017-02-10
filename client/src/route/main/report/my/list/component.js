@@ -28,7 +28,6 @@ const containerStyle = {
 
 module.exports = React.createClass({
     getInitialState() {
-        this.loadTest();
         return {rps: [], myTeams: [],stepIndex:0, finished: false,show:false,list:Mock.task.my.list,
         fixedHeader: true,
       fixedFooter: true,
@@ -189,13 +188,6 @@ module.exports = React.createClass({
     _loadList(data) {
         return Backend.report.get(data);
         //return fetch('/api/report/my?limit=${limit}&offset=${offset}');
-    },
-    loadTest() {
-        Backend.report.test().then(d=>{
-            console.log(d);
-        }).catch(e=>{
-            console.log(e);
-        });
     },
     _create() {
         browserHistory.push('/m/report/my/edit');

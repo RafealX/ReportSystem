@@ -39,20 +39,19 @@
  */
 'use strict';
 const helper = require('./helper');
+const util = require('../lib/util');
 const dayMs = 24 * 3600 * 1000;
-const schema = helper.schema({
-    status: Number,
-    _id: String,
+let schema = helper.schema({
+    status: {type:Number,default:1},
+    id: {type:String,default:util.uuid},
     time: Number,
     others: String,
     tasks: String,
-    taskhistorys: String,
     userid: String,
     groupid: String,
 }, {
-    timestamps: {createdAt: 'createTime', updatedAt: 'updateTime'}
+    collection:'Report'
 });
+schema.set('collection', 'Report');
 
-
-schema.set('collection', 'reports');
 module.exports = helper.model('Report', schema);

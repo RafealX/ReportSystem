@@ -78,6 +78,9 @@ export default React.createClass({
         };
         this.props.loadList(datas)
             .then(d => {
+
+
+
                 if (d.list && d.list.length) {
                     Array.prototype.push.apply(this.state.list, d.list);
                     if (d.total != null) {
@@ -92,6 +95,17 @@ export default React.createClass({
                     this.state.status = 'loaded';
                     !this.state.list.length && (this.state.status = 'empty');
                 }
+
+                 let templist = _.clone(this.state.list,true);
+                Array.prototype.push.apply(templist, tasklist);
+                //Array.prototype.push.apply(this.state.list, tasklist);
+
+                templist.sort((x,y)=>{
+                    console.log(new Date(x.time)-new Date(y.time));
+                    return new Date(y.time)-new Date(x.time);
+                });
+                this.setState({list:templist,status:'loaded'});
+                
                 this.forceUpdate();
             })
             .catch(e => {

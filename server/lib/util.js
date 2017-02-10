@@ -31,6 +31,3 @@ module.exports.isMail = function (str) {
 module.exports.uuid = function (){
     return Math.random().toString(26).slice(2);
 }
-module.exports.guid = function (){
-    return Math.random().toString(26).slice(2);
-}

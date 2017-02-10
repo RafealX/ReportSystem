@@ -104,14 +104,14 @@ export let Report={
 		_.each(result.task,itm=>{
 			delete result.status;
 		});
-		data.tasks = result.tasks;
+		data.tasks = result.task;
 		//是否要格式化时间
 		let sendData = {
 			userid:user.id,
 			content:JSON.stringify(data)
 		}
 		
-		return Backend.report.send(sendData);
+		return Backend.report.add(sendData);
 	},
 	get:function(){
 		return TaskObj;
