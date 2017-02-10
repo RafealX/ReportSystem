@@ -16,7 +16,9 @@ const util = require('../lib/util');
 const config = require('../config');
 const BusinessError = require('../error/BusinessError');
 const ErrCode = BusinessError.ErrCode;
-const ObjectId = require('mongodb').ObjectId; 
+const ObjectId = require('mongodb').ObjectId;
+
+
 /**
  * 获取个人日报
  */
