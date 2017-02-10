@@ -14,7 +14,7 @@
 'use strict';
 let helper = require('./helper');
 let schema = helper.schema({
-	id: Number,
+	_id: String,
     name: String,
     members: String,
     owner: String

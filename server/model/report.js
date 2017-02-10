@@ -39,17 +39,16 @@
  */
 'use strict';
 const helper = require('./helper');
-const format = require('date-format');
 const dayMs = 24 * 3600 * 1000;
 const schema = helper.schema({
     status: Number,
-    id: Number,
+    _id: String,
     time: Number,
     others: String,
     tasks: String,
     taskhistorys: String,
-    userid: Number,
-    groupid: Number,
+    userid: String,
+    groupid: String,
 }, {
     timestamps: {createdAt: 'createTime', updatedAt: 'updateTime'}
 });

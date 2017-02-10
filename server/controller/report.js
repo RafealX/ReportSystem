@@ -16,41 +16,88 @@ const util = require('../lib/util');
 const config = require('../config');
 const BusinessError = require('../error/BusinessError');
 const ErrCode = BusinessError.ErrCode;
-
+const ObjectId = require('mongodb').ObjectId; 
 /**
  * 获取个人日报
  */
-router.post('/get', function* () {
-    let params = this.request.params;
-    let list = yield Report.find({userid: this.state.userid})
-        .sort({updateTime: -1})
-        .skip(parseInt(params.offset) || 0)
-        .limit(parseInt(params.limit) || 15)
-        .forEach(t => {
-            let tasklist = [];
-            t.tasks.forEach(m => {
-                let task = Task.find({taskid: m});
-                tasklist.push(task);
-            })
-            t.push(tasklist);
-        });
-    //上面是通过tasks获得task,然后填到list里。
+router.get('/get', function* () {
+    // let params = this.request.params;
+    // let list = yield Report.find({userid: params.userid})
+    //     .sort({updateTime: -1})
+    //     .skip(parseInt(params.offset) || 0)
+    //     .limit(parseInt(params.limit) || 15)
+    //     .forEach(t => {
+    //         let tasklist = [];
+    //         t.tasks.forEach(m => {
+    //             let task = Task.find({taskid: m});
+    //             tasklist.push(task);
+    //         })
+    //         t.push(tasklist);
+    //     });
+    // //上面是通过tasks获得task,然后填到list里。
 
+    // this.body = {
+    //     code: 200,
+    //     lists: list
+    // };
+    let params = this.request.params;
+    let reports = [];
+    let list = yield Report.find({userid: params.userid})
+    .skip(parseInt(params.offset) || 0)
+    .limit(parseInt(params.limit) || 15);
+    for(let x=0,k=list.length;x<k;x++){
+        let taskArr = list[x].tasks.split(",");
+        let tasklist = [];  //存放真正的task列表
+        // taskArr.forEach(m =>{
+        //     var generator = function*(mm){
+        //         let para = yield Task.findById(mm);
+        //     };
+        //     let taskgenerator = generator(m);
+        //     let task = taskgenerator.next();
+        
+        // });
+        for(let i=0,l=taskArr.length;i<l;i++){
+            console.log(taskArr[i]);
+            //let para = yield Task.find({_id: ObjectId(taskArr[i])});
+            let para = yield Task.find({userid: day});
+            // let para = yield Task.find({userid: params.userid});
+            console.log(para);
+        }
+        //console.log(tasklist);
+        reports.push(list[x]);
+    }
+    // list.forEach(t => {
+    //     let taskArr = t.tasks.split(",");
+    //     let tasklist = [];  //存放真正的task列表
+    //     // taskArr.forEach(m =>{
+    //     //     var generator = function*(mm){
+    //     //         let para = yield Task.findById(mm);
+    //     //     };
+    //     //     let taskgenerator = generator(m);
+    //     //     let task = taskgenerator.next();
+        
+    //     // });
+    //     for(let i=0,l=taskArr.length;i<l;i++){
+    //         let para = yield Task.find({_id:ObjectId(taskArr[i])});
+    //         console.log(para);
+    //     }
+    //     //console.log(tasklist);
+    //     reports.push(t);
+    // });
     this.body = {
         code: 200,
-        list: list
-    };
+        reports: reports
+    }
 });
- /**
+/**
  * 添加日报
  */   
 router.post('/add', function* () {
-    let rData = this.request.params.report;
-    rData.userid = this.state.userid;
-    rData.groupid = this.state.groupId;
+    let rData = this.request.params;
+    let tasks = eval(rData.tasks);
     let rReport = {};
     rReport.status = 1;
-    rReport.time = rData.time;
+    rReport.time = new Date().getTime();
     rReport.others = rData.others;
     rReport.userid = rData.userid;
     rReport.groupid = rData.groupid;
@@ -58,26 +105,46 @@ router.post('/add', function* () {
     if(!rData){
         throw new BusinessError(ErrCode.ABSENCE_PARAM);
     }
-    /**
-    * 添加日报，调用3表
-    * reports
-    * tasks
-    * taskhistorys
-    **/ 
-    rData.tasks.forEach(t => {
-        let otask = Task.findById(t.taskid);
-        otask.progress = t.progress;
-        otask.save();
-        //history
-        //todo 不能直接new tasks中的项，因为task和taskhistory数据结构不一样，下面更新相同
-        let taskhistory = new Taskhistory(t);
-        taskhistory.save();
-    });
+    for(let i=0,l=tasks.length;i<l;i++){
+        //let otask =yield Task.find({_id:ObjectId(tasks[i]._id)});
+        console.log(tasks[i]._id);
+        let otask =yield Task.find({type:"day"});
+        console.log(otask);
+    }
+
+    // rData.userid = this.state.userid;
+    // rData.groupid = this.state.groupId;
+    // let rReport = {};
+    // rReport.status = 1;
+    // rReport.time = new Date().getTime();
+    // rReport.others = rData.others;
+    // rReport.userid = rData.userid;
+    // rReport.groupid = rData.groupid;
+    // rReport.tasks = [];
+    // if(!rData){
+    //     throw new BusinessError(ErrCode.ABSENCE_PARAM);
+    // }
+    // // *
+    // // * 添加日报，调用3表
+    // // * reports
+    // // * tasks
+    // // * taskhistorys
+    // // * 
+    // rData.tasks.forEach(t => {
+    //     let otask = Task.findById(t.taskid);
+    //     otask.progress = t.progress;
+    //     otask.save();
+    //     //history
+    //     //todo 不能直接new tasks中的项，因为task和taskhistory数据结构不一样，下面更新相同
+    //     let taskhistory = new Taskhistory(t);
+    //     taskhistory.save();
+    // });
     
-    let oReport = new Report(rReport);
-    yield oReport.save();
+    // let oReport = new Report(rReport);
+    // yield oReport.save();
     this.body = {
-        code: 200
+        code: 200,
+        data: rData
     };
 
 });

@@ -8,6 +8,8 @@ const userController = require('./user');
 const groupController = require('./group');
 const teamController = require('./team');
 const reportController = require('./report');
+
+const taskController = require('./task');
 const roleController = require("./role");
 const auth = require("../lib/auth.js");
 
@@ -17,6 +19,8 @@ module.exports.initialize = function (app) {
     router.use(teamController.routes());
     router.use(reportController.routes());
     router.use(roleController.routes());
+    router.use(taskController.routes());
+
     app.use(function* (next){
         var path = this.path;
         yield next;
