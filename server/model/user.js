@@ -21,7 +21,7 @@
 let helper = require('./helper');
 let passportLocalMongoose = require('passport-local-mongoose');
 let schema = helper.schema({
-    id: Number,
+    _id: String,
     name: String,
     groupid: Number,
     role: Number

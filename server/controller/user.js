@@ -21,8 +21,8 @@ const koarequest = require('koa-request');
 
 
 OpenId.set.options({
-    "client_id":'92d874daec3e11e6911c5cf3fc96a72c',
-    "client_secret":"6d05d72d2ba746959fb845c775f585b592d87b24ec3e11e6911c5cf3fc96a72c",
+    "client_id":'73e14ae0ee7b11e680bc5cf3fc96a72c',
+    "client_secret":"c9dd87604a994668a78a9b9c91e677b173e15166ee7b11e680bc5cf3fc96a72c",
     "cb_router":'/api/user/login/openid/cb',
     'fail_url':'/index'
 });

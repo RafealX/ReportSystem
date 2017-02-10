@@ -5,11 +5,12 @@
 let helper = require('./helper');
 let schema = helper.schema({
 	status: Number,
-	userid: Number,
+	name: String,
+	userid: String,
 	groupid: Number,
 	ticket: String,
 	progress: Number,
-	id: Number,
+	_id: String,
 	totaltime: Number,
 	isdelay: Boolean,
 	delayreason: String

@@ -30,6 +30,7 @@ function* injectGroup(next) {
 /**
  * 获取所有小组
  */
+//router.all('*',auth.mustLogin());
 router.post('/get', auth.mustLogin(), function* () {
     let groups = yield Group.find();
     let lists = [];
@@ -52,7 +53,7 @@ router.post('/add', auth.mustLogin(), injectGroup,function* () {
     }
     let group = new Group({
         name: name,
-        owner: this.state.userid
+        owner: this.state.userid,
         members: [{id: this.state.userid, name:user.name,role: 2}]
     });
     yield group.save();
