@@ -3,18 +3,19 @@
  */
 'use strict';
 let helper = require('./helper');
+const util = require('../lib/util');
 let schema = helper.schema({
 	status: Number,
 	name: String,
 	userid: String,
 	groupid: Number,
 	ticket: String,
-	progress: Number,
-	_id: String,
+	progress: {type:Number,default:0},
+	id: {type:String,default:util.uuid},
 	totaltime: Number,
-	isdelay: Boolean,
-	delayreason: String
-}, {});
+    time:Date,
+	isdelay: {type:Boolean,defaule:false},
+	delayreason: {type:String,default:''}
+}, {collection:'Task'});
 
-schema.set('collection', 'tasks');
 module.exports = helper.model('Task', schema);
