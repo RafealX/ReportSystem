@@ -50,49 +50,31 @@ router.get('/get', function* () {
  */   
 router.post('/add', auth.mustLogin(),function* () {
     let rData = this.request.params;
-    let userid = this.request.params.userid;
-    let content = JSON.parse(this.request.body.content);
-    let tasks = [];
-    let reports = content.report;
-    let tempTasks = content.tasks;
-
-    //第一步，写入report表数据
-    //1.组织数据
-
-
-
-
-    //let tasks = eval(rData.tasks);
     let rReport = {};
+    if(!rData){
+        throw new BusinessError(ErrCode.ABSENCE_PARAM);
+    }
     rReport.status = 1;
     rReport.time = new Date().getTime();
     rReport.others = rData.others;
     rReport.userid = rData.userid;
     rReport.groupid = rData.groupid;
-    rReport.tasks = [];
-    if(!rData){
-        throw new BusinessError(ErrCode.ABSENCE_PARAM);
-    }
-    for(let i=0,l=tasks.length;i<l;i++){
-        //let otask =yield Task.find({_id:ObjectId(tasks[i]._id)});
-        console.log(tasks[i]._id);
-        let otask =yield Task.find({type:"day"});
-        console.log(otask);
+    let taskhistorylist = JSON.parse(rData.taskhistorylist);
+
+    /*add日报
+    调用3表
+    task
+    taskhistorylist
+    report*/
+    for(var i=0,l=taskhistorylist.length;i<l;i++){
+        let taskid = taskhistorylist[i].targettask;
+        let mtask = yield Task.findOne({id:taskid});
+        mtask.totaltime += taskhistorylist[i].elapse;
+        mtask.progress = taskhistorylist[i].progress;
+        mtask.save();
+
     }
 
-    // rData.userid = this.state.userid;
-    // rData.groupid = this.state.groupId;
-    // let rReport = {};
-    // rReport.status = 1;
-    // rReport.time = new Date().getTime();
-    // rReport.others = rData.others;
-    // rReport.userid = rData.userid;
-    // rReport.groupid = rData.groupid;
-    // rReport.tasks = [];
-    // if(!rData){
-    //     throw new BusinessError(ErrCode.ABSENCE_PARAM);
-    // }
-    // // *
     // // * 添加日报，调用3表
     // // * reports
     // // * tasks
@@ -112,7 +94,7 @@ router.post('/add', auth.mustLogin(),function* () {
     // yield oReport.save();
     this.body = {
         code: 200,
-        data: rData
+        data: rReport
     };
 
 });
