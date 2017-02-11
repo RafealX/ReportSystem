@@ -27,6 +27,7 @@ router.get('/get', function* () {
     let reports = [];
     let params = this.request.params;
     let list = yield Report.find({userid: params.userid})
+    .sort({updateTime: 1})
     .skip(parseInt(params.offset) || 0)
     .limit(parseInt(params.limit) || 15);
     for(let x=0,k=list.length;x<k;x++){
@@ -50,15 +51,10 @@ router.get('/get', function* () {
  */   
 router.post('/add', auth.mustLogin(),function* () {
     let rData = this.request.params;
-    let rReport = {};
     if(!rData){
         throw new BusinessError(ErrCode.ABSENCE_PARAM);
     }
-    rReport.status = 1;
-    rReport.time = new Date().getTime();
-    rReport.others = rData.others;
-    rReport.userid = rData.userid;
-    rReport.groupid = rData.groupid;
+    let reporttaskids = [];
     let taskhistorylist = JSON.parse(rData.taskhistorylist);
 
     /*add日报
@@ -68,33 +64,38 @@ router.post('/add', auth.mustLogin(),function* () {
     report*/
     for(var i=0,l=taskhistorylist.length;i<l;i++){
         let taskid = taskhistorylist[i].targettask;
+        reporttaskids.push(taskhistorylist[i].targettask);
+        //task
         let mtask = yield Task.findOne({id:taskid});
         mtask.totaltime += taskhistorylist[i].elapse;
         mtask.progress = taskhistorylist[i].progress;
         mtask.save();
-
+        //taskhistory
+        let mtaskhistory = {};
+        mtaskhistory.id = util.uuid();
+        mtaskhistory.targettask = taskhistorylist[i].targettask;
+        mtaskhistory.elapse = taskhistorylist[i].elapse;
+        mtaskhistory.question = taskhistorylist[i].questioin;
+        mtaskhistory.summary = taskhistorylist[i].summary;
+        mtaskhistory.time = new Date().getTime();
+        mtaskhistory.progress = taskhistorylist[i].progress;
+        let taskhistory = new Taskhistory(mtaskhistory);
+        taskhistory.save();
     }
+    //report
+    let rReport = {};
+    rReport.status = 1;
+    rReport.time = new Date().getTime();
+    rReport.others = rData.others;
+    rReport.userid = rData.userid;
+    rReport.groupid = rData.groupid;
+    rReport.tasks = reporttaskids;
+    let mReport = new Report(rReport);
+    mReport.save();
 
-    // // * 添加日报，调用3表
-    // // * reports
-    // // * tasks
-    // // * taskhistorys
-    // // * 
-    // rData.tasks.forEach(t => {
-    //     let otask = Task.findById(t.taskid);
-    //     otask.progress = t.progress;
-    //     otask.save();
-    //     //history
-    //     //todo 不能直接new tasks中的项，因为task和taskhistory数据结构不一样，下面更新相同
-    //     let taskhistory = new Taskhistory(t);
-    //     taskhistory.save();
-    // });
-    
-    // let oReport = new Report(rReport);
-    // yield oReport.save();
     this.body = {
         code: 200,
-        data: rReport
+        data: mReport
     };
 
 });
@@ -102,7 +103,8 @@ router.post('/add', auth.mustLogin(),function* () {
  * 发送日报
  */
 router.post('/send', function* () {
-    let report = yield Report.findById(this.request.query.id);
+    let rData = this.request.params;
+    let report = yield Report.findOne({id:rData.reportid});
     if (!report) {
         throw new BusinessError(ErrCode.NOT_FIND);
     }
@@ -118,7 +120,6 @@ router.post('/send', function* () {
  */
 router.post('/edit', function* () {
     let rData = this.request.params.report;
-    //let report = yield Report.findById(this.request.query.id);
     let report = yield Report.findById(rData.id);
     if (!rData || !rData.id) {
         throw new BusinessError(ErrCode.ABSENCE_PARAM);
