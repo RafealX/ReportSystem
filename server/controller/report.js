@@ -24,72 +24,24 @@ const ObjectId = require('mongodb').ObjectId;
  */
 
 router.get('/get', function* () {
-    // let params = this.request.params;
-    // let list = yield Report.find({userid: params.userid})
-    //     .sort({updateTime: -1})
-    //     .skip(parseInt(params.offset) || 0)
-    //     .limit(parseInt(params.limit) || 15)
-    //     .forEach(t => {
-    //         let tasklist = [];
-    //         t.tasks.forEach(m => {
-    //             let task = Task.find({taskid: m});
-    //             tasklist.push(task);
-    //         })
-    //         t.push(tasklist);
-    //     });
-    // //上面是通过tasks获得task,然后填到list里。
 
-    // this.body = {
-    //     code: 200,
-    //     lists: list
-    // };
     let reports = [];
     let params = this.request.params;
-    let tasklist = [];
     let list = yield Report.find({userid: params.userid})
     .skip(parseInt(params.offset) || 0)
     .limit(parseInt(params.limit) || 15);
     for(let x=0,k=list.length;x<k;x++){
-        let taskArr = list[x].tasks.split(",");
+        let rpitm = list[x].toObject();
+        let taskArr = rpitm.tasks.split(",");
         let tasklist = [];  //存放真正的task列表
-        // taskArr.forEach(m =>{
-        //     var generator = function*(mm){
-        //         let para = yield Task.findById(mm);
-        //     };
-        //     let taskgenerator = generator(m);
-        //     let task = taskgenerator.next();
-
-        // });
         for(let i=0,l=taskArr.length;i<l;i++){
-            console.log(taskArr[i]);
-            //let para = yield Task.find({_id: ObjectId(taskArr[i])});
-            let para = yield Task.find({id: taskArr[i]});
-            // let para = yield Task.find({userid: params.userid});
-            console.log(para);
-            tasklist.push(para);
+            let para = yield Task.findOne({id: taskArr[i]});
+            tasklist.push(para.toObject());
         }
-        list[x].tasklist=tasklist;
-        //console.log(tasklist);
-        reports.push(list[x]);
+        rpitm.tasklist=tasklist;
+        reports.push(rpitm);
     }
-    // list.forEach(t => {
-    //     let taskArr = t.tasks.split(",");
-    //     let tasklist = [];  //存放真正的task列表
-    //     // taskArr.forEach(m =>{
-    //     //     var generator = function*(mm){
-    //     //         let para = yield Task.findById(mm);
-    //     //     };
-    //     //     let taskgenerator = generator(m);
-    //     //     let task = taskgenerator.next();
-        
-    //     // });
-    //     for(let i=0,l=taskArr.length;i<l;i++){
-    //         let para = yield Task.find({_id:ObjectId(taskArr[i])});
-    //         console.log(para);
-    //     }
-    //     //console.log(tasklist);
-    //     reports.push(t);
-    // });
+
     this.body = {
         code: 200,
         reports: reports
