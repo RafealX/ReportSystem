@@ -24,7 +24,6 @@ const ObjectId = require('mongodb').ObjectId;
  */
 
 router.get('/get', function* () {
-
     let reports = [];
     let params = this.request.params;
     let list = yield Report.find({userid: params.userid})
@@ -41,7 +40,6 @@ router.get('/get', function* () {
         rpitm.tasklist=tasklist;
         reports.push(rpitm);
     }
-
     this.body = {
         code: 200,
         reports: reports
