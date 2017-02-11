@@ -36,7 +36,7 @@ router.get('/get', function* () {
         let tasklist = [];  //存放真正的task列表
         for(let i=0,l=taskArr.length;i<l;i++){
             let para = yield Taskhistory.findOne({id: taskArr[i]});
-            tasklist.push(para.toObject());
+            if(para) tasklist.push(para.toObject());
         }
         rpitm.taskhistorylist=tasklist;
         reports.push(rpitm);
@@ -69,7 +69,7 @@ router.post('/add', auth.mustLogin(),function* () {
         let mtask = yield Task.findOne({id:taskid});
         mtask.totaltime += taskhistorylist[i].elapse;
         mtask.progress = taskhistorylist[i].progress;
-        mtask.save();
+        yield mtask.save();
         //taskhistory
         let mtaskhistory = {};
         mtaskhistory.id = util.uuid();
@@ -80,7 +80,7 @@ router.post('/add', auth.mustLogin(),function* () {
         mtaskhistory.time = new Date().getTime();
         mtaskhistory.progress = taskhistorylist[i].progress;
         let taskhistory = new Taskhistory(mtaskhistory);
-        taskhistory.save();
+        yield taskhistory.save();
     }
     //report
     let rReport = {};
@@ -91,7 +91,7 @@ router.post('/add', auth.mustLogin(),function* () {
     rReport.groupid = rData.groupid;
     rReport.tasks = reporttaskids;
     let mReport = new Report(rReport);
-    mReport.save();
+    yield mReport.save();
 
     this.body = {
         code: 200,
@@ -101,6 +101,7 @@ router.post('/add', auth.mustLogin(),function* () {
 });
 /**
  * 发送日报
+ * para reportid
  */
 router.post('/send', function* () {
     let rData = this.request.params;
@@ -113,56 +114,66 @@ router.post('/send', function* () {
     this.body = {
         code: 200
     };
-
 });
 /**
  * 编辑、修改日报
+ * para reportid
  */
 router.post('/edit', function* () {
-    let rData = this.request.params.report;
-    let report = yield Report.findById(rData.id);
-    if (!rData || !rData.id) {
+    let rData = this.request.params;
+    if(!rData){
         throw new BusinessError(ErrCode.ABSENCE_PARAM);
     }
-    report.time = rData.time;
-    report.others = rData.others;
-    /**
-    * 更新日报，调用3表
-    * reports
-    * tasks
-    * taskhistorys
-    **/ 
-    rData.tasks.forEach(t => {
-        let otask = Task.findById(t.taskid);
-        otask.progress = t.progress;
-        otask.save();
-        //history
-        //todo
-        let taskhistory = new Taskhistory(t);
-        taskhistory.save();
-    });
-    let oReport = new Report(rReport);
-    yield oReport.save();
+    let reporttaskids = [];
+    let taskhistorylist = JSON.parse(rData.taskhistorylist);
+
+    /*add日报
+     调用3表
+     task
+     taskhistorylist
+     report*/
+    for(var i=0,l=taskhistorylist.length;i<l;i++){
+        let taskid = taskhistorylist[i].targettask;
+        reporttaskids.push(taskhistorylist[i].targettask);
+        //task
+        let mtask = yield Task.findOne({id:taskid});
+        mtask.totaltime += taskhistorylist[i].elapse;
+        mtask.progress = taskhistorylist[i].progress;
+        yield mtask.save();
+        //taskhistory
+        let mtaskhistory = {};
+        mtaskhistory.id = util.uuid();
+        mtaskhistory.targettask = taskhistorylist[i].targettask;
+        mtaskhistory.elapse = taskhistorylist[i].elapse;
+        mtaskhistory.question = taskhistorylist[i].questioin;
+        mtaskhistory.summary = taskhistorylist[i].summary;
+        mtaskhistory.time = new Date().getTime();
+        mtaskhistory.progress = taskhistorylist[i].progress;
+        let taskhistory = new Taskhistory(mtaskhistory);
+        yield taskhistory.save();
+    }
+    //report
+    let reportid = rData.reportid;
+    let rReport = yield Report.findOne({id:reportid});
+    rReport.time = new Date().getTime();
+    rReport.others = rData.others;
+    rReport.userid = rData.userid;
+    rReport.groupid = rData.groupid;
+    rReport.tasks = reporttaskids;
+    yield rReport.save();
+
     this.body = {
-        code: 200
+        code: 200,
+        data: rReport
     };
 });
 /**
  * 删除日报
+ * para reportid
  */
 router.post('/delete',function* () {
-    let report = yield Report.findById(this.request.body.id);
-    if(report){
-        yield Report.update({id:this.request.body.id},{status:3});
-        this.body = {
-            code: 200
-        };
-    }
-
-});
-
-router.post('/team/get',function* () {
-    let report = yield Report.findById(this.request.query.id);
+    let rData = this.request.params;
+    let report = yield Report.findOne({id:rData.reportid});
     if (!report) {
         throw new BusinessError(ErrCode.NOT_FIND);
     }
@@ -171,6 +182,34 @@ router.post('/team/get',function* () {
     this.body = {
         code: 200
     };
+
+});
+/**
+ * 小组日报
+ * para groupid
+ */
+router.post('/team/get',function* () {
+    let reports = [];
+    let params = this.request.params;
+    let list = yield Report.find({groupid: params.groupid})
+        .sort({updateTime: 1})
+        .skip(parseInt(params.offset) || 0)
+        .limit(parseInt(params.limit) || 15);
+    for(let x=0,k=list.length;x<k;x++){
+        let rpitm = list[x].toObject();
+        let taskArr = rpitm.tasks.split(",");
+        let tasklist = [];  //存放真正的task列表
+        for(let i=0,l=taskArr.length;i<l;i++){
+            let para = yield Taskhistory.findOne({id: taskArr[i]});
+            if(para) tasklist.push(para.toObject());
+        }
+        rpitm.taskhistorylist=tasklist;
+        reports.push(rpitm);
+    }
+    this.body = {
+        code: 200,
+        reports: reports
+    }
 });
 
 
