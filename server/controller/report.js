@@ -23,10 +23,10 @@ const ObjectId = require('mongodb').ObjectId;
  * 获取个人日报
  */
 
-router.get('/get', function* () {
+router.get('/get',auth.mustLogin(), function* () {
     let reports = [];
     let params = this.request.params;
-    let list = yield Report.find({userid: params.userid})
+    let list = yield Report.find({userid: params.userid,status:{"$ne":3}})
     .sort({updateTime: 1})
     .skip(parseInt(params.offset) || 0)
     .limit(parseInt(params.limit) || 15);
@@ -103,7 +103,7 @@ router.post('/add', auth.mustLogin(),function* () {
  * 发送日报
  * para reportid
  */
-router.post('/send', function* () {
+router.post('/send',auth.mustLogin(), function* () {
     let rData = this.request.params;
     let report = yield Report.findOne({id:rData.reportid});
     if (!report) {
@@ -119,7 +119,7 @@ router.post('/send', function* () {
  * 编辑、修改日报
  * para reportid
  */
-router.post('/edit', function* () {
+router.post('/edit',auth.mustLogin(), function* () {
     let rData = this.request.params;
     if(!rData){
         throw new BusinessError(ErrCode.ABSENCE_PARAM);
@@ -171,7 +171,7 @@ router.post('/edit', function* () {
  * 删除日报
  * para reportid
  */
-router.post('/delete',function* () {
+router.post('/delete',auth.mustLogin(),function* () {
     let rData = this.request.params;
     let report = yield Report.findOne({id:rData.reportid});
     if (!report) {
@@ -188,7 +188,7 @@ router.post('/delete',function* () {
  * 小组日报
  * para groupid
  */
-router.post('/team/get',function* () {
+router.post('/team/get',auth.mustLogin(),function* () {
     let reports = [];
     let params = this.request.params;
     let list = yield Report.find({groupid: params.groupid})
