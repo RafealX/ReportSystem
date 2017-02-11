@@ -21,7 +21,7 @@ const ErrCode = BusinessError.ErrCode;
  */
 router.post('/get', auth.mustLogin(), function* () {
 	let params = this.request.params;
-	let tasklist = yield Task.find({userid: this.state.userid});
+	let tasklist = yield Task.find({userid: this.state.loginUser.id,status:{"$lte":2}});
 	this.body={
 		code: 200,
 		list: tasklist
@@ -156,31 +156,31 @@ let MockTaskHistoty = function (taskid,currentDay,progress,taskname) {
 
  /**
  * 添加任务
+  * para   name
+  * para   ticket
+  * para   totaltime
+  * para   description
  */   
-router.post('/add', function* () {
-    /*let date = new Date;
-    let task = new Task({
-        status: 1,
-        name: "这可能是个假任务",
-        userid:"hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek150icfb9jd" ,
-        groupid: 1,
-        ticket: '',
-        progress:35,
-        totaltime: 4,
-        time:date.setDate(date.getDate()-1),
-        isdelay: false,
-        delayreason: ''
-	});
-    task.save();*/
-    //MockTask();
-	let rData = this.request.params.task;
+router.post('/add',auth.mustLogin(), function* () {
+	let rData = this.request.params;
+	let mtask = {};
 	if(!rData){
 		throw new BusinessError(ErrCode.ABSENCE_PARAM);
 	};
-	rData.status = 1;
-	rData.userid = this.state.userid;
-	/*task = new Task(rData);
-	yield task.save();*/
+	mtask.status = 1;
+	mtask.userid = this.state.loginUser.id;
+	mtask.groupid = this.state.loginUser.groupid;
+	mtask.time = new Date().getTime();
+    mtask.isdelay = false;
+    mtask.delayreason = '';
+    mtask.name = rData.name;
+    mtask.ticket = rData.ticket;
+    mtask.totaltime = rData.totaltime;
+	mtask.description = rData.description;
+	mtask.progress = 0;
+    let task = new Task(mtask);
+    yield task.save();
+
 	this.body = {
 		code:200,
 		task: task
