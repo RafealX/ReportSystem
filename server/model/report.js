@@ -44,7 +44,7 @@ const dayMs = 24 * 3600 * 1000;
 let schema = helper.schema({
     status: {type:Number,default:1},
     id: {type:String,default:util.uuid},
-    time: Number,
+    time: Date,
     others: String,
     tasks: String,
     userid: String,

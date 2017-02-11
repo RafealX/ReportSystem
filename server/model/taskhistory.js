@@ -3,18 +3,17 @@
  */
 'use strict';
 let helper = require('./helper');
-let passportLocalMongoose = require('passport-local-mongoose');
+let util = require('../lib/util');
 let schema = helper.schema({
-    _id: String,
-    taskid: String,
+    id: {type:String,default:util.uuid()},
+    targettask: String,
+    taskname:String,
     elapse: Number,    //耗时
     question: String,
     summary: String,
     time: Date,
     progress: Number
 }, {
-    collection:'Taskhistory'
+    collection:'TaskHistory'
 });
-
-schema.plugin(passportLocalMongoose);
-module.exports = helper.model('Taskhistory', schema);
+module.exports = helper.model('TaskHistory', schema);
