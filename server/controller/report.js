@@ -34,10 +34,10 @@ router.get('/get', function* () {
         let taskArr = rpitm.tasks.split(",");
         let tasklist = [];  //存放真正的task列表
         for(let i=0,l=taskArr.length;i<l;i++){
-            let para = yield Task.findOne({id: taskArr[i]});
+            let para = yield Taskhistory.findOne({id: taskArr[i]});
             tasklist.push(para.toObject());
         }
-        rpitm.tasklist=tasklist;
+        rpitm.taskhistorylist=tasklist;
         reports.push(rpitm);
     }
     this.body = {
