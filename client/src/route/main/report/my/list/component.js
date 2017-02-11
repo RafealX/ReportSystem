@@ -3,19 +3,19 @@
  */
 import React from 'react';
 import {browserHistory} from 'react-router';
-import {FlatButton, Toolbar,ToolbarGroup,ToolbarTitle,Card, CardActions, CardHeader, IconButton,Dialog,DatePicker,Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn,GridList, GridTile,
+import {FlatButton,RaisedButton, Toolbar,ToolbarGroup,ToolbarTitle,Card, CardActions, CardHeader, IconButton,Dialog,DatePicker,Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn,GridList, GridTile,
     CardText, List, ListItem, Avatar, Divider, Popover, Menu, MenuItem,Step,Stepper,StepLabel,StepContent} from 'material-ui';
 import AddIcon from 'material-ui/svg-icons/content/add';
+import {red300,red200,lightBlue300,cyan300} from 'material-ui/styles/colors';
 import IconMenu from 'material-ui/IconMenu';
 import {fetch} from 'lib/util';
 import popup from 'cpn/popup';
 import {style} from '../../index.scss';
 import pubsub from 'vanilla-pubsub';
 import ListView from 'cpn/ListView';
-import Mock from 'cpn/Mock';
 import _ from 'lodash';
 import Backend from 'lib/backend';
-
+import {Report} from './model';
 
 
 const StepperStyle = {
@@ -25,22 +25,17 @@ const containerStyle = {
     display:'none'
 }
 
+let unlisten = browserHistory.listen((location, action)=>{
+    Report.reset();
+});
 
 module.exports = React.createClass({
     getInitialState() {
-        return {rps: [], myTeams: [],stepIndex:0, finished: false,show:false,list:Mock.task.my.list,
-        fixedHeader: true,
-      fixedFooter: true,
-      stripedRows: false,
-      showRowHover: false,
-      selectable: true,
-      multiSelectable: false,
-      enableSelectAll: false,
-      deselectOnClickaway: true,
-      showCheckboxes: true,
-      height: '300px'};
+        Report.reset();
+        return {rps: [], myTeams: [],stepIndex:0, finished: false,show:false};
     },
     componentDidMount() {
+
         let barConf = {
             title: '新增工作日记',
             titleStyle:{
@@ -50,6 +45,11 @@ module.exports = React.createClass({
             iconElementLeft:<IconButton title="新增工作日记" onClick={this._create}><AddIcon color={'#fff'}/></IconButton>
         };
         pubsub.publish('config.appBar', barConf);
+
+    },
+    componentWillUnmount() {
+        unlisten();
+        Report.reset();
     },
     handleChange(e,c) {
         switch(c.props.value*1){
@@ -65,30 +65,28 @@ module.exports = React.createClass({
     render() {
         let reportRender = (x,i)=>
             <div>
-            <span>{i+1}&nbsp;&nbsp;</span>
+            <span>{(i+1)+'.'}&nbsp;&nbsp;</span>
             <span>{x.content}&nbsp;&nbsp;</span>
             <span>{x.elapse?x.elapse+'小时  ':''}</span>
             <span>{x.ticket}&nbsp;&nbsp;</span>
             </div>;
         let taskRender = (x,i)=><div>
-            <span>{i+1}&nbsp;&nbsp;</span>
-            <span>{x.name}&nbsp;&nbsp;</span>
-            <span>{x.progress?x.progress+'%  ':''}</span>
-            <span>{x.elapse?x.elapse+'小时':''}</span>
-            <h4 style={{fontWeight:'normal',lineHeight:'20px',marginLeft: '18px'}}>问题：{x.question}</h4>
-            <h4 style={{fontWeight:'normal',lineHeight:'20px',marginLeft: '18px'}}>总结：{x.summary}</h4>
+            <div className="top" style={{lineHeight:'24px',}}>
+                <span>{(i+1)+'.'}&nbsp;&nbsp;</span>
+                <span>{x.taskname}&nbsp;&nbsp;</span>
+                <span>{x.progress?x.progress+'%  ':''}</span>
+                <span>{x.elapse?x.elapse+'小时':''}</span>
+            </div>
+            <h4 style={{fontWeight:'normal',lineHeight:'24px',marginLeft: '20px'}}>问题：{x.question}</h4>
+            <h4 style={{fontWeight:'normal',lineHeight:'24px',marginLeft: '20px'}}>总结：{x.summary}</h4>
             </div>;
         let itemRender = (x, i) => 
-        <Step active={true} className="step">
+        <Step active={true} className="step" style={{display:x.status!=3?'block':'none'}}>
         <StepLabel iconContainerStyle={containerStyle}>{new Date(x.time).toLocaleDateString()}</StepLabel>
         <StepContent>
           <Card initiallyExpanded key={i} className="item">
-            <CardHeader
-                showExpandableButton
-                className="header" style={{'display':'none'}}
-                title={x.time}/>
             <CardText expandable>
-                <GridList cellHeight={300} cols={2}>
+                <GridList cellHeight={'auto'} cols={2}>
                     <GridTile >
                         <Toolbar>
                             <ToolbarGroup style={{textAlign:'center',width:'100%'}}>
@@ -96,8 +94,8 @@ module.exports = React.createClass({
                             </ToolbarGroup>
                         </Toolbar>
                           <List>
-                            {x.reports.map( (row, index) => (
-                              <ListItem key={index}  selected={row.selected}>
+                            {x.reports.map((row, index) => (
+                              <ListItem disabled={true} key={index}  selected={row.selected}>
                                 {reportRender(row,index)}
                               </ListItem>
                               ))}
@@ -112,66 +110,35 @@ module.exports = React.createClass({
                             </ToolbarGroup>
                         </Toolbar>
                             <List>
-                            {x.tasks.map( (row, index) => (
-                              <ListItem key={index}  selected={row.selected}>
+                            {x.taskhistorylist.map( (row, index) => (
+                              <ListItem disabled={true} key={index}  selected={row.selected}>
                                 {taskRender(row,index)}
                               </ListItem>
                               ))}
                           </List>  
-                          <Table
-                          height={this.state.height} style={{display:'none'}}
-                        >
-                          <TableHeader displaySelectAll={false}
-                          >
-                            <TableRow>
-                              <TableHeaderColumn  style={{textAlign: 'center'}}>任务名</TableHeaderColumn>
-                              <TableHeaderColumn  style={{textAlign: 'center'}}>进度</TableHeaderColumn>
-                              <TableHeaderColumn  style={{textAlign: 'center'}}>内容</TableHeaderColumn>
-                              <TableHeaderColumn  style={{textAlign: 'center'}}>耗时</TableHeaderColumn>
-                              <TableHeaderColumn  style={{textAlign: 'center'}}>问题</TableHeaderColumn>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody
-                            displayRowCheckbox={false}
-                            deselectOnClickaway={true}
-                            showRowHover={true}
-                            stripedRows={false}
-                          >
-                            {x.tasks.map( (row, index) => (
-                              <TableRow key={index}  selected={row.selected}>
-                                <TableRowColumn  style={{textAlign: 'center'}}>{row.name}</TableRowColumn>
-                                <TableRowColumn  style={{textAlign: 'center'}}>{row.progress+'%'}</TableRowColumn>
-                                <TableRowColumn  style={{textAlign: 'center'}}>{row.summary}</TableRowColumn>
-                                <TableRowColumn  style={{textAlign: 'center'}}>{row.elapse}</TableRowColumn>
-                                <TableRowColumn  style={{textAlign: 'center'}}>{row.question}</TableRowColumn>
-                              </TableRow>
-                              ))}
-                          </TableBody>
-                        </Table>
                     </GridTile>
                 </GridList>
-                <div className="content" style={{'display':x.reports&&x.reports.length>2?'block':'none'}}>
-                    
-                </div>
             </CardText>
-            <CardActions style={{'display':x.status==1?'block':'none'}}>
-                <FlatButton label="删除" disabled={x.status!=1}
-                            onClick={this._delete.bind(this, x)}/>
-                <FlatButton label="编辑"
-                            disabled={x.status!=1}
-                            onClick={this._onEdit.bind(this, x)}/>
-                <FlatButton label="发送"
-                            disabled={x.status!=1}
-                            onClick={this._onSend.bind(this, x)}/>
+            <CardActions style={{'display':x.status==1?'block':'none',padding:'16px'}}>
+                <RaisedButton label="删除" backgroundColor={red300} labelColor='#fff'
+                  onClick={this._delete.bind(this, x)}
+                />
+                <RaisedButton label="编辑" backgroundColor={lightBlue300} labelColor='#fff'
+                  onClick={this._onEdit.bind(this, x)}
+                />
+                <RaisedButton label="发送" backgroundColor={cyan300} labelColor='#fff'
+                  onClick={this._onSend.bind(this, x)}
+                
+                />
             </CardActions>
         </Card>
         </StepContent>
         </Step>
         ;
         return (
-            <div className={style}>
+            <div className={style} ref="reportcontainer">
                 <Stepper orientation="vertical" linear={false} children={[]}>
-                  <ListView ref="listView" loadList={this._loadList} itemRender={itemRender}/>
+                  <ListView ref="listView" loadList={Report.get} getter={Report.operation.get} formatter={Report.formatter} itemRender={itemRender}/>
                 </Stepper>
                 
                 <Popover
@@ -185,10 +152,6 @@ module.exports = React.createClass({
             </div>
         );
     },
-    _loadList(data) {
-        return Backend.report.get(data);
-        //return fetch('/api/report/my?limit=${limit}&offset=${offset}');
-    },
     _create() {
         browserHistory.push('/m/report/my/edit');
     },
@@ -198,13 +161,12 @@ module.exports = React.createClass({
             onOk: () => {
                 Backend.report.delete(rp.id).then()
                     .then(d => {
-                        this.refs.listView.deleteItem(rp.id);
+                        Report.operation.delete(rp);
+                        this.refs.listView.delete();
                         popup.success('删除成功');
                     })
                     .catch(e => {
-                        //popup.success('删除失败');
-                        this.refs.listView.deleteItem(rp.id);
-                        popup.success('删除成功');
+                        popup.success('删除失败');
                     })
             }
         });
@@ -214,13 +176,12 @@ module.exports = React.createClass({
         let reportId = rp.id;
         Backend.report.send(reportId)
         .then(d => {
-                this.refs.listView.updateItem(reportId, {'status':2});
+                Report.operation.update(rp);
+                this.refs.listView.updateView();
                 popup.success('发送成功');
             })
         .catch(e => {
-            //popup.error('发送失败');
-            this.refs.listView.updateItem(reportId, {'status':2});
-            popup.success('发送成功');
+            popup.error('发送失败');
         });
     },
     _onEdit(rp) {

@@ -12,6 +12,12 @@ export function fetch(url, option) {
     if (option && option.method == 'POST' && typeof option.body == 'object' && !(option.body instanceof FormData)) {
         option.body = JSON.stringify(option.body);
         option.headers = Object.assign({}, option.headers, {'Content-Type': 'application/json'});
+    }else if(option && option.method=='GET'&& typeof option.body == 'object' && !(option.body instanceof FormData)){
+        url+='?';
+        for(var i in option.body){
+            url+=(i+'='+option.body[i])+'&';
+        }
+        url = url.substring(0,url.length-1);
     }
     return window.fetch(url, Object.assign({}, option, {credentials: 'include'}))
         .then(resp => {

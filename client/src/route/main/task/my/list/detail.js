@@ -71,14 +71,12 @@ export class TaskDetail extends React.Component {
 		switch(this.state.type+''){
 			case '1':
 				data = _.clone(this.state.data,true);
-				params = {
-					userid:user.id,
-					data:data
-				}
-				Backend.task.add(params).then(d=>{
-
-				}).catch(e=>{
+				console.log('params',data);
+				Backend.task.add(data).then(d=>{
+					popup.success('添加成功');
 					pubsub.publish('task.list.reload');
+				}).catch(e=>{
+					popup.error('添加失败');
 				});
 				break;
 			case '2':
@@ -88,8 +86,9 @@ export class TaskDetail extends React.Component {
 					data:data
 				};
 				Backend.task.edit(params).then(d=>{
-
+					popup.success('编辑成功');
 				}).catch(e=>{
+					popup.error('编辑失败');
 					if(this.callback){
 						this.callback(data);
 					}
@@ -143,7 +142,7 @@ export class TaskDetail extends React.Component {
 		return (
 			<Dialog title={this.state.title||'新增任务'} 
 					actions={actions}
-					modal={false}
+					modal={true}
 					open={this.state.open} autoDetectWindowHeight={false}
 					onRequestClose={this.close.bind(this)}>
 				{this.state.type+''=='1'?(
@@ -187,7 +186,7 @@ export class TaskDetail extends React.Component {
                           hintText="任务截止时间" minDate={new Date} 
                           onChange={(event,date)=>{
 					      	let data = _.clone(this.state.data,true);
-					      	data.time =date.toLocaleDateString();
+					      	data.time =date;
 					      	this.setState({data: data})
 					      }}
 				      />

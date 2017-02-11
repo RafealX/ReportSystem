@@ -9,7 +9,7 @@ import Mock from 'cpn/Mock';
 
 import scss from './index.scss';
 let user = window.user || {name:123,id:19283877};
-console.log('reportlist',Mock.progress.my.list);
+//console.log('reportlist',Mock.progress.my.list);
 //数据format
 let reportlist = _.map(Mock.progress.my.list,(itm)=>{
     let arr;
@@ -31,10 +31,10 @@ let reportlist = _.map(Mock.progress.my.list,(itm)=>{
         }
     }
     window.timet = new Date(itm.time);
-    console.log(itm);
+    //console.log(itm);
     return itm;
 });
-console.log('reportlist',Mock.progress.my.list);
+//console.log('reportlist',Mock.progress.my.list);
 export default React.createClass({
     getInitialState() {
         return {limit: 20, list: []};
@@ -94,13 +94,13 @@ export default React.createClass({
                 this.forceUpdate();
             })
             .catch(e => {
-                console.log(this.state.list,tasklist);
+                //console.log(this.state.list,tasklist);
                 let templist = _.clone(this.state.list,true);
                 Array.prototype.push.apply(templist, tasklist);
                 //Array.prototype.push.apply(this.state.list, tasklist);
 
                 templist.sort((x,y)=>{
-                    console.log(new Date(x.time)-new Date(y.time));
+                    //console.log(new Date(x.time)-new Date(y.time));
                     return new Date(y.time)-new Date(x.time);
                 });
                 this.setState({list:templist,status:'loaded'});

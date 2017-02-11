@@ -54,7 +54,7 @@ router.post('/add', auth.mustLogin(),function* () {
     if(!rData){
         throw new BusinessError(ErrCode.ABSENCE_PARAM);
     }
-    let reporttaskids = [];
+    let reporttaskids = '';
     let taskhistorylist = JSON.parse(rData.taskhistorylist);
 
     /*add日报
@@ -64,24 +64,30 @@ router.post('/add', auth.mustLogin(),function* () {
     report*/
     for(var i=0,l=taskhistorylist.length;i<l;i++){
         let taskid = taskhistorylist[i].targettask;
-        reporttaskids.push(taskhistorylist[i].targettask);
         //task
-        let mtask = yield Task.findOne({id:taskid});
-        mtask.totaltime += taskhistorylist[i].elapse;
-        mtask.progress = taskhistorylist[i].progress;
-        yield mtask.save();
-        //taskhistory
+
+        var taskparams = {};
+        taskparams['$set'] = {
+            progress:taskhistorylist[i].progress
+        };
+        taskparams['$inc']={
+            totaltime:taskhistorylist[i].elapse
+        }
+        let mtask = yield Task.update({id:taskid},taskparams);
         let mtaskhistory = {};
         mtaskhistory.id = util.uuid();
+        reporttaskids+=mtaskhistory.id+',';
         mtaskhistory.targettask = taskhistorylist[i].targettask;
-        mtaskhistory.elapse = taskhistorylist[i].elapse;
-        mtaskhistory.question = taskhistorylist[i].questioin;
+        mtaskhistory.taskname = taskhistorylist[i].taskname;
+        mtaskhistory.elapse = taskhistorylist[i].elapse*1;
+        mtaskhistory.question = taskhistorylist[i].question;
         mtaskhistory.summary = taskhistorylist[i].summary;
-        mtaskhistory.time = new Date().getTime();
+        mtaskhistory.time = new Date();
         mtaskhistory.progress = taskhistorylist[i].progress;
         let taskhistory = new Taskhistory(mtaskhistory);
         yield taskhistory.save();
     }
+    reporttaskids = reporttaskids.substring(0,reporttaskids.length-1);
     //report
     let rReport = {};
     rReport.status = 1;
@@ -136,36 +142,66 @@ router.post('/edit',auth.mustLogin(), function* () {
         let taskid = taskhistorylist[i].targettask;
         reporttaskids.push(taskhistorylist[i].targettask);
         //task
-        let mtask = yield Task.findOne({id:taskid});
-        mtask.totaltime += taskhistorylist[i].elapse;
-        mtask.progress = taskhistorylist[i].progress;
-        yield mtask.save();
+        var taskparams = {};
+        taskparams['$set'] = {
+            progress:taskhistorylist[i].progress
+        };
+        taskparams['$inc']={
+            totaltime:taskhistorylist[i].elapse
+        }
+        let mtask = yield Task.update({id:taskid},taskparams);
+
+        console.log(mtask);
         //taskhistory
         let mtaskhistory = {};
-        mtaskhistory.id = util.uuid();
-        mtaskhistory.targettask = taskhistorylist[i].targettask;
+        mtaskhistory.id = taskhistorylist.id;
+        var params = {};
+        params["$set"] = {
+            targettask:taskhistorylist[i].targettask,
+            elapse:taskhistorylist[i].elapse,
+            question:taskhistorylist[i].question,
+            summary : taskhistorylist[i].summary,
+            progress : taskhistorylist[i].progress
+        };
+        yield Taskhistory.update({id:taskhistorylist[i].id},params);
+        /*mtaskhistory.targettask = taskhistorylist[i].targettask;
         mtaskhistory.elapse = taskhistorylist[i].elapse;
         mtaskhistory.question = taskhistorylist[i].questioin;
         mtaskhistory.summary = taskhistorylist[i].summary;
-        mtaskhistory.time = new Date().getTime();
+        time = new Date().getTime();
         mtaskhistory.progress = taskhistorylist[i].progress;
         let taskhistory = new Taskhistory(mtaskhistory);
-        yield taskhistory.save();
+        yield taskhistory.save();*/
     }
     //report
     let reportid = rData.reportid;
-    let rReport = yield Report.findOne({id:reportid});
-    rReport.time = new Date().getTime();
-    rReport.others = rData.others;
-    rReport.userid = rData.userid;
-    rReport.groupid = rData.groupid;
-    rReport.tasks = reporttaskids;
-    yield rReport.save();
+    var params = {};
+    params["$set"] = {
+        time:new Date(rData.time),
+        others:rData.others,
+        userid:rData.userid,
+        groupid : rData.groupid
+    };
+    let report = yield Report.update({id:reportid},params);
+
 
     this.body = {
-        code: 200,
-        data: rReport
+        code: 200
     };
+});
+
+router.get('/todayadded',auth.mustLogin(),function* () {
+    let rData = this.request.params;
+    let mtask = {};
+    if(!rData){
+        throw new BusinessError(ErrCode.ABSENCE_PARAM);
+    };
+    mtask.status = 1;
+    mtask.userid = this.state.loginUser.id;
+    mtask.groupid = this.state.loginUser.groupid;
+    var today = {};
+    //today["$gte"] =  new Date(2012, 7, 14);
+    let result = Report.find()
 });
 /**
  * 删除日报
@@ -211,7 +247,6 @@ router.post('/team/get',auth.mustLogin(),function* () {
         reports: reports
     }
 });
-
 
 /**
  * 新建简报

@@ -37,7 +37,7 @@ let tasklist = _.map(Mock.task.team.list,(itm)=>{
     }
     return itm;
 });
-console.log('tasklist',tasklist);
+//console.log('tasklist',tasklist);
 export default React.createClass({
     getInitialState() {
         return {limit: 20, list: []};

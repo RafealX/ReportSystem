@@ -118,10 +118,10 @@ let myTask = {
 };
 
 myTask.list = myTask.list.sort((x,y)=>{
-	console.log(new Date(x.time)-new Date(y.time));
+	//console.log(new Date(x.time)-new Date(y.time));
 	return new Date(y.time)-new Date(x.time);
 });
-console.log(myTask.list);
+//console.log(myTask.list);
 
 //小组日报
 let teamTask = {
@@ -321,7 +321,7 @@ for(let i=0;i<2;i++){
 myProgress.list.forEach(function(itm,idx){
 	itm.id = idx+1;
 });
-console.log(myProgress.list);
+//console.log(myProgress.list);
 
 let taskHistory = {
 	taskid:1,

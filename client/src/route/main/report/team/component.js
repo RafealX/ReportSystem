@@ -9,11 +9,12 @@ import {fetch} from 'lib/util';
 import popup from 'cpn/popup';
 import {style} from '../index.scss';
 import pubsub from 'vanilla-pubsub';
-import TeamReportList from 'cpn/TeamReportList';
 import Avatar from 'cpn/Avatar';
-import Mock from 'cpn/Mock';
 import _ from 'lodash';
 import Backend from 'lib/backend';
+import ListView from 'cpn/ListView';
+import {TeamReport} from './model';
+
 const containerStyle = {
     display:'none'
 }
@@ -104,7 +105,7 @@ module.exports = React.createClass({
         return (
             <div className={style}>
                 <Stepper orientation="vertical" linear={false} children={[]}>
-                  <TeamReportList ref="listView" loadList={this._loadList} itemRender={itemRender}/>
+                    <ListView ref="listView" loadList={TeamReport.get} getter={TeamReport.operation.get} formatter={TeamReport.formatter} itemRender={itemRender}/>
                 </Stepper>
             </div>
         );

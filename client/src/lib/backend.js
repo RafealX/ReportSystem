@@ -16,35 +16,32 @@ let Backend = {
 			}
 			return fetch(url,{body:datas,method:'GET'});
 		},
-		test:function(){
-			let url = prefix+'/report'+'/test';
-			return fetch(url,{method:'GET'});
-		},
 		add:function(data){
 			let url = prefix+'/report'+'/add';
 			return fetch(url,{body:data,method:'POST'});
 		},
-		send:function(data){
+		send:function(id){
 			let url = prefix+'/report'+'/send';
+			let data = {
+				reportid:id
+			};
 			return fetch(url,{body:data,method:'POST'});	
 		},
 		edit:function(data){
-			let url = prefix+'/report'+'/send';	
+			let url = prefix+'/report'+'/edit';	
 			return fetch(url,{body:data,method:'POST'});		
 		},
 		delete:function(id){
 			let url = prefix+'/report'+'/delete';
 			let data = {
-				id:id
+				reportid:id
 			};
 			return fetch(url,{body:data,method:'POST'});	
 		},
 		team:{
-			get:function(groupid){
+			get:function(data){
 				let url = prefix+'/report'+'/team/get';
-				let data = {
-					id:groupid
-				};	
+				
 				return fetch(url,{body:data,method:'POST'});	
 			}
 		}
@@ -63,10 +60,7 @@ let Backend = {
 			unfinished:function(params){
 				let url = prefix+'/task'+'/get/unfinished';
 				let data = {
-					id:params.userid?params.userid:'',
-					status:params.status?params.status:2,
-					limit:params.limit?params.limit:0,
-					offset:params.offset?params.offset:0
+					userid:params
 				};	
 				return fetch(url,{body:data,method:'GET'});
 			},

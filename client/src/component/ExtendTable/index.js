@@ -259,14 +259,14 @@ export class ExtendTable extends React.Component {
   }
 
   handleCb(row,type,refname) {
-    console.log(row,type);
+    //console.log(row,type);
     if(_.isFunction(this.moreOperConfig.handleCb)){
       this.moreOperConfig.handleCb(row,type,refname);
     }
   }
 
   handlePerPageChange(evt, index, val) {
-    console.log(arguments);
+    //console.log(arguments);
     let options = {
       limit:val,
       offset:0
@@ -458,7 +458,7 @@ export class ExtendTable extends React.Component {
         });
       }
     }
-    console.log(this.state.pageOptions.currentPage+1);
+    //console.log(this.state.pageOptions.currentPage+1);
   }
 
   navigateLeft() {
@@ -557,7 +557,7 @@ export class ExtendTable extends React.Component {
         });
       }
     }
-    console.log(this.state.pageOptions.currentPage-1); 
+    //console.log(this.state.pageOptions.currentPage-1); 
   }
 
   paginationObject() {
@@ -639,7 +639,7 @@ export class ExtendTable extends React.Component {
 
   test(rowNumber,columnId,event) {
     var target = event.target;
-    console.log(target);
+    //console.log(target);
   }
 
   calcColSpan(cols) {

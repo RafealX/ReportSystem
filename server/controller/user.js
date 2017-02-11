@@ -20,8 +20,8 @@ const OpenId = require('../lib/openid');
 
 
 OpenId.set.options({
-    "client_id":'40611670efa511e6ae165cf3fc793244',
-    "client_secret":"e3604ac0620d4f53ab4889b772f0704b40611ca6efa511e6ae165cf3fc793244",
+    "client_id":'92d874daec3e11e6911c5cf3fc96a72c',
+    "client_secret":"6d05d72d2ba746959fb845c775f585b592d87b24ec3e11e6911c5cf3fc96a72c",
     "cb_router":'/api/user/login/openid/cb',
     'fail_url':'/login'
 });

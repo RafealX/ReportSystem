@@ -31,13 +31,23 @@ router.post('/get', auth.mustLogin(), function* () {
 let i = 0;
 let max = 1000;
 let cur = 0;
+let Mock5 = function () {
+	let i = parseInt(Math.random()*99 + 1);
+	while(i%5!=0){
+        i = parseInt(Math.random()*99 + 1);
+	}
+	return i;
+}
 let MockTask = function () {
     cur+=50;
     if(cur>max)
     	return;
 	let users = [
 		'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek150icfb9jd',
-		'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek6521afb9ja'
+		'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
+        'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
+        'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
+        'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek6521afb9ja'
 	];
 
 	let reasons=[
@@ -69,8 +79,8 @@ let MockTask = function () {
 			reason = reasons[Math.floor(Math.random()*10)%2];
 		}
 		var id = util.uuid();
-		var progress = parseInt(Math.random()*99 + 1);
-		let userid = users[Math.floor(Math.random()*10)%2];
+		var progress = Mock5();
+		let userid = users[Math.floor(Math.random()*10)%5];
 		let taskname ="0_0这可能是个假任务"+i;
 		let task = new Task({
 			id:id,
@@ -136,6 +146,7 @@ let MockTaskHistoty = function (taskid,currentDay,progress,taskname) {
 	let date = currentDay;
 	var taskhistory = [];
 	for(let j=5;j>0;j--){
+        progress-5>0?(progress-=5):'';
 		let id = util.uuid();
         let history = new TaskHistory({
             id:id,
@@ -145,13 +156,21 @@ let MockTaskHistoty = function (taskid,currentDay,progress,taskname) {
             question: '遇到了下面的问题',
             summary: '简单总结下',
             time: date.setDate(date.getDate()-j),
-            progress:parseInt(progress/j),
+            progress:progress,
 		});
 		history.save();
 		taskhistory.push(id);
 	}
 	return taskhistory;
 };
+
+router.get('/mock',function* () {
+    MockTask();
+    this.body = {
+        code:200
+    };
+    return ;
+})
 
 
  /**
@@ -170,7 +189,7 @@ router.post('/add',auth.mustLogin(), function* () {
 	mtask.status = 1;
 	mtask.userid = this.state.loginUser.id;
 	mtask.groupid = this.state.loginUser.groupid;
-	mtask.time = new Date().getTime();
+	mtask.time = new Date(rData.time);
     mtask.isdelay = false;
     mtask.delayreason = '';
     mtask.name = rData.name;
@@ -194,6 +213,25 @@ router.post('/edit', auth.mustLogin(), function* () {});
  * 删除任务
  */
 router.post('/delete', auth.mustLogin(), function* () {});
+
+router.get('/get/unfinished',auth.mustLogin(), function* (next) {
+    let rData = this.request.params;
+    let mtask = {};
+    if(!rData){
+        throw new BusinessError(ErrCode.ABSENCE_PARAM);
+    };
+    let unfinish = yield Task.where({userid:rData.userid,status:2})
+						.where('progress').lt(100);
+    let result = [];
+    unfinish.forEach(itm=>{
+    	result.push(itm.toObject());
+	})
+    console.log(unfinish);
+	this.body = {
+		code:200,
+		data:result
+	}
+});
 
 router.get('/history',function* (next) {
 

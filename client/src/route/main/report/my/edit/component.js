@@ -59,9 +59,9 @@ module.exports = React.createClass({
             title: (this.props.params.id ? '编辑' : '新建')+"工作日记",
             titleStyle:{
                 fontSize:'16px',
-                marginLeft:'-10px'
+                marginLeft:'-20px'
             },
-            iconElementLeft:<IconButton title="新建日报" onClick={this.BackUrl}><BackIcn color={'#fff'}/></IconButton>
+            iconElementLeft:<IconButton title="新建日报" style={{visibility:'hidden'}}></IconButton>
         };
         pubsub.publish('config.appBar', barConf);
     },
@@ -90,15 +90,20 @@ module.exports = React.createClass({
                     this.setState({report:Report.get().report,fakereport:Report.fake.report()});
                     break;
                 case 'task':
+                    let selectedtask = this.state.selectedtask;
                     addedData = this.state.faketask;
                     if(!addedData.elapse || (!addedData.summary && !addedData.question)){
                         popup.error('有东西没写，还不能添加');
                         return;
                     }
+                    if(addedData.progress<=selectedtask.progress){
+                        popup.error('没进度？');
+                        return;   
+                    }
                     console.log(addedData);
                     //1.设置task日志
                     //2.去除已写日志的task
-                    let selectedtask = this.state.selectedtask;
+                    
                     let unfinishtask = this.state.unfinishtask.slice(0);
                     
                     _.each(unfinishtask,(itm)=>{
@@ -121,9 +126,13 @@ module.exports = React.createClass({
                 itm.status=1;
                 this.setState({report:Report.get().report});
             },
-            cancel(itm) {
+            cancel(target,itm) {
                 itm.status=1;
-                this.setState({report:Report.get().report});
+                target = _.merge(target,itm);
+                this.setState({report:[]});
+                setTimeout(()=>{
+                    this.setState({report:Report.get().report});
+                },200);
             },
             delete(itm) {
                 popup.confirm({
@@ -145,9 +154,14 @@ module.exports = React.createClass({
                 itm.status=1;
                 this.setState({task:Report.get().task});
             },
-            cancel(itm) {
+            cancel(target,itm) {
+                //itm.status=1;
                 itm.status=1;
-                this.setState({task:Report.get().task});
+                target = _.merge(target,itm);
+                this.setState({task:[]});
+                setTimeout(()=>{
+                    this.setState({task:Report.get().task});
+                },200);
             },
             delete(itm) {
                 popup.confirm({
@@ -156,7 +170,7 @@ module.exports = React.createClass({
                         Report.delete.task(itm);
                         let unfinishtask = this.state.unfinishtask;
                         _.each(unfinishtask,(item)=>{
-                            item.id===itm.id?(item.status=1):'';
+                            item.targettask===itm.targettask?(item.status=1):'';
                         });
                         this.setState({task:Report.get().task,unfinishtask:unfinishtask});
 
@@ -211,7 +225,7 @@ module.exports = React.createClass({
                     <ToolbarGroup lastChild>
                         <RaisedButton
                             primary
-                            disabled={this.state.saving || (!this.state.time || this.state.report.length==0 || this.state.task.length==0)}
+                            disabled={this.state.saving || (!this.state.time || this.state.report.length==0 && this.state.task.length==0)}
                             label={this.state.saving ? '保存中...': '保存'}
                             onTouchTap={this.handle.save.bind(this)}/>
                     </ToolbarGroup>
@@ -280,7 +294,7 @@ module.exports = React.createClass({
                                     ):(
                                     <div>
                                     <RaisedButton label="确定" labelColor={'#fff'}  style={{marginRight:'10px'}} backgroundColor={cyan300} onClick={this.handle.report.confirm.bind(this,itm)} />
-                                    <RaisedButton label="取消" onClick={this.handle.report.cancel.bind(this,itm)} />
+                                    <RaisedButton label="取消" onClick={this.handle.report.cancel.bind(this,itm,_.clone(itm,true))} />
                                     </div>
                                  )}
                                   
@@ -296,10 +310,10 @@ module.exports = React.createClass({
                                     <SelectField
                                         autoWidth={true}
                                         value={this.state.selectedtask}
-                                        onChange={(e, k, payload) => {let fake = Report.fake.task();fake.id=payload.id;fake.name=payload.name;fake.progress=payload.progress;this.setState({selectedtask:payload,faketask:fake})}}
+                                        onChange={(e, k, payload) => {let fake = Report.fake.task();fake.targettask=payload.id;fake.taskname=payload.taskname;fake.progress=payload.progress;this.setState({selectedtask:payload,faketask:fake})}}
                                         hintText="请选择任务">
                                          {this.state.unfinishtask.map((itm,idx)=>(
-                                            <MenuItem value={itm} primaryText={itm.name} label={itm.name} style={{display:itm.status==1?'inline-block':'none'}}/>
+                                            <MenuItem value={itm} primaryText={itm.taskname} label={itm.taskname} style={{display:itm.status==1?'inline-block':'none'}}/>
                                         ))}
                                     </SelectField>
                                 ):('')}
@@ -308,7 +322,7 @@ module.exports = React.createClass({
                                     <TextField 
                                       type="number"
                                       name="currentprogress"
-                                      min={Math.floor(this.state.faketask.progress/10)*10}
+                                      min={Math.floor(this.state.selectedtask.progress/10)*10}
                                       max={100}
                                       hintText="进度"
                                       floatingLabelText="进度选择"
@@ -362,7 +376,7 @@ module.exports = React.createClass({
                                 <CardText >
                                 <TextField 
                                       name="progressname"
-                                      value={itm.name} disabled={true}
+                                      value={itm.taskname} disabled={true}
                                     />
                                  <TextField 
                                       type="number" style={{margin:'2px 0 0 6px'}}
@@ -416,7 +430,7 @@ module.exports = React.createClass({
                                     ):(
                                     <div>
                                     <RaisedButton label="确定" labelColor={'#fff'}  style={{marginRight:'10px'}} backgroundColor={cyan300} onClick={this.handle.task.confirm.bind(this,itm)} />
-                                    <RaisedButton label="取消" onClick={this.handle.task.cancel.bind(this,itm)} />
+                                    <RaisedButton label="取消" onClick={this.handle.task.cancel.bind(this,itm,_.clone(itm,true))} />
                                     </div>
                                  )}
                                   

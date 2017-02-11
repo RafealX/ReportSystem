@@ -3,19 +3,22 @@
  */
 import React from 'react';
 import SadIcon from 'material-ui/svg-icons/social/sentiment-dissatisfied';
+import HappyIcon from 'material-ui/svg-icons/social/mood';
 
 let style = {
-    padding: '30px 0',
     textAlign: 'center',
-    lineHeight: '26px',
-    color: '#ccc'
+    color: '#ccc',
+    margin: '-10px 0 10px'
 };
 
 export default React.createClass({
     render() {
         return (
             <div style={style}>
-                <SadIcon style={{verticalAlign: 'middle',color: '#ccc'}}/>
+                {this.props.type==1? <HappyIcon style={{verticalAlign: 'middle',color: '#ccc'}}/>:
+                    <SadIcon style={{verticalAlign: 'middle',color: '#ccc'}}/>
+                }
+                
                 <br/>
                 {this.props.tip || '暂无数据~'}
             </div>

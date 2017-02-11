@@ -19,10 +19,10 @@ const NoMatch = (props) => {
     return <div></div>;
 };
 
-console.log(browserHistory);
+//console.log(browserHistory);
 browserHistory.listen((location, action)=>{
-    console.log(browserHistory);
-    console.log(action, location.pathname, location.state)
+    //console.log(browserHistory);
+    //console.log(action, location.pathname, location.state)
     if(location.pathname=='/'){
         if(!User.check()){
             browserHistory.replace('/login');
@@ -31,7 +31,7 @@ browserHistory.listen((location, action)=>{
         }
     }else if(location.pathname=='/login'){
         if(User.check()){
-            console.log('stop');
+            //console.log('stop');
             browserHistory.replace('/m/report/my/list');
         }
     }else{
@@ -68,7 +68,7 @@ render(
     <MuiThemeProvider muiTheme={customMuiTheme}><Router history={browserHistory} routes={rootRoute}></Router></MuiThemeProvider>,
     document.getElementById('app-container'),
     function () {
-        console.log(this.props);
+        //console.log(this.props);
         // if(!User.check()){
         //     browserHistory.replace('/login');
         // }else{

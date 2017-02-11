@@ -12,7 +12,6 @@ import Mock from 'cpn/Mock';
  * @type {[type]}
  */
 let UnFinishedTask = null;
-let user = window.user || {name:123,id:19283877};
 let MockUnfinish = function(){
 	return _.filter(Mock.progress.my.list,(tab)=>{
 		return tab.progress<100 && tab.progress>0 && tab.status==2;
@@ -22,9 +21,9 @@ let formatter = arr =>{
 	let result = [];
 	_.each(arr,(itm,idx)=>{
 		result.push({
-			id:idx++,
+			id:itm.id,
 			progress:itm.progress,
-			name:itm.name,
+			taskname:itm.name,
 			status:1//表示还没被选
 		});
 	});
@@ -40,6 +39,10 @@ export let UnFinish = {
 	},
 	init:function(){
 		Backend.task.get.unfinished(user.id).then(d=>{
+			
+			UnFinishedTask = formatter(d.data);
+			console.log(UnFinishedTask);
+			console.log(d);
 			pubsub.publish('Task.Unfinished.load');
 		}).catch(e=>{
 			UnFinishedTask = formatter(MockUnfinish());
@@ -57,6 +60,7 @@ export let UnFinish = {
  * 日报实体相关数据
  * @type {Object}
  */
+let editReportId = '';
 let fakeid = 1;
 let fakeTask = {
 	report:{
@@ -67,8 +71,8 @@ let fakeTask = {
 	},
 	task:{
 		elapse:null,
-		id:'',
-		name:'',
+		targettask:'',
+		taskname:'',
 		question:'',
 		summary:'',
 		progress:''
@@ -80,6 +84,7 @@ let TaskObj = {
 	report:[],
 	task:[]
 };
+
 _.each(TaskObj.report,itm=>{
 	itm.status=1;
 });
@@ -108,10 +113,13 @@ export let Report={
 		//是否要格式化时间
 		let sendData = {
 			userid:user.id,
-			content:JSON.stringify(data)
+			taskhistorylist:JSON.stringify(data.tasks),
+			others:data.report,
+			userid:window.user.id,
+			groupid:window.user.groupid
 		}
-		
-		return Backend.report.add(sendData);
+		editReportId?(sendData.reportid=editReportId,sendData.time=data.time):'';
+		return editReportId?Backend.report.edit(sendData):Backend.report.add(sendData);
 	},
 	get:function(){
 		return TaskObj;
@@ -121,11 +129,11 @@ export let Report={
 			data.status=1;
 			fakeid++;
 			data.id = fakeid;
-			TaskObj.report.unshift(data);
+			TaskObj.report.push(data);
 		},
 		task:function(data){
 			data.status=1;
-			TaskObj.task.unshift(data);
+			TaskObj.task.push(data);
 		}
 	},
 	delete:{
@@ -133,7 +141,7 @@ export let Report={
 			_.remove(TaskObj.report,(itm)=>{return data.id==itm.id});
 		},
 		task:function(data){
-			_.remove(TaskObj.task,(itm)=>{return data.id==itm.id});
+			_.remove(TaskObj.task,(itm)=>{return data.targettask==itm.targettask});
 		}
 	},
 	clear:function(){
@@ -159,7 +167,7 @@ export let Report={
 			//需要初始化数据并且对Unfinished数据进行操作，基本是要等待Unfinished载入完成才能做动作的。
 			let callback = function(){
 				TaskObj.report = data.reports || [];
-				TaskObj.task = data.tasks || [];
+				TaskObj.task = data.taskhistorylist || [];
 				TaskObj.time = data.time || null;
 				_.each(TaskObj.report,itm=>{
 					itm.status=1;
@@ -173,7 +181,10 @@ export let Report={
 				if(_.isFunction(cb)){
 					cb();
 				}
+				console.log(TaskObj);
 			}
+			console.log(data);
+			editReportId = data.id;
 			if(!UnFinishedTask){
 				UnFinish.listen(callback);
 			}else{
