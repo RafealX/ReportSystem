@@ -43,22 +43,9 @@ router.get('/get', function* () {
     //     code: 200,
     //     lists: list
     // };
-
-    let temp = new Report({
-        status: 1,
-        time: 3,
-        others:"sdfdsgdfgskd",
-        tasks: "1,2,3,3",
-        taskhistorys: String,
-        userid: this.request.body.userid,
-        groupid: 1,
-    });
-
-    temp.save();
-    let params = this.request.params;
     let reports = [];
-    let tempd = yield Report.find({userid: params.userid});
-    console.log(temp);
+    let params = this.request.params;
+    let tasklist = [];
     let list = yield Report.find({userid: params.userid})
     .skip(parseInt(params.offset) || 0)
     .limit(parseInt(params.limit) || 15);
@@ -71,15 +58,17 @@ router.get('/get', function* () {
         //     };
         //     let taskgenerator = generator(m);
         //     let task = taskgenerator.next();
-        
+
         // });
         for(let i=0,l=taskArr.length;i<l;i++){
             console.log(taskArr[i]);
             //let para = yield Task.find({_id: ObjectId(taskArr[i])});
-            let para = yield Task.find({userid: day});
+            let para = yield Task.find({id: taskArr[i]});
             // let para = yield Task.find({userid: params.userid});
             console.log(para);
+            tasklist.push(para);
         }
+        list[x].tasklist=tasklist;
         //console.log(tasklist);
         reports.push(list[x]);
     }
