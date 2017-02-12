@@ -327,10 +327,10 @@ router.post('/team/get',auth.mustLogin(),function* () {
     //日报
     if(Tar&&Tar.length&&Tar.length>0){
         for(var n=0,v=Tar.length;n<v;n++){
-            let list = yield Report.find({id: Tar[n]})
+            let nlist = yield Report.find({id: Tar[n]})
                 .sort({"time": -1});
-            for(let x=0,k=list.length;x<k;x++){
-                let ritem = list[x].toObject();
+            for(let x=0,k=nlist.length;x<k;x++){
+                let ritem = nlist[x].toObject();
                 let taskArr = ritem.tasks.split(",");
                 let tasklist = [];  //存放真正的task列表
                 for(let i=0,l=taskArr.length;i<l;i++){
