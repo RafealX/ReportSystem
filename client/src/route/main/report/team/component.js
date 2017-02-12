@@ -15,6 +15,11 @@ import Backend from 'lib/backend';
 import ListView from 'cpn/ListView';
 import {TeamReport} from './model';
 
+/*
+     <Stepper orientation="vertical" linear={false} children={[]}>
+                    <ListView ref="listView" loadList={TeamReport.get} getter={TeamReport.operation.get} formatter={TeamReport.formatter} itemRender={itemRender}/>
+                </Stepper>
+ */
 const containerStyle = {
     display:'none'
 }
@@ -104,9 +109,7 @@ module.exports = React.createClass({
         ;
         return (
             <div className={style}>
-                <Stepper orientation="vertical" linear={false} children={[]}>
-                    <ListView ref="listView" loadList={TeamReport.get} getter={TeamReport.operation.get} formatter={TeamReport.formatter} itemRender={itemRender}/>
-                </Stepper>
+               小组日报
             </div>
         );
     },

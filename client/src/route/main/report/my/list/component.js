@@ -25,9 +25,9 @@ const containerStyle = {
     display:'none'
 }
 
-let unlisten = browserHistory.listen((location, action)=>{
-    Report.reset();
-});
+// let unlisten = browserHistory.listen((location, action)=>{
+//     Report.reset();
+// });
 
 module.exports = React.createClass({
     getInitialState() {
@@ -48,7 +48,7 @@ module.exports = React.createClass({
 
     },
     componentWillUnmount() {
-        unlisten();
+        //unlisten();
         Report.reset();
     },
     handleChange(e,c) {

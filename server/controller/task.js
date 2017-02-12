@@ -190,12 +190,12 @@ router.post('/add',auth.mustLogin(), function* () {
 	mtask.status = 1;
 	mtask.userid = this.state.loginUser.id;
 	mtask.groupid = this.state.loginUser.groupid;
-	mtask.time = new Date(rData.time);
+	mtask.time = rData.time;
     mtask.isdelay = false;
     mtask.delayreason = '';
     mtask.name = rData.name;
     mtask.ticket = rData.ticket;
-    mtask.totaltime = rData.totaltime;
+    mtask.totaltime = 0;
 	mtask.description = rData.description;
 	mtask.progress = 0;
     let task = new Task(mtask);
