@@ -19,7 +19,7 @@ const ErrCode = BusinessError.ErrCode;
 /**
  * 获取个人任务列表
  */
-router.post('/get', auth.mustLogin(), function* () {
+router.post('/get/list', auth.mustLogin(), function* () {
 	let params = this.request.params;
 	let tasklist = yield Task.find({userid: this.state.loginUser.id,status:{"$lte":2}});
 	this.body={

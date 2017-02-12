@@ -55,7 +55,7 @@ let Backend = {
 					limit:params.limit?params.limit:20,
 					offset:params.offset?params.offset:0
 				};	
-				return fetch(url,{body:data,method:'GET'});	
+				return fetch(url,{body:data,method:'POST'});	
 			},
 			unfinished:function(params){
 				let url = prefix+'/task'+'/get/unfinished';
