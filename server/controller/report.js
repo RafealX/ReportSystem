@@ -215,14 +215,87 @@ router.get('/todayadded',auth.mustLogin(),function* () {
 router.post('/delete',auth.mustLogin(),function* () {
     let rData = this.request.params;
     let report = yield Report.findOne({id:rData.reportid});
+    let taskhistorylist =report.tasks.split(",");
     if (!report) {
         throw new BusinessError(ErrCode.NOT_FIND);
     }
+    for(var i=0,l=taskhistorylist.length;i<l;i++){
+        let taskid = taskhistorylist[i];
+        let mtaskhistory = yield Taskhistory.find({id: taskid}).sort({"time":-1});
+        let targettask = mtaskhistory[0].targettask;
+        let mtask = yield  Task.findOne({id: targettask});
+        mtask.totaltime -= mtaskhistory.elapse;
+        if(mtask.totaltime<0)mtask.totaltime = 0;
+        yield mtaskhistory.remove();
+        let mtaskhistorys = yield Taskhistory.find({id:taskid});
+        if(mtaskhistorys&&mtaskhistorys.length>0){
+            let mthistorylist = mtaskhistorys.sort({"time":-1})[0]
+            mtask.progress = mthistorylist.progress;
+        }
+        yield  mtask.save();
+
+    }
+
     report.status = 3;
     yield report.save();
     this.body = {
-        code: 200
+        code: 200,
+        report: report
     };
+
+    /*let rData = this.request.params;
+    if(!rData){
+        throw new BusinessError(ErrCode.ABSENCE_PARAM);
+    }
+    let reporttaskids = '';
+    let taskhistorylist = JSON.parse(rData.taskhistorylist);
+    /!*add日报
+     调用3表
+     task
+     taskhistorylist
+     report*!/
+    for(var i=0,l=taskhistorylist.length;i<l;i++){
+        let taskid = taskhistorylist[i].targettask;
+        //task
+        var taskparams = {};
+        taskparams['$set'] = {
+            progress:taskhistorylist[i].progress
+        };
+        taskparams['$inc']={
+            totaltime:taskhistorylist[i].elapse
+        }
+        let mtask = yield Task.update({id:taskid},taskparams);
+        let mtaskhistory = {};
+        mtaskhistory.id = util.uuid();
+        reporttaskids+=mtaskhistory.id+',';
+        mtaskhistory.targettask = taskhistorylist[i].targettask;
+        mtaskhistory.taskname = taskhistorylist[i].taskname;
+        mtaskhistory.elapse = taskhistorylist[i].elapse*1;
+        mtaskhistory.question = taskhistorylist[i].question;
+        mtaskhistory.summary = taskhistorylist[i].summary;
+        mtaskhistory.time = new Date();
+        mtaskhistory.progress = taskhistorylist[i].progress;
+        let taskhistory = new Taskhistory(mtaskhistory);
+        yield taskhistory.save();
+    }
+    reporttaskids = reporttaskids.substring(0,reporttaskids.length-1);
+    //report
+    let rReport = {};
+    rReport.status = 1;
+    rReport.time = rData.time;
+    rReport.others = rData.others;
+    rReport.userid = rData.userid;
+    rReport.groupid = rData.groupid;
+    rReport.tasks = reporttaskids;
+    let mReport = new Report(rReport);
+    yield mReport.save();
+    this.body = {
+        code: 200,
+        data: mReport
+    };*/
+
+
+
 
 });
 /**
@@ -233,7 +306,7 @@ router.post('/team/get',auth.mustLogin(),function* () {
     let reports = [];
     let params = this.request.params;
     let list = yield Report.find({groupid: params.groupid})
-        .sort({time: 1})
+        .sort({"time": -1})
         .skip(parseInt(params.offset) || 0)
         .limit(parseInt(params.limit) || 15);
     for(let x=0,k=list.length;x<k;x++){
