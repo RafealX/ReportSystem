@@ -305,6 +305,26 @@ router.post('/delete',auth.mustLogin(),function* () {
 router.post('/team/get',auth.mustLogin(),function* () {
     let reports = [];
     let params = this.request.params;
+    let list = yield Report.find({groupid: params.groupid});
+    for(let x=0,k=list.length;x<k;x++){
+        let rpitm = list[x].toObject();
+        /*let taskArr = rpitm.tasks.split(",");
+        let tasklist = [];  //存放真正的task列表
+        for(let i=0,l=taskArr.length;i<l;i++){
+            let para = yield Taskhistory.findOne({id: taskArr[i]});
+            if(para) tasklist.push(para.toObject());
+        }
+        rpitm.taskhistorylist=tasklist;
+        reports.push(rpitm);*/
+    }
+    this.body = {
+        code: 200,
+        reports: reports
+    }
+
+    //未加reportbytime表前
+   /* let reports = [];
+    let params = this.request.params;
     let list = yield Report.find({groupid: params.groupid})
         .sort({"time": -1})
         .skip(parseInt(params.offset) || 0)
@@ -323,7 +343,7 @@ router.post('/team/get',auth.mustLogin(),function* () {
     this.body = {
         code: 200,
         reports: reports
-    }
+    }*/
 });
 
 /**
