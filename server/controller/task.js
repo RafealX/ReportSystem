@@ -215,17 +215,31 @@ router.post('/add',auth.mustLogin(), function* () {
 router.post('/edit', auth.mustLogin(), function* () {
 	let rData = this.request.params;
 	let taskid = rData.taskid;
-	let mtask = yield Task.findOne({id:taskid});
-	console.log(mtask);
 	let taskparams = {};
 	taskparams["$set"] = {
-
+		name: rData.name,
+		description: rData.description
+	}
+    let mtask = yield Task.update({id:taskid},taskparams);
+	this.body = {
+		code: 200
 	}
 });
 /**
  * 删除任务
+ * taskid
  */
-router.post('/delete', auth.mustLogin(), function* () {});
+router.post('/delete', auth.mustLogin(), function* () {
+	let rData = this.request.params;
+	let taskid = rData.taskid;
+	let mtask = yield Task.findOne({id: taskid});
+	mtask.status = 4;
+	yield mtask.save();
+	this.body = {
+		code: 200,
+		task: mtask
+	}
+});
 
 router.get('/get/unfinished',auth.mustLogin(), function* (next) {
     let rData = this.request.params;
@@ -247,7 +261,6 @@ router.get('/get/unfinished',auth.mustLogin(), function* (next) {
 });
 
 router.get('/history',function* (next) {
-
 
 });
 
