@@ -48,7 +48,6 @@ let schema = helper.schema({
     username:String,
     others: String,
     tasks: String,
-    username:String,
     userid: String,
     groupid: String,
 }, {

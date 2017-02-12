@@ -145,7 +145,7 @@ router.post('/edit',auth.mustLogin(), function* () {
      report*/
     for(var i=0,l=taskhistorylist.length;i<l;i++){
         let taskid = taskhistorylist[i].targettask;
-        reporttaskids.push(taskhistorylist[i].targettask);
+
         //task
         var taskparams = {};
         taskparams['$set'] = {
@@ -160,15 +160,33 @@ router.post('/edit',auth.mustLogin(), function* () {
         //taskhistory
         let mtaskhistory = {};
         mtaskhistory.id = taskhistorylist.id;
-        var params = {};
-        params["$set"] = {
-            targettask:taskhistorylist[i].targettask,
-            elapse:taskhistorylist[i].elapse,
-            question:taskhistorylist[i].question,
-            summary : taskhistorylist[i].summary,
-            progress : taskhistorylist[i].progress
-        };
-        yield Taskhistory.update({id:taskhistorylist[i].id},params);
+        if(!taskhistorylist[i].id){
+            //说明是编辑里新增的记录
+            let newTask = new Taskhistory({
+                targettask: taskid,
+                taskname:taskhistorylist[i].taskname,
+                elapse: taskhistorylist[i].elapse*1,    //耗时
+                question: taskhistorylist[i].question,
+                summary: taskhistorylist[i].summary,
+                time: rData.time,
+                progress: taskhistorylist[i].progress
+            });
+            yield newTask.save();
+            reporttaskids.push(newTask.toObject().id);
+        }else{
+            reporttaskids.push(taskhistorylist[i].id);
+            var params = {};
+
+            params["$set"] = {
+                targettask:taskid,
+                elapse:taskhistorylist[i].elapse,
+                question:taskhistorylist[i].question,
+                summary : taskhistorylist[i].summary,
+                progress : taskhistorylist[i].progress
+            };
+            yield Taskhistory.update({id:taskhistorylist[i].id},params);
+        }
+
         /*mtaskhistory.targettask = taskhistorylist[i].targettask;
         mtaskhistory.elapse = taskhistorylist[i].elapse;
         mtaskhistory.question = taskhistorylist[i].questioin;
@@ -180,9 +198,15 @@ router.post('/edit',auth.mustLogin(), function* () {
     }
     //report
     let reportid = rData.reportid;
+    let targettask = '';
+    reporttaskids.forEach((v,i)=>{
+        targettask+=v+',';
+    });
+    targettask = targettask.substring(0,targettask.length-1);
     var params = {};
     params["$set"] = {
         time:rData.time,
+        tasks:targettask,
         others:rData.others,
         userid:rData.userid,
         groupid : rData.groupid
