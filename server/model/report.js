@@ -45,6 +45,7 @@ let schema = helper.schema({
     status: {type:Number,default:1},
     id: {type:String,default:util.uuid},
     time: {type:Number,default:0},
+    username:String,
     others: String,
     tasks: String,
     username:String,

@@ -325,19 +325,21 @@ router.post('/team/get',auth.mustLogin(),function* () {
     let tasklist = [];
     let Tar = reporttimelist[timelist[params.offset]];
     //日报
-    for(var n=0,v=Tar.length;n<v;n++){
-        let list = yield Report.find({id: Tar[n]})
-            .sort({"time": -1});
-        for(let x=0,k=list.length;x<k;x++){
-            let rpitm = list[x].toObject();
-            let taskArr = rpitm.tasks.split(",");
-            let tasklist = [];  //存放真正的task列表
-            for(let i=0,l=taskArr.length;i<l;i++){
-                let para = yield Taskhistory.findOne({id: taskArr[i]});
-                if(para) tasklist.push(para.toObject());
+    if(Tar&&Tar.length&&Tar.length>0){
+        for(var n=0,v=Tar.length;n<v;n++){
+            let list = yield Report.find({id: Tar[n]})
+                .sort({"time": -1});
+            for(let x=0,k=list.length;x<k;x++){
+                let rpitm = list[x].toObject();
+                let taskArr = rpitm.tasks.split(",");
+                let tasklist = [];  //存放真正的task列表
+                for(let i=0,l=taskArr.length;i<l;i++){
+                    let para = yield Taskhistory.findOne({id: taskArr[i]});
+                    if(para) tasklist.push(para.toObject());
+                }
+                rpitm.taskhistorylist=tasklist;
+                reports.push(rpitm);
             }
-            rpitm.taskhistorylist=tasklist;
-            reports.push(rpitm);
         }
     }
 
