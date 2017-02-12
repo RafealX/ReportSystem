@@ -63,7 +63,7 @@ export class TaskDetail extends React.Component {
 		// }
 	};
 	fetchTaskHistory(id) {
-		return Backend.task.get.history({userid:user.id,taskid:id});
+		return Backend.task.get.history({taskid:id});
 	};
 	handleClose() {
 		console.log(this);
@@ -81,19 +81,9 @@ export class TaskDetail extends React.Component {
 				break;
 			case '2':
 				data = _.clone(this.state.data,true);
-				params = {
-					userid:user.id,
-					data:data
-				};
-				Backend.task.edit(params).then(d=>{
-					popup.success('编辑成功');
-				}).catch(e=>{
-					popup.error('编辑失败');
-					if(this.callback){
-						this.callback(data);
-					}
-					pubsub.publish('task.list.reload');
-				});
+				if(this.callback){
+					this.callback(data);
+				}
 				break;
 			case '3':
 				break;

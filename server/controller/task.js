@@ -63,8 +63,12 @@ let MockTask = function () {
 		'etcetcetc',
 		'这是个fake数据'
 	];
+    let reportstatus = [
+        1,
+    	2,
+        3,
+    ];
     let taskstatus = [
-        '1',
         '2',
         '3',
         '4'
@@ -81,7 +85,7 @@ let MockTask = function () {
 	for(;i<cur;i++){
         let date = new Date();
         date = new Date(date.toLocaleDateString());
-		var isDelay = Math.floor(Math.random()*10)%2==0?false:true;
+		var isDelay = false;//Math.floor(Math.random()*10)%2==0?false:true;
 		var reason = '';
 		if(isDelay){
 			reason = reasons[Math.floor(Math.random()*10)%2];
@@ -93,7 +97,7 @@ let MockTask = function () {
 		let task = new Task({
 			id:id,
 			userid:userid,
-			status:taskstatus[Math.floor(Math.random()*10)%4],
+			status:taskstatus[Math.floor(Math.random()*10)%3],
             name: taskname,
 			description:"这是描述-_-"+i,
 			groupid:1,
@@ -129,7 +133,7 @@ let MockTask = function () {
 			})
 			reportitmString = reportitmString.substring(0,reportitmString.length-1);
 			let report = new Report({
-                status: taskstatus[Math.floor(Math.random()*10)%3],
+                status: reportstatus[Math.floor(Math.random()*10)%3],
                 time: date.getTime(),
                 others: reports[Math.floor(Math.random()*10)%3],
                 tasks: reportitmString,
@@ -221,11 +225,20 @@ router.post('/add',auth.mustLogin(), function* () {
  */
 router.post('/edit', auth.mustLogin(), function* () {
 	let rData = this.request.params;
-	let taskid = rData.taskid;
+	let taskid = rData.id;
 	let taskparams = {};
 	taskparams["$set"] = {
 		name: rData.name,
-		description: rData.description
+		description: rData.description,
+        status: rData.status,
+        userid: rData.userid,
+        groupid: rData.groupid,
+        ticket: rData.ticket,
+        progress: rData.progress,
+        totaltime: rData.totaltime,
+        time: rData.time,
+        isdelay:  rData.isdelay,
+        delayreason: rData.delayreason
 	}
     let mtask = yield Task.update({id:taskid},taskparams);
 	this.body = {
@@ -267,7 +280,7 @@ router.get('/get/unfinished',auth.mustLogin(), function* (next) {
 	}
 });
 
-router.get('/history',function* (next) {
+router.get('/history',auth.mustLogin(),function* (next) {
 
 });
 

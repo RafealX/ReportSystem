@@ -91,10 +91,15 @@ let Backend = {
 			let url = prefix+'/task'+'/edit';
 			return fetch(url,{body:data,method:'POST'});	
 		},
+		delay:function(data){
+			let url = prefix+'/task'+'/edit';
+			//data//taskid  reason  date
+			return fetch(url,{body:data,method:'POST'});		
+		},
 		delete:function(id){
 			let url = prefix+'/task'+'/delete';
 			let data = {
-				id:id
+				taskid:id
 			};	
 			return fetch(url,{body:data,method:'POST'});	
 		},

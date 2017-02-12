@@ -518,7 +518,7 @@ module.exports = React.createClass({
                     </Tab>
                     <Tab label={'所有'} value={14}>
                       <div>
-                      <TableView loadList={TaskModel.get.list} getter={TaskModel.getter.list} formatter={TaskModel.formatter.list} />
+                      <TableView loadList={TaskModel.get.list} operations={TaskModel.opers.list} getter={TaskModel.getter.list} formatter={TaskModel.formatter.list} />
                       </div>
                     </Tab>
                     </Tabs>
