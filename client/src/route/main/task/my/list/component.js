@@ -23,10 +23,10 @@ import {style} from './index.scss';
 import pubsub from 'vanilla-pubsub';
 import Editor from 'cpn/Editor';
 import format from 'date-format';
-import Mock from 'cpn/Mock';
 import { ExtendTable } from 'cpn/ExtendTable';
 import _ from 'lodash';
 import Backend from 'lib/backend';
+import {TaskModel} from './model';
 import {TaskDetail as ShowDetail} from './detail.js'
 
 const cardStyle = {
@@ -42,9 +42,6 @@ const styles = {
   },
 };
 
-let user = window.user || {name:123,id:19283877};
-let history = Mock.progress.history;
-console.log('history',history);
 let maps = {
   name:{
     title:'任务名'
@@ -215,39 +212,39 @@ module.exports = React.createClass({
 		return {unfinished:null,delay:null,list:null,labelValue:12,open:false};
 	},
   fetchAll() {
-    let unfinished = this.fetchunFinished();
-    unfinished.then(function(d){
+    // let unfinished = this.fetchunFinished();
+    // unfinished.then(function(d){
 
-    }.bind(this))
-    .catch(function(e){
-      let result = _.filter(Mock.progress.my.list,tab=>{
-        return tab.progress<100 && tab.progress>0 && tab.status==2;
-      });
-      let target = {
-        list:_.clone(result,true),
-        count:result.length+1000
-      }
-      this.setState({unfinished:target});
-    }.bind(this));
+    // }.bind(this))
+    // .catch(function(e){
+    //   let result = _.filter(Mock.progress.my.list,tab=>{
+    //     return tab.progress<100 && tab.progress>0 && tab.status==2;
+    //   });
+    //   let target = {
+    //     list:_.clone(result,true),
+    //     count:result.length+1000
+    //   }
+    //   this.setState({unfinished:target});
+    // }.bind(this));
 
-    let delays = this.fetchDelay();
-    delays.then(function(d){
+    // let delays = this.fetchDelay();
+    // delays.then(function(d){
 
-    }.bind(this))
-    .catch(function(e){
-      let result = _.filter(Mock.progress.my.list,tab=>{
-        return tab.isdelay;
-      });
-      let target = {
-        list:_.clone(result,true),
-        count:60
-      }
-      this.setState({delay:target});
-    }.bind(this));
-
+    // }.bind(this))
+    // .catch(function(e){
+    //   let result = _.filter(Mock.progress.my.list,tab=>{
+    //     return tab.isdelay;
+    //   });
+    //   let target = {
+    //     list:_.clone(result,true),
+    //     count:60
+    //   }
+    //   this.setState({delay:target});
+    // }.bind(this));
+  
     let list = this.fetchList();
     list.then(function(d){
-
+      console.log('list',d);
     }.bind(this))
     .catch(function(e){
       
