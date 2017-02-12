@@ -12,67 +12,33 @@ import pubsub from 'vanilla-pubsub';
  * @type {Object}
  */
 let TeamReportObj = {
-	offset:-4,
-	limit:4,
+	first:true,
+	offset:5,
+	limit:10,
 	data:[]
 };
 
 export let TeamReport={
 	get:function(){
-		TeamReportObj.offset+=TeamReportObj.limit;
+		if(TeamReportObj.first){
+			TeamReportObj.offset = 0;	
+			TeamReportObj.first = false;
+		}
+		TeamReportObj.offset += TeamReportObj.limit;
 		return Backend.report.team.get({
 			groupid:window.user.groupid,
-			limit:TeamReportObj.limit,
 			offset:TeamReportObj.offset
 		});
 	},
 	formatter:function(result){
 		console.log(result);
-		let tasklist = [];
-		if(_.isArray(result) && result.length>0){
-			
-			tasklist= _.map(result,(itm)=>{
-			    let arr;
-			    itm.time = new Date(itm.time);
-			    if(itm.others){
-			        arr = itm.others.split(';');
-			        if(_.isArray(arr) && arr.length>0){
-			            itm.reports = [];
-			            _.each(arr,(item)=>{
-			                let reportitm = item.split(','),tmp;
-			                 tmp= {
-			                    content:reportitm[0],
-			                    elapse:reportitm[1]*1,
-			                    ticket:reportitm[2]
-			                };
-			                itm.reports.push(tmp);
-			            })
-			        }
-			    }
-			    return itm;
-			});
-			TeamReportObj.data = TeamReportObj.data.concat(tasklist);
-			TeamReportObj.data = TeamReportObj.data.sort((x,y)=>{
-				return y.time-x.time;
-			});
-
-		}
-		return tasklist;
+		
+		//return tasklist;
 		
 	},
 	operation:{
 		get:function(){
 			return TeamReportObj.data;
-		},
-		delete:function(item){
-			_.each(TeamReportObj.data,itm=>{
-				item.id==itm.id?(item.status=3):'';
-			})
-		},
-		update:function(item){
-			_.each(TeamReportObj.data,itm=>{
-				item.id==itm.id?(item.status=2):'';
-			})
 		}
 	},
 	set:{

@@ -85,8 +85,8 @@ let TaskObj = {
 			result:[],
 			count:0
 		},
-		limit:20,
-		offset:-20
+		limit:30,
+		offset:-30
 	},
 	unfinish:{
 		data:[],

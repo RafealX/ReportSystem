@@ -109,13 +109,9 @@ module.exports = React.createClass({
         ;
         return (
             <div className={style}>
-               小组日报
+                <ListView ref="listView" loadList={TeamReport.get} getter={TeamReport.operation.get} formatter={TeamReport.formatter} itemRender={itemRender}/>
             </div>
         );
-    },
-    _loadList(data) {
-        return Backend.report.team.get(data);
-        //return fetch('/api/report/my?limit=${limit}&offset=${offset}');
     },
     _sendMail(teamReportId) {
         return fetch(`/api/report/sendMail?teamReportId=${teamReportId}`)

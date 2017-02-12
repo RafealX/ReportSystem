@@ -24,8 +24,7 @@ const ErrCode = BusinessError.ErrCode;
 router.post('/get/list', auth.mustLogin(), function* () {
 	let params = this.request.params;
 	let taskalllist = yield Task.find({userid: this.state.loginUser.id});
-	let tasklist = taskalllist
-        .skip(parseInt(params.offset) || 0)
+	let tasklist = taskalllist.skip(parseInt(params.offset) || 0)
         .limit(parseInt(params.limit) || 15);
 	let count = taskalllist.length;
 	this.body={
