@@ -52,7 +52,7 @@ let firstLoad = true;
 module.exports = React.createClass({
     getInitialState() {
         console.log(Report.get().time);
-        return {saving:false,report:Report.get().report,task:Report.get().task,fakereport:Report.fake.report(),faketask:Report.fake.task(),time:Report.get().time,unfinishtask:null,selectedtask:null}
+        return {isEdit:false,saving:false,report:Report.get().report,task:Report.get().task,fakereport:Report.fake.report(),faketask:Report.fake.task(),time:Report.get().time,unfinishtask:null,selectedtask:null}
     },
     componentDidMount() {
         let barConf = {
@@ -188,6 +188,10 @@ module.exports = React.createClass({
                 popup.success('保存失败');
                 browserHistory.replace('/m/report/my/list');
             });
+        },
+        time(n,newdata) {
+            Report.set.time(newdata);
+            this.setState({time:newdata});
         }
     },
     componentWillUnmount() {
@@ -199,9 +203,10 @@ module.exports = React.createClass({
         if(firstLoad){
             UnFinish.listen(this.handle.unfinish.bind(this));
             if(this.props.location.state){
+
                 Report.init.edit(this.props.location.state,()=>{
                     console.log(Report.get().time);
-                    this.setState({report:Report.get().report,task:Report.get().task,time:Report.get().time,unfinishtask:UnFinish.get()});
+                    this.setState({report:Report.get().report,task:Report.get().task,time:Report.get().time,unfinishtask:UnFinish.get(),isEdit:true});
                 });
             }
             UnFinish.init();   
@@ -215,11 +220,11 @@ module.exports = React.createClass({
                 <Toolbar >
                     <ToolbarGroup firstChild>
                         <DatePicker 
-                          locale="zh-Hans-CN"
+                          locale="zh-Hans-CN" disabled={this.state.isEdit}
                           DateTimeFormat={Intl.DateTimeFormat}
                           cancelLabel="取消" okLabel="确定" value={this.state.time}
                           style={{width: '120px', marginTop: '4px',marginLeft: '15px'}}
-                          textFieldStyle={{width: '120px'}} onChange={(n,newdate)=>{this.setState({time:newdate})}}
+                          textFieldStyle={{width: '120px'}} onChange={(n,newdate)=>{let date = new Date(newdate.toLocaleDateString());this.handle.time.call(this,n,date)}}
                           hintText="选择日期" minDate={theDayBeforeYester} maxDate={new Date}/>
                     </ToolbarGroup>
                     <ToolbarGroup lastChild>

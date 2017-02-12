@@ -6,50 +6,6 @@ import _ from 'lodash';
 import Backend from 'lib/backend';
 import {uuid} from 'lib/util';
 import pubsub from 'vanilla-pubsub';
-/**
- * 写日报依赖数据
- * @type {[type]}
- */
-let UnFinishedTask = null;
-let MockUnfinish = function(){
-	return _.filter(Mock.progress.my.list,(tab)=>{
-		return tab.progress<100 && tab.progress>0 && tab.status==2;
-	});
-}
-let formatter = arr =>{
-	let result = [];
-	_.each(arr,(itm,idx)=>{
-		result.push({
-			id:idx++,
-			progress:itm.progress,
-			name:itm.name,
-			status:1//表示还没被选
-		});
-	});
-	return result;
-}
-
-export let UnFinish = {
-	get:function(){
-		return UnFinishedTask;
-	},
-	listen:function(callback){
-		pubsub.subscribe('Task.Unfinished.load',callback);
-	},
-	init:function(){
-		Backend.task.get.unfinished(user.id).then(d=>{
-			pubsub.publish('Task.Unfinished.load');
-		}).catch(e=>{
-			UnFinishedTask = formatter(MockUnfinish());
-			pubsub.publish('Task.Unfinished.load');
-		});
-	},
-	clear:function(){
-		UnFinishedTask = [];
-		UnFinishedTask.length = 0;
-		UnFinishedTask = null;
-	}
-}
 
 /**
  * 日报实体相关数据

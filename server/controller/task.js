@@ -72,7 +72,8 @@ let MockTask = function () {
     let reportstaskitems = [];
 
 	for(;i<cur;i++){
-        let date = new Date;
+        let date = new Date();
+        date = new Date(date.toLocaleDateString());
 		var isDelay = Math.floor(Math.random()*10)%2==0?false:true;
 		var reason = '';
 		if(isDelay){
@@ -93,7 +94,7 @@ let MockTask = function () {
 			totaltime:Math.floor(Math.random()*20),
 			progress:progress,
             isdelay: isDelay,
-			time:date.setDate(date.getDate()-i-1),
+			time:(date.setDate(date.getDate()-i-1),date.getTime()),
 			delayreason:reason
 		});
 
@@ -122,7 +123,7 @@ let MockTask = function () {
 			reportitmString = reportitmString.substring(0,reportitmString.length-1);
 			let report = new Report({
                 status: taskstatus[Math.floor(Math.random()*10)%3],
-                time: date,
+                time: date.getTime(),
                 others: reports[Math.floor(Math.random()*10)%3],
                 tasks: reportitmString,
                 userid: userid,
@@ -155,7 +156,7 @@ let MockTaskHistoty = function (taskid,currentDay,progress,taskname) {
             elapse: Math.floor(Math.random()*10),
             question: '遇到了下面的问题',
             summary: '简单总结下',
-            time: date.setDate(date.getDate()-j),
+            time: (date.setDate(date.getDate()-j),date.getTime()),
             progress:progress,
 		});
 		history.save();

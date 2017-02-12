@@ -11,7 +11,7 @@ let schema = helper.schema({
     elapse: Number,    //耗时
     question: String,
     summary: String,
-    time: Date,
+    time: {type:Number,default:0},
     progress: Number
 }, {
     collection:'TaskHistory'

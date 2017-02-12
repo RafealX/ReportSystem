@@ -85,7 +85,9 @@ router.post('/add', auth.mustLogin(),function* () {
         mtaskhistory.elapse = taskhistorylist[i].elapse*1;
         mtaskhistory.question = taskhistorylist[i].question;
         mtaskhistory.summary = taskhistorylist[i].summary;
-        mtaskhistory.time = new Date();
+        let date = new Date();
+        date = new Date(date.toLocaleDateString());
+        mtaskhistory.time = date.getTime();
         mtaskhistory.progress = taskhistorylist[i].progress;
         let taskhistory = new Taskhistory(mtaskhistory);
         yield taskhistory.save();
@@ -180,7 +182,7 @@ router.post('/edit',auth.mustLogin(), function* () {
     let reportid = rData.reportid;
     var params = {};
     params["$set"] = {
-        time:new Date(rData.time),
+        time:rData.time,
         others:rData.others,
         userid:rData.userid,
         groupid : rData.groupid

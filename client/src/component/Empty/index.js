@@ -8,7 +8,7 @@ import HappyIcon from 'material-ui/svg-icons/social/mood';
 let style = {
     textAlign: 'center',
     color: '#ccc',
-    margin: '-10px 0 10px'
+    margin: '10px 0 10px'
 };
 
 export default React.createClass({

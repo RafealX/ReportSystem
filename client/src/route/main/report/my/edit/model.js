@@ -97,7 +97,7 @@ export let Report={
 		let result = TaskObj;
 		//格式化数据
 		let data = {
-			time:result.time,
+			time:result.time.getTime(),
 		}
 		let report = '';
 		_.each(result.report,itm=>{
@@ -107,6 +107,7 @@ export let Report={
 		data.report = report;
 
 		_.each(result.task,itm=>{
+			//itm.time = new Date(itm.time).getTime();
 			delete result.status;
 		});
 		data.tasks = result.task;
@@ -116,9 +117,10 @@ export let Report={
 			taskhistorylist:JSON.stringify(data.tasks),
 			others:data.report,
 			userid:window.user.id,
-			groupid:window.user.groupid
+			groupid:window.user.groupid,
+			time:data.time
 		}
-		editReportId?(sendData.reportid=editReportId,sendData.time=data.time):'';
+		editReportId?(sendData.reportid=editReportId):'';
 		return editReportId?Backend.report.edit(sendData):Backend.report.add(sendData);
 	},
 	get:function(){
@@ -134,6 +136,9 @@ export let Report={
 		task:function(data){
 			data.status=1;
 			TaskObj.task.push(data);
+		},
+		time:function(data){
+			TaskObj.time = data;
 		}
 	},
 	delete:{
