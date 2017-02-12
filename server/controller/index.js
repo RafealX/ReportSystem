@@ -11,6 +11,7 @@ const reportController = require('./report');
 
 const taskController = require('./task');
 const roleController = require("./role");
+const taskhistoryController = require('./taskhistory');
 const auth = require("../lib/auth.js");
 
 module.exports.initialize = function (app) {
@@ -20,6 +21,7 @@ module.exports.initialize = function (app) {
     router.use(reportController.routes());
     router.use(roleController.routes());
     router.use(taskController.routes());
+    router.use(taskhistoryController.routes());
 
     app.use(function* (next){
         var path = this.path;
