@@ -207,8 +207,20 @@ router.post('/add',auth.mustLogin(), function* () {
 });
 /**
  * 编辑、修改任务
+ * taskid
+ * name
+ * description
  */
-router.post('/edit', auth.mustLogin(), function* () {});
+router.post('/edit', auth.mustLogin(), function* () {
+	let rData = this.request.params;
+	let taskid = rData.taskid;
+	let mtask = yield Task.findOne({id:taskid});
+	console.log(mtask);
+	let taskparams = {};
+	taskparams["$set"] = {
+
+	}
+});
 /**
  * 删除任务
  */
