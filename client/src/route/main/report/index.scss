@@ -54,6 +54,11 @@
                 display:none
             }
         }
+        table{
+            thead tr th:first-child,tbody tr td:first-child{
+                display:none !important;
+            }
+        }
         div[icon]{
             border-left: 1px dashed rgb(189, 189, 189) !important;
         }

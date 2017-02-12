@@ -343,7 +343,7 @@ router.post('/team/get',auth.mustLogin(),function* () {
 
     this.body = {
         code: 200,
-        report: reports
+        reports: reports
     }
 
     //未加reportbytime表前

@@ -57,6 +57,14 @@ let MockTask = function () {
         'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek6521afb9ja'
 	];
 
+    let usersnames = [
+        '凌浩',
+        '项方念',
+        '项方念',
+        '项方念',
+        '项方念'
+    ];
+
 	let reasons=[
 		'涉及到其他影响',
 		'策划新加了其他需求',
@@ -92,7 +100,9 @@ let MockTask = function () {
 		}
 		var id = util.uuid();
 		var progress = Mock5();
-		let userid = users[Math.floor(Math.random()*10)%5];
+		let userradom = Math.floor(Math.random()*10)%5;
+		let userid = users[userradom];
+		let username = usersnames[userradom];
 		let taskname ="0_0这可能是个假任务"+i;
 		let task = new Task({
 			id:id,
@@ -138,6 +148,7 @@ let MockTask = function () {
                 others: reports[Math.floor(Math.random()*10)%3],
                 tasks: reportitmString,
                 userid: userid,
+				username:username,
                 groupid: 1
 			});
 			report.save();

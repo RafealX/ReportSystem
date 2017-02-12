@@ -13,8 +13,8 @@ import pubsub from 'vanilla-pubsub';
  */
 let TeamReportObj = {
 	first:true,
-	offset:5,
-	limit:10,
+	offset:0,
+	limit:1,
 	data:[]
 };
 
@@ -32,8 +32,36 @@ export let TeamReport={
 	},
 	formatter:function(result){
 		console.log(result);
-		
-		//return tasklist;
+		let tasklist = [];
+		if(_.isArray(result) && result.length>0){
+			
+			tasklist= _.map(result,(itm)=>{
+			    let arr;
+			    itm.time = new Date(itm.time);
+			    if(itm.others){
+			        arr = itm.others.split(';');
+			        if(_.isArray(arr) && arr.length>0){
+			            itm.reports = [];
+			            _.each(arr,(item)=>{
+			                let reportitm = item.split(','),tmp;
+			                 tmp= {
+			                    content:reportitm[0],
+			                    elapse:reportitm[1]*1,
+			                    ticket:reportitm[2]
+			                };
+			                itm.reports.push(tmp);
+			            })
+			        }
+			    }
+			    return itm;
+			});
+			TeamReportObj.data = TeamReportObj.data.concat(tasklist);
+			TeamReportObj.data = TeamReportObj.data.sort((x,y)=>{
+				return y.time-x.time;
+			});
+
+		}
+		return tasklist;
 		
 	},
 	operation:{

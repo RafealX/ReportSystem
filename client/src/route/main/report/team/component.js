@@ -14,7 +14,6 @@ import _ from 'lodash';
 import Backend from 'lib/backend';
 import ListView from 'cpn/ListView';
 import {TeamReport} from './model';
-
 /*
      <Stepper orientation="vertical" linear={false} children={[]}>
                     <ListView ref="listView" loadList={TeamReport.get} getter={TeamReport.operation.get} formatter={TeamReport.formatter} itemRender={itemRender}/>
@@ -70,10 +69,6 @@ module.exports = React.createClass({
         <StepLabel iconContainerStyle={containerStyle}>{new Date(x.time).toLocaleDateString()}</StepLabel>
         <StepContent>
           <Card initiallyExpanded key={i} className="item">
-            <CardHeader
-                showExpandableButton
-                className="header" style={{'display':'none'}}
-                title={x.time}/>
             <CardText expandable>
                 <Table
                           height={this.state.height}
@@ -87,18 +82,15 @@ module.exports = React.createClass({
                             </TableRow>
                           </TableHeader>
                           <TableBody
-                            displayRowCheckbox={false}
                             deselectOnClickaway={true}
                             showRowHover={true}
                             stripedRows={false}
                           >
-                            {x.details.map( (row, index) => (
-                              <TableRow key={index}  selected={row.selected}>
-                                <TableRowColumn  >{row.name}</TableRowColumn>
-                                <TableRowColumn  >{reportRender(row.reports)}</TableRowColumn>
-                                <TableRowColumn  >{taskRender(row.tasks)}</TableRowColumn>
-                              </TableRow>
-                              ))}
+                          <TableRow selected={x.selected}>
+                            <TableRowColumn  >{x.username}</TableRowColumn>
+                            <TableRowColumn  >{reportRender(x.reports)}</TableRowColumn>
+                            <TableRowColumn  >{taskRender(x.taskhistorylist)}</TableRowColumn>
+                          </TableRow>
                           </TableBody>
                         </Table>
             </CardText>
@@ -109,10 +101,13 @@ module.exports = React.createClass({
         ;
         return (
             <div className={style}>
+            <Stepper orientation="vertical" linear={false} children={[]}>
                 <ListView ref="listView" loadList={TeamReport.get} getter={TeamReport.operation.get} formatter={TeamReport.formatter} itemRender={itemRender}/>
+            </Stepper>
             </div>
         );
     },
+    
     _sendMail(teamReportId) {
         return fetch(`/api/report/sendMail?teamReportId=${teamReportId}`)
             .then(d => {
