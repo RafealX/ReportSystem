@@ -494,13 +494,18 @@ module.exports = React.createClass({
               onTouchTap={e=>{if(!this.refs.delayreson.getValue() || !this.refs.delaytime.state.date){popup.error('请填写延期理由及时间');return;} this.delayRow(this.state.delayrow,this.refs.delayreson.getValue(),this.refs.delaytime.state.date);this.setState({delayrow:null})}}
             />,
           ];
-        pubsub.subscribe('task.list.reload', this.reloadList);
         return (
             <div className={style} ref='TaskContainer'>
                  <ShowDetail ref="showdetailcpn" />
                 <Tabs
                     >
-                    <Tab label={'未完成'} value={12}>
+                    <Tab label={'所有'} value={14}>
+                      <div>
+                      <TableView loadList={TaskModel.get.list} operations={TaskModel.opers.list} getter={TaskModel.getter.list} formatter={TaskModel.formatter.list} />
+                      </div>
+                    </Tab>
+                    </Tabs>
+                    <Tab label={'未完成'} value={12} style={{display:'none'}}>
                       {this.state.unfinished?
                       (<div>{this.renderTable(tabs['12'],this.state.unfinished,'unfinished')}</div>):(
                           <div>
@@ -508,7 +513,7 @@ module.exports = React.createClass({
                           </div>)
                       }
                     </Tab>
-                    <Tab label={'延期'} value={13}>
+                    <Tab label={'延期'} value={13} style={{display:'none'}}>
                       {this.state.delay?
                       (<div>{this.renderTable(tabs['13'],this.state.delay,'delay')}</div>):(
                           <div>
@@ -516,12 +521,7 @@ module.exports = React.createClass({
                           </div>)
                       }
                     </Tab>
-                    <Tab label={'所有'} value={14}>
-                      <div>
-                      <TableView loadList={TaskModel.get.list} operations={TaskModel.opers.list} getter={TaskModel.getter.list} formatter={TaskModel.formatter.list} />
-                      </div>
-                    </Tab>
-                    </Tabs>
+                    
                     {!!this.state.deleterow?
                       <Dialog 
                       title="确定删除？"

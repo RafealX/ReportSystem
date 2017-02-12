@@ -24,12 +24,12 @@ const ErrCode = BusinessError.ErrCode;
  */
 router.post('/get', auth.mustLogin(), function* () {
 	let params = this.request.params;
-	let TaskHistory = yield TaskHistory.find({taskid: params.taskid})
+	let taskHistory = yield TaskHistory.find({targettask: params.taskid})
 	.skip(parseInt(params.offset) || 0)
     .limit(parseInt(params.limit) || 15);
 	this.body={
 		code: 200,
-		taskhistory: TaskHistory
+		taskhistory: taskHistory
 	};
 });
 

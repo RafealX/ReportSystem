@@ -29,7 +29,7 @@ import { hasCustomRender, callCustomRender } from './utils/handleCustomRender';
 import arraySearch from './utils/search.js';
 import Paginate from './utils/paginate';
 import {ExtendTableFooter} from './footer.js';
-
+import pubsub from 'vanilla-pubsub';
 
 import {style} from './index.scss';
 
@@ -137,7 +137,8 @@ export class ExtendTable extends React.Component {
     this.mode = config.tablemode || TableMode.NORMAL;
     this.data = config.data;
     this.count = this.data.count || 0;
-
+    pubsub.subscribe('task.list.reload', this.reloadList.bind(this));
+    pubsub.subscribe('task.list.reload.current',this.reloadCurrent.bind(this));
     //处理column
     let tablebodyconfig = config.body;
     this.columns = _.clone(tablebodyconfig.columns,true);
@@ -228,7 +229,7 @@ export class ExtendTable extends React.Component {
     if(pagenation && this.count){
       pagenation.rowsPerPage = pagenation.rowsPerPage || [5,10,15];
       this.state.pageOptions = {
-        curPerPage:pagenation.rowsPerPage[0],
+        curPerPage:pagenation.curPerPage?pagenation.curPerPage:pagenation.rowsPerPage[0],
         rowsPerPage:pagenation.rowsPerPage,
         currentPage:1,
         maxPage:Math.ceil(this.count/pagenation.rowsPerPage[0]),
@@ -271,8 +272,21 @@ export class ExtendTable extends React.Component {
       limit:val,
       offset:0
     };
-     this.state.pageOptions.changeCallBack(options).then(d=>{
-
+     this.state.pageOptions.changeCallBack(options.limit,options.offset).then(d=>{
+        this.setState({
+          tableData:d.list,
+          pageOptions:{
+            curPerPage:val,
+            rowsPerPage:this.state.pageOptions.rowsPerPage,
+            currentPage:1,
+            maxPage:Math.ceil(this.count/val),
+            changeCallBack:this.state.pageOptions.changeCallBack,
+            count:this.count,
+            isShow:true,
+            offset:0
+          }
+        });
+        this.forceUpdate();
       }).catch(e=>{
         // let data = [
         //     {
@@ -362,6 +376,47 @@ export class ExtendTable extends React.Component {
         // })
       });
   }
+  reloadCurrent() {
+     let options = {
+        limit:this.state.pageOptions.curPerPage,
+        offset:(this.state.pageOptions.currentPage-1)*this.state.pageOptions.curPerPage
+      }
+      this.state.pageOptions.changeCallBack(options.limit,options.offset).then(d=>{
+        console.log(d);
+        this.setState({
+          tableData:d.list
+        });
+        this.forceUpdate();
+      }).catch(e=>{
+        console.log('加载失败:'+(e.message||e.msg));
+      });
+  }
+  reloadList(){
+    let options = {
+        limit:this.state.pageOptions.curPerPage,
+        offset:0
+      }
+      this.state.pageOptions.changeCallBack(options.limit,options.offset).then(d=>{
+        console.log(d);
+        this.count = d.count;
+        this.setState({
+          tableData:d.list,
+          pageOptions:{
+            curPerPage:this.state.pageOptions.curPerPage,
+            rowsPerPage:this.state.pageOptions.rowsPerPage,
+            currentPage:1,
+            maxPage:Math.ceil(this.count/this.state.pageOptions.curPerPage),
+            changeCallBack:this.state.pageOptions.changeCallBack,
+            count:this.count,
+            isShow:true,
+            offset:0
+          }
+        });
+        this.forceUpdate();
+      }).catch(e=>{
+        console.log('加载失败:'+(e.message||e.msg));
+      });
+  }
   navigateRight() {
     if(this.state.pageOptions.currentPage+1>this.state.pageOptions.maxPage){
 
@@ -374,87 +429,15 @@ export class ExtendTable extends React.Component {
           limit:this.state.pageOptions.curPerPage,
           offset:this.state.pageOptions.currentPage*this.state.pageOptions.curPerPage
         }
-        this.state.pageOptions.changeCallBack(options).then(d=>{
-
+        this.state.pageOptions.changeCallBack(options.limit,options.offset).then(d=>{
+          console.log(d);
+          this.state.pageOptions.currentPage = this.state.pageOptions.currentPage+1;
+          this.setState({
+            tableData:d.list
+          });
+          this.forceUpdate();
         }).catch(e=>{
-          // let data = [
-          //   {
-          //     name:'任务一',
-          //     isdelay:false,
-          //     delayreason:'',
-          //     progress:45,
-          //     totaltime:4,
-          //     time:'2016-7-15',
-          //     status:1,
-          //     ticket:'#98545,#65412',
-          //     description:'兼容D3.js',
-          //   },{
-          //     name:'任务二',
-          //     progress:12,
-          //     totaltime:4,
-          //     ticket:'#98545,#65412',
-          //     description:'兼容D3.js',
-          //     time:'2016-7-15',
-          //     status:1,
-          //     isdelay:true,
-          //     delayreason:'在IE下表现特别诡异，难以处理'
-          //   },{
-          //     name:'任务三',
-          //     progress:100,
-          //     totaltime:7,
-          //     ticket:'#98545,#65412',
-          //     description:'兼容D3.js',
-          //     time:'2016-7-18',
-          //     status:3,
-          //     isdelay:false,
-          //     delayreason:''
-          //   },{
-          //     name:'任务四',
-          //     progress:65,
-          //     totaltime:4,
-          //     ticket:'#98545,#65412',
-          //     description:'兼容D3.js',
-          //     time:'2016-8-22',
-          //     status:1,
-          //     isdelay:true,
-          //     delayreason:'ffffffff'
-          //   },{
-          //     name:'任务五',
-          //     progress:33,
-          //     totaltime:4,
-          //     ticket:'#98545,#65412',
-          //     description:'dfgdfhgs.js',
-          //     time:'2016-7-15',
-          //     status:2,
-          //     isdelay:false,
-          //     delayreason:''
-          //   },{
-          //     name:'任务六',
-          //     progress:100,
-          //     totaltime:4,
-          //     ticket:'#98545,#65412',
-          //     description:'兼容WebGL啊',
-          //     time:'2016-12-25',
-          //     status:4,
-          //     isdelay:true,
-          //     delayreason:'212'
-          //   },{
-          //     name:'任务七',
-          //     progress:22,
-          //     totaltime:4,
-          //     ticket:'#98545,#65412',
-          //     description:'兼容D3.js',
-          //     time:'2016-7-15',
-          //     status:2,
-          //     isdelay:true,
-          //     delayreason:'asd'
-          //   }
-          // ];
-          // this.state.pageOptions.currentPage = this.state.pageOptions.currentPage+1;
-          // this.setState({
-          //   tableData:data
-          // });
-          // this.forceUpdate();
+          console.log('加载失败:'+(e.message||e.msg));
         });
       }
     }
@@ -471,89 +454,17 @@ export class ExtendTable extends React.Component {
         //需要重新请求
         let options = {
           limit:this.state.pageOptions.curPerPage,
-          offset:(this.state.pageOptions.currentPage-1)*this.state.pageOptions.curPerPage
+          offset:(this.state.pageOptions.currentPage-2)*this.state.pageOptions.curPerPage
         }
-        this.state.pageOptions.changeCallBack(options).then(d=>{
-
+        this.state.pageOptions.changeCallBack(options.limit,options.offset).then(d=>{
+          console.log(d);
+          this.state.pageOptions.currentPage = this.state.pageOptions.currentPage-1;
+          this.setState({
+            tableData:d.list
+          });
+          this.forceUpdate();
         }).catch(e=>{
-          // let data = [
-          //   {
-          //     name:'任务一',
-          //     isdelay:false,
-          //     delayreason:'',
-          //     progress:45,
-          //     totaltime:4,
-          //     time:'2016-7-15',
-          //     status:1,
-          //     ticket:'#98545,#65412',
-          //     description:'兼容D3.js',
-          //   },{
-          //     name:'任务二',
-          //     progress:12,
-          //     totaltime:4,
-          //     ticket:'#98545,#65412',
-          //     description:'兼容D3.js',
-          //     time:'2016-7-15',
-          //     status:1,
-          //     isdelay:true,
-          //     delayreason:'在IE下表现特别诡异，难以处理'
-          //   },{
-          //     name:'任务三',
-          //     progress:100,
-          //     totaltime:7,
-          //     ticket:'#98545,#65412',
-          //     description:'兼容D3.js',
-          //     time:'2016-7-18',
-          //     status:3,
-          //     isdelay:false,
-          //     delayreason:''
-          //   },{
-          //     name:'任务四',
-          //     progress:65,
-          //     totaltime:4,
-          //     ticket:'#98545,#65412',
-          //     description:'兼容D3.js',
-          //     time:'2016-8-22',
-          //     status:1,
-          //     isdelay:true,
-          //     delayreason:'ffffffff'
-          //   },{
-          //     name:'任务五',
-          //     progress:33,
-          //     totaltime:4,
-          //     ticket:'#98545,#65412',
-          //     description:'dfgdfhgs.js',
-          //     time:'2016-7-15',
-          //     status:2,
-          //     isdelay:false,
-          //     delayreason:''
-          //   },{
-          //     name:'任务六',
-          //     progress:100,
-          //     totaltime:4,
-          //     ticket:'#98545,#65412',
-          //     description:'兼容WebGL啊',
-          //     time:'2016-12-25',
-          //     status:4,
-          //     isdelay:true,
-          //     delayreason:'212'
-          //   },{
-          //     name:'任务七',
-          //     progress:22,
-          //     totaltime:4,
-          //     ticket:'#98545,#65412',
-          //     description:'兼容D3.js',
-          //     time:'2016-7-15',
-          //     status:2,
-          //     isdelay:true,
-          //     delayreason:'asd'
-          //   }
-          // ];
-          // this.state.pageOptions.currentPage = this.state.pageOptions.currentPage-1;
-          // this.setState({
-          //   tableData:data
-          // });
-          // this.forceUpdate();
+          console.log('加载失败:'+(e.message||e.msg));
         });
       }
     }
@@ -798,13 +709,19 @@ export class ExtendTable extends React.Component {
           {this.state.pageOptions.isShow?(
             <TableFooter style={{display:this.state.pageOptions.isShow?'block':'none'}}>
             <TableRow>
+               <TableRowColumn style={{ textAlign: 'left', verticalAlign: 'middle' }}>
+                <span> 共{this.state.pageOptions.count}条数据</span>
+              </TableRowColumn>
+               <TableRowColumn style={{ textAlign: 'right', verticalAlign: 'middle' }}>
+                <span ></span>
+              </TableRowColumn>
               <TableRowColumn
-                style={{ textAlign: 'right', verticalAlign: 'middle', width: '70%' }}
+                style={{ textAlign: 'right', verticalAlign: 'middle', width: '80%' }}
               >
-                <span style={{}}>每页:</span>
+                <span style={{}}>每页数量:</span>
                 <SelectField
                   value={this.state.pageOptions.curPerPage}
-                  style={{}}
+                  style={{width:'70px'}}
                   onChange={this.handlePerPageChange}
                 >
                   { this.handleRowSelection(this.state.pageOptions.rowsPerPage) }
@@ -812,13 +729,13 @@ export class ExtendTable extends React.Component {
               </TableRowColumn>
 
               <TableRowColumn style={{ textAlign: 'right', verticalAlign: 'middle' }}>
-                <span> 当前第{this.state.pageOptions.currentPage}页</span>
-              </TableRowColumn>
-
-              <TableRowColumn style={{ textAlign: 'right', verticalAlign: 'middle' }}>
                 <NavigateLeft onClick={this.navigateLeft} style={this.state.navigationStyle} />
                 <NavigateRight onClick={this.navigateRight} style={this.state.navigationStyle} />
               </TableRowColumn>
+              <TableRowColumn style={{ textAlign: 'right', verticalAlign: 'middle' }}>
+                <span> 共{this.state.pageOptions.maxPage}页,当前第{this.state.pageOptions.currentPage}页</span>
+              </TableRowColumn>
+              
             </TableRow>
           </TableFooter>
           ):null}

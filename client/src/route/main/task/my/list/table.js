@@ -34,13 +34,13 @@ const maps = {
   progress:{
     title:'进度',
     formatter:function(data){
-      return data.progress? data.progress+'%' : '';
+      return data.progress? data.progress+'%' : '0%';
     }
   },
   totaltime:{
     title:'耗时',
     formatter:function(data){
-      return data.totaltime? data.totaltime+'h' : '';
+      return data.totaltime? data.totaltime+'h' : '未耗时';
     }
   },
   ticket:{
@@ -75,13 +75,13 @@ const maps = {
     width:'10%'
   },
 };
-
+let pagecolumns = [10,15,20];
 export default React.createClass({
     getInitialState() {
-        return {list: [],count:0,delayrow:null};
+        return {list: [],count:0,delayrow:null,limit:pagecolumns[0]};
     },
     componentDidMount() {
-        this._loadList();
+        this._loadList(this.state.limit,0);
     },
     itemRender(itm,i) {
 
@@ -131,14 +131,15 @@ export default React.createClass({
 		});
 
 		var rect ={};// this.refs.TaskContainer.getBoundingClientRect();
-		target = {
+		let target = {
 			list:this.state.list,
-			count:this.state.count
+			count:this.state.count,
+			limit:this.state.limit
 		};
 		let config = {
-		  tablemode:2,
-		  data:target,
-		  maxWidth:rect.width||500,
+		tablemode:2,
+		data:target,
+		maxWidth:rect.width||500,
 		  body:{
 		    columns:columns,
 		    hasOpers:true,
@@ -183,8 +184,9 @@ export default React.createClass({
 		  },
 		  toolbar:{
 		    pagenation:{
-		      rowsPerPage:[5,10,20],
-		      foldCallback:this.props.loadlist,
+		      rowsPerPage:pagecolumns,
+		      curPerPage:this.state.limit?this.state.limit:pagecolumns[0],
+		      foldCallback:this.props.loadList,
 		      locate:'top'
 		    },
 		    search:{
@@ -251,18 +253,18 @@ export default React.createClass({
                 return <Empty tip="列表加载出错"/>;
         }
     },
-    _loadList() {
+    _loadList(limit,offset) {
         this.setState({status:'loading'});
-        this.props.loadList()
+        this.props.loadList(limit,offset)
             .then(d=>{
                 console.log(d);
                 let result = this.props.formatter(d);
                	console.log(result);
                 if(result && result.result.length>0){
-                    this.setState({'list':this.props.getter().result,count:this.props.getter().count});
+                    this.setState({'list':this.props.getter().data.result,count:this.props.getter().data.count});
                 }
                 if(result && result.length==0){
-                    this.setState({'list':this.props.getter().result});
+                    this.setState({'list':this.props.getter().data.result});
                 }else{
                     this.setState({status:'loaded'});
                 }
@@ -282,7 +284,7 @@ export default React.createClass({
 	                Backend.task.delete(row.id)
 	                    .then(d => {
 	                        _self.props.operations.delete(row);
-	                        _self.setState({list:_self.props.getter().result});
+	                        _self.setState({list:_self.props.getter().data.result});
 	                        popup.success('删除成功');
 	                    })
 	                    .catch(e => {
@@ -300,8 +302,7 @@ export default React.createClass({
 		    this.refs.showdetailcpn.switchType(2,row,function(data){
 		      Backend.task.edit(data)
                 .then(d => {
-                    _self.props.operations.edit(data);
-                    _self.setState({list:_self.props.getter().result});
+                    pubsub.publish('task.list.reload.current');
                     popup.success('编辑成功');
                 })
                 .catch(e => {
@@ -324,7 +325,7 @@ export default React.createClass({
                     // Report.operation.delete(rp);
                     // this.refs.listView.delete();
                     _self.props.operations.delay(data);
-                    _self.setState({list:_self.props.getter().result});
+                    _self.setState({list:_self.props.getter().data.result});
                     popup.success('嗯，延期了');
                 })
                 .catch(e => {

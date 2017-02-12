@@ -85,8 +85,8 @@ let TaskObj = {
 			result:[],
 			count:0
 		},
-		limit:30,
-		offset:-30
+		limit:10,
+		offset:-10
 	},
 	unfinish:{
 		data:[],
@@ -103,13 +103,15 @@ let TaskObj = {
 
 export let TaskModel={
 	get:{
-		list:function(){
-			TaskObj.list.offset+=TaskObj.list.limit;
+		list:function(limit,offset){
+			
 			let params = {
 				userid:window.user.id,
-				limit:TaskObj.list.limit,
-				offset:TaskObj.list.offset
+				limit:limit,
+				offset:offset
 			}
+			TaskObj.list.offset = offset;
+			TaskObj.list.limit = limit;
 			return Backend.task.get.list(params);
 		},
 		unfinish:function(){
@@ -140,7 +142,7 @@ export let TaskModel={
 	},
 	getter:{
 		list:function(data){
-			return TaskObj.list.data;
+			return TaskObj.list;
 		},
 		unfinish:function(data){
 			

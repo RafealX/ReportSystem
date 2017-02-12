@@ -75,12 +75,11 @@ let Backend = {
 				return fetch(url,{body:data,method:'GET'});
 			},
 			history:function(params){
-				let url = prefix+'/task'+'/get/history';
+				let url = prefix+'/taskhistory'+'/get';
 				let data = {
-					id:params.userid?params.userid:'',
 					taskid:params.taskid?params.taskid:'-1'
 				};	
-				return fetch(url,{body:data,method:'GET'});
+				return fetch(url,{body:data,method:'POST'});
 			}
 		},
 		add:function(data){

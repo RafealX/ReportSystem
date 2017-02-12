@@ -9,13 +9,11 @@ import Bulleted from 'material-ui/svg-icons/editor/format-list-bulleted';
 import Numbered from 'material-ui/svg-icons/editor/format-list-numbered';
 import Title from 'material-ui/svg-icons/editor/title';
 import popup from 'cpn/popup';
-import {style} from './index.scss';
 import pubsub from 'vanilla-pubsub';
 import Mock from 'cpn/Mock';
 import _ from 'lodash';
 import Backend from 'lib/backend';
-
-let user = window.user || {name:123,id:19283877};
+import {style} from './index.scss';
 
 export class TaskDetail extends React.Component {
 	//需要展示数据：
@@ -32,7 +30,7 @@ export class TaskDetail extends React.Component {
 			ticket:'',
 			description:'',
 			time:new Date,
-			status:1,
+			status:2,
 			isdelay:false,
 			delayreason:'',
 			id:-1
@@ -40,7 +38,7 @@ export class TaskDetail extends React.Component {
 		this.title = {
 			'1':'新建任务',
 			'2':'编辑任务',
-			'3':'查看详情'
+			'3':'详情'
 		}
 		this.state={
 			open:false
@@ -63,7 +61,7 @@ export class TaskDetail extends React.Component {
 		// }
 	};
 	fetchTaskHistory(id) {
-		return Backend.task.get.history({taskid:id});
+		return Backend.task.get.history({taskid:id,limit:50});
 	};
 	handleClose() {
 		console.log(this);
@@ -72,6 +70,7 @@ export class TaskDetail extends React.Component {
 			case '1':
 				data = _.clone(this.state.data,true);
 				console.log('params',data);
+				data.time = new Date((new Date(data.time).toLocaleDateString())).getTime();
 				Backend.task.add(data).then(d=>{
 					popup.success('添加成功');
 					pubsub.publish('task.list.reload');
@@ -101,12 +100,13 @@ export class TaskDetail extends React.Component {
 		}
 		if(type+''=='3'){
 			this.fetchTaskHistory(data.id).then(d=>{
-
+				this.setState({history:d.taskhistory,type:type,data:data,title:this.title[type]||'新增任务'});	
+				this.setState({open:true});
 			}).catch(e=>{
 				// this.setState({history:Mock.progress.history});
 				// console.log('history',this.state);
-				this.setState({history:Mock.progress.history,type:type,data:data||this.fakedata,title:this.title[type]||'新增任务'});	
-				this.setState({open:true});
+				// this.setState({history:Mock.progress.history,type:type,data:data||this.fakedata,title:this.title[type]||'新增任务'});	
+				// this.setState({open:true});
 			});
 		}else{
 			this.setState({type:type,data:data||this.fakedata,title:this.title[type]||'新增任务'});	
@@ -121,11 +121,10 @@ export class TaskDetail extends React.Component {
           <FlatButton
             label="确定"
             primary={true}
-            keyboardFocused={true}
             onTouchTap={this.handleClose.bind(this)}
           />,
           <FlatButton
-            label="取消"
+            label="取消" style={{display:(this.state.type+''!='3')?'inline-block':'none'}}
             onTouchTap={this.close.bind(this)}
           />
         ];
@@ -134,7 +133,7 @@ export class TaskDetail extends React.Component {
 					actions={actions}
 					modal={true}
 					open={this.state.open} autoDetectWindowHeight={false}
-					onRequestClose={this.close.bind(this)}>
+					onRequestClose={this.close.bind(this)} className={style}>
 				{this.state.type+''=='1'?(
 					<div>
 					<TextField
@@ -217,8 +216,8 @@ export class TaskDetail extends React.Component {
 				    
 				    </div>
 				):
-				(this.state.type+''=='3'&& this.state.history && _.isArray(this.state.history.historys)&&this.state.history.historys.length>0?(
-				<div>
+				(this.state.type+''=='3'?(
+				<div className={"fordetail"}>
 					<TextField
 				      floatingLabelText="任务名称"
 				      disabled={this.state.type+''=='3'}
@@ -272,10 +271,10 @@ export class TaskDetail extends React.Component {
                           textFieldStyle={{width: '120px'}}
                           hintText="任务截止时间" defaultDate={this.state.data.time?(new Date(this.state.data.time)):null}  disabled={true}
 				      />
-				      <Card>
-				      	<CardTitle title="任务历史" />
+				      <Card style={{display:this.state.history&&this.state.history.length>0?'block':'none'}}>
+				      	<CardHeader  subtitle="任务历史" />
 				      	<CardText>
-				      		<Table>
+				      		<Table >
 						    <TableHeader>
 						      <TableRow>
 						        <TableHeaderColumn>时间</TableHeaderColumn>
@@ -285,10 +284,10 @@ export class TaskDetail extends React.Component {
 						      </TableRow>
 						    </TableHeader>
 						    <TableBody>
-						    	{this.state.history.historys.map((row,index)=>(
+						    	{this.state.history&&this.state.history.length>0&&this.state.history.map((row,index)=>(
 									<TableRow key={index} selected={row.selected}>
-						                <TableRowColumn>{row.time}</TableRowColumn>
-						                <TableRowColumn>{row.elapse}</TableRowColumn>
+						                <TableRowColumn>{(new Date(row.time)).toLocaleDateString()}</TableRowColumn>
+						                <TableRowColumn>{row.elapse+'h'}</TableRowColumn>
 						                <TableRowColumn>{row.summary}</TableRowColumn>
 						                <TableRowColumn>{row.question}</TableRowColumn>
 						              </TableRow>
