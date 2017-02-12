@@ -22,16 +22,17 @@ const ErrCode = BusinessError.ErrCode;
  * offset
  */
 router.post('/get/list', auth.mustLogin(), function* () {
-	let params = this.request.params;
-	let taskalllist = yield Task.find({userid: this.state.loginUser.id});
-	let tasklist = taskalllist.skip(parseInt(params.offset) || 0)
+    let params = this.request.params;
+    let taskalllist = yield Task.find({userid: this.state.loginUser.id});
+    let count = taskalllist.length;
+    let tasklist = yield Task.find({userid: this.state.loginUser.id})
+        .skip(parseInt(params.offset) || 0)
         .limit(parseInt(params.limit) || 15);
-	let count = taskalllist.length;
-	this.body={
-		code: 200,
-		count:count,
-		list: tasklist
-	};
+    this.body={
+        code: 200,
+        count:count,
+        list: tasklist
+    };
 });
 
 let i = 0;
@@ -197,7 +198,7 @@ router.post('/add',auth.mustLogin(), function* () {
 	if(!rData){
 		throw new BusinessError(ErrCode.ABSENCE_PARAM);
 	};
-	mtask.status = 1;
+	mtask.status = 2;
 	mtask.userid = this.state.loginUser.id;
 	mtask.groupid = this.state.loginUser.groupid;
 	mtask.time = rData.time;
