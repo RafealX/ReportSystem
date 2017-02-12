@@ -322,13 +322,13 @@ router.post('/team/get',auth.mustLogin(),function* () {
             reporttimelist[timestr].push(rpitm.id)
         }
     }
-    let tasklist = [];
     let Tar = reporttimelist[timelist[params.offset]];
     //日报
     if(Tar&&Tar.length&&Tar.length>0){
         for(var n=0,v=Tar.length;n<v;n++){
             let nlist = yield Report.find({id: Tar[n]})
                 .sort({"time": -1});
+                //todo 这里的nlist应该只有一条数据？！
             for(let x=0,k=nlist.length;x<k;x++){
                 let ritem = nlist[x].toObject();
                 let taskArr = ritem.tasks.split(",");
