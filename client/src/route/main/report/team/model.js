@@ -15,7 +15,8 @@ let TeamReportObj = {
 	first:true,
 	offset:0,
 	limit:1,
-	data:[]
+	data:[],
+	result:{}
 };
 
 export let TeamReport={
@@ -55,6 +56,16 @@ export let TeamReport={
 			    }
 			    return itm;
 			});
+			//遍历生成timeObject
+			_.each(tasklist,(itm,i)=>{
+				var time = (new Date(itm.time)).getTime();
+				if(!TeamReportObj.result[time+'']){
+					TeamReportObj.result[time+''] = [];
+					TeamReportObj.result[time + ''].push(itm);
+				}else{
+					TeamReportObj.result[time+''].push(itm);
+				}
+			});
 			TeamReportObj.data = TeamReportObj.data.concat(tasklist);
 			TeamReportObj.data = TeamReportObj.data.sort((x,y)=>{
 				return y.time-x.time;
@@ -66,13 +77,14 @@ export let TeamReport={
 	},
 	operation:{
 		get:function(){
-			return TeamReportObj.data;
+			return TeamReportObj.result;
 		}
 	},
 	set:{
 		limit:function(data){
 			_.isNumber(data)?(TeamReportObj.limit=data):'';
-		}
+		},
+
 	},
 	reset:function(){
 		TeamReportObj.offset = TeamReportObj.limit*-1;

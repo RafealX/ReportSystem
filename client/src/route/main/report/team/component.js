@@ -12,7 +12,7 @@ import pubsub from 'vanilla-pubsub';
 import Avatar from 'cpn/Avatar';
 import _ from 'lodash';
 import Backend from 'lib/backend';
-import ListView from 'cpn/ListView';
+import TeamReportListView from 'cpn/TeamReportList';
 import {TeamReport} from './model';
 /*
      <Stepper orientation="vertical" linear={false} children={[]}>
@@ -64,11 +64,11 @@ module.exports = React.createClass({
                         </div>);
             })
         };
-        let itemRender = (x, i) => 
+        let itemRender = (value, k) => 
         <Step active={true} className="step">
-        <StepLabel iconContainerStyle={containerStyle}>{new Date(x.time).toLocaleDateString()}</StepLabel>
+        <StepLabel iconContainerStyle={containerStyle}>{new Date(k*1).toLocaleDateString()}</StepLabel>
         <StepContent>
-          <Card initiallyExpanded key={i} className="item">
+          <Card initiallyExpanded key={k} className="item">
             <CardText expandable>
                 <Table
                           height={this.state.height}
@@ -86,11 +86,14 @@ module.exports = React.createClass({
                             showRowHover={true}
                             stripedRows={false}
                           >
-                          <TableRow selected={x.selected}>
-                            <TableRowColumn  >{x.username}</TableRowColumn>
-                            <TableRowColumn  >{reportRender(x.reports)}</TableRowColumn>
-                            <TableRowColumn  >{taskRender(x.taskhistorylist)}</TableRowColumn>
-                          </TableRow>
+                          {value.map((x,i)=>
+                            <TableRow key={i} selected={x.selected}>
+                                <TableRowColumn  >{x.username}</TableRowColumn>
+                                <TableRowColumn  >{reportRender(x.reports)}</TableRowColumn>
+                                <TableRowColumn  >{taskRender(x.taskhistorylist)}</TableRowColumn>
+                              </TableRow>  
+                            )}
+                          
                           </TableBody>
                         </Table>
             </CardText>
@@ -102,12 +105,12 @@ module.exports = React.createClass({
         return (
             <div className={style}>
             <Stepper orientation="vertical" linear={false} children={[]}>
-                <ListView ref="listView" loadList={TeamReport.get} getter={TeamReport.operation.get} formatter={TeamReport.formatter} itemRender={itemRender}/>
+                <TeamReportListView ref="listView" loadList={TeamReport.get} getter={TeamReport.operation.get} formatter={TeamReport.formatter} itemRender={itemRender}/>
             </Stepper>
             </div>
         );
     },
-    
+
     _sendMail(teamReportId) {
         return fetch(`/api/report/sendMail?teamReportId=${teamReportId}`)
             .then(d => {
