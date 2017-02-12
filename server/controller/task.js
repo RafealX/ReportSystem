@@ -280,7 +280,7 @@ router.get('/get/unfinished',auth.mustLogin(), function* (next) {
 	}
 });
 
-router.get('/history',function* (next) {
+router.get('/history',auth.mustLogin(),function* (next) {
 
 });
 
