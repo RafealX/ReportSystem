@@ -28,6 +28,7 @@ import _ from 'lodash';
 import Backend from 'lib/backend';
 import {TaskModel} from './model';
 import {TaskDetail as ShowDetail} from './detail.js'
+import TableView from './table';
 
 const cardStyle = {
   height:'100%'
@@ -208,7 +209,6 @@ let tabs = {'12':{
 
 module.exports = React.createClass({
 	getInitialState() {
-    this.fetchAll();
 		return {unfinished:null,delay:null,list:null,labelValue:12,open:false};
 	},
   fetchAll() {
@@ -517,12 +517,9 @@ module.exports = React.createClass({
                       }
                     </Tab>
                     <Tab label={'所有'} value={14}>
-                      {this.state.list?
-                      (<div>{this.renderTable(tabs['14'],this.state.list,'list')}</div>):(
-                          <div>
-                          无数据
-                          </div>)
-                      }
+                      <div>
+                      <TableView loadList={TaskModel.get.list} getter={TaskModel.getter.list} formatter={TaskModel.formatter.list} />
+                      </div>
                     </Tab>
                     </Tabs>
                     {!!this.state.deleterow?

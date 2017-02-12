@@ -135,6 +135,17 @@ export let TaskModel={
 			return Backend.task.get.history(params);	
 		}
 	},
+	getter:{
+		list:function(data){
+			
+		},
+		unfinish:function(data){
+			
+		},
+		delay:function(data){
+			
+		},
+	},
 	formatter:{
 		list:function(data){
 			

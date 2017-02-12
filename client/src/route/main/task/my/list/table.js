@@ -36,12 +36,122 @@ export default React.createClass({
     itemRender(itm,i) {
 
     },
+    handleOpers(row,type,refname) {
+	    this.refname = refname;
+	    console.log(this.refname);
+	    switch(type+''){
+	      case 'edit':
+	        this.onEdit(row);
+	        break;
+	      case 'info':
+	        this.onDetail(row);
+	        break;
+	      case 'delay'://申请延期
+	        this.onDelay(row);
+	        break;
+	      case 'delete'://删除
+	        this.onDelete(row);
+	        break;
+	    }
+	  },
+	renderTable(curTab,target,refname) {
+		let items = target.list;
+		if(_.isArray(items) && items.length>0){
+		let firstItm = _.first(items);
+		let columns = [];
+		_.forIn(firstItm,(value,key)=>{
+		  if(maps[key] && curTab.hiddenfields.indexOf(key)<0)
+		    columns.push({
+		      property:key,
+		      width:'10%',
+		      title:maps[key].title,
+		      renderAs:maps[key].formatter?maps[key].formatter : function(data){
+		       return data[key]
+		      }
+		    });
+		});
+		columns.push({
+		  title:'延期及原因',width:'30%',renderAs:function(data){
+		    let result = '延期了，因为';
+		    data.isdelay ? (result+=data.delayreason):(result="没有延期");
+		    return result;
+		  }
+		})
+		// let config = {
+		//   paginated: true,
+		//   search: 'name',   
+		//   data: target,
+		//   count:target.count,
+		//   columns: columns,
+		//   opers:this.handleOpers
+		// };
+		var rect = this.refs.TaskContainer.getBoundingClientRect();
+		let config = {
+		  tablemode:2,
+		  data:target,
+		  maxWidth:rect.width,
+		  body:{
+		    columns:columns,
+		    hasOpers:true,
+		    //传递需要渲染的opers，如果不传递，并且hasOpers为true，那么将会渲染出默认提供的操作方式
+		    handleCb:this.handleOpers,
+		    style:{isSelect:false},
+		    opers:[
+		      {
+		        name:'edit',
+		        title:'编辑',
+		        creator:function(self,row){
+		          let showorhidden = row.status!=3&&row.status!=4;
+		          return <IconButton onClick={this.handleCb.bind(this,row,self.name,refname)} style={{display:showorhidden?'inline-block':'none'}} title={self.title} key={self.name}><EditIcn color={cyan300}/></IconButton>
+		        },
+		      },
+		      {
+		        name:'delete',
+		        title:'删除',
+		        creator:function(self,row){
+		          let showorhidden = row.status!=4;
+		          return <IconButton style={{display:showorhidden?'inline-block':'none'}} onClick={this.handleCb.bind(this,row,self.name,refname)}  title={self.title} key={self.name}><DeleteIcn color={red300}/></IconButton>
+		        },
+		      },
+		      {
+		        name:'info',
+		        title:'查看详情',
+		        creator:function(self,row){
+
+		          return <IconButton onClick={this.handleCb.bind(this,row,self.name,refname)}  title={self.title} key={self.name}><InfoIcn color={blue300}/></IconButton>
+		        },
+		      },
+		      {
+		        name:'delay',
+		        title:'申请延期',
+		        creator:function(self,row){
+		          let showorhidden =!row.isdelay &&row.status!=4;
+		          return <IconButton onClick={this.handleCb.bind(this,row,self.name,refname)} title={self.title} key={self.name} style={{display:showorhidden?'inline-block':'none'}}><DelayIcn color={deepOrange300}/></IconButton>
+		        },
+		      }
+		    ],
+		    
+		  },
+		  toolbar:{
+		    pagenation:{
+		      rowsPerPage:[5,10,20],
+		      foldCallback:Backend.task.get.list,
+		      locate:'top'
+		    },
+		    search:{
+		      field:'name',
+		      foldCallback:Backend.task.search,
+		      condition:'',
+		      locate:'top'
+		    }
+		  }
+		}
+		return <ExtendTable ref={refname} config={config} />
+		}else
+		return null;
+	},
     render() {
-        return (<div className={scss.index}>
-        	
-            {this.state.list.map(this.itemRender)}
-            {this._renderStatus()}
-        </div>);
+        return (<div > </div>);
     },
     _renderStatus() {
         switch (this.state.status) {
@@ -60,29 +170,12 @@ export default React.createClass({
         this.props.loadList()
             .then(d=>{
                 console.log(d);
-                let data = d.reports;
+                let data = d.list;
                 let result = this.props.formatter(data);
-                if(result && result.length>0){
-                    this.setState({'list':this.props.getter()});
-                }
-                if(result && result.length==0){
-                    this.setState({status:'done',loaded:true});
-                }else{
-                    this.setState({status:'loaded'});
-                }
+               	console.log(result);
                 
             })
             .catch(e => {
-                // console.log(this.state.list,tasklist);
-                // let templist = _.clone(this.state.list,true);
-                // Array.prototype.push.apply(templist, tasklist);
-                // //Array.prototype.push.apply(this.state.list, tasklist);
-
-                // templist.sort((x,y)=>{
-                //     console.log(new Date(x.time)-new Date(y.time));
-                //     return new Date(y.time)-new Date(x.time);
-                // });
-                // this.setState({list:templist,status:'loaded'});
                 
                 //后面需要撤销注释
                 this.setState({status: 'error'});
