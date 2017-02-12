@@ -274,92 +274,92 @@ export class ExtendTable extends React.Component {
      this.state.pageOptions.changeCallBack(options).then(d=>{
 
       }).catch(e=>{
-        let data = [
-            {
-              name:'任务一',
-              isdelay:false,
-              delayreason:'',
-              progress:45,
-              totaltime:4,
-              time:'2016-7-15',
-              status:1,
-              ticket:'#98545,#65412',
-              description:'兼容D3.js',
-            },{
-              name:'任务二',
-              progress:12,
-              totaltime:4,
-              ticket:'#98545,#65412',
-              description:'兼容D3.js',
-              time:'2016-7-15',
-              status:1,
-              isdelay:true,
-              delayreason:'在IE下表现特别诡异，难以处理'
-            },{
-              name:'任务三',
-              progress:100,
-              totaltime:7,
-              ticket:'#98545,#65412',
-              description:'兼容D3.js',
-              time:'2016-7-18',
-              status:3,
-              isdelay:false,
-              delayreason:''
-            },{
-              name:'任务四',
-              progress:65,
-              totaltime:4,
-              ticket:'#98545,#65412',
-              description:'兼容D3.js',
-              time:'2016-8-22',
-              status:1,
-              isdelay:true,
-              delayreason:'ffffffff'
-            },{
-              name:'任务五',
-              progress:33,
-              totaltime:4,
-              ticket:'#98545,#65412',
-              description:'dfgdfhgs.js',
-              time:'2016-7-15',
-              status:2,
-              isdelay:false,
-              delayreason:''
-            },{
-              name:'任务六',
-              progress:100,
-              totaltime:4,
-              ticket:'#98545,#65412',
-              description:'兼容WebGL啊',
-              time:'2016-12-25',
-              status:4,
-              isdelay:true,
-              delayreason:'212'
-            },{
-              name:'任务七',
-              progress:22,
-              totaltime:4,
-              ticket:'#98545,#65412',
-              description:'兼容D3.js',
-              time:'2016-7-15',
-              status:2,
-              isdelay:true,
-              delayreason:'234234'
-            }
-          ];
-        this.setState({
-          tableData:data,
-          pageOptions:{
-            curPerPage:val,
-            rowsPerPage:this.state.pageOptions.rowsPerPage,
-            currentPage:1,
-            maxPage:Math.ceil(this.count/val),
-            changeCallBack:this.state.pageOptions.changeCallBack,
-            count:this.count,
-            isShow:true,
-            offset:0
-          }
-        })
+        // let data = [
+        //     {
+        //       name:'任务一',
+        //       isdelay:false,
+        //       delayreason:'',
+        //       progress:45,
+        //       totaltime:4,
+        //       time:'2016-7-15',
+        //       status:1,
+        //       ticket:'#98545,#65412',
+        //       description:'兼容D3.js',
+        //     },{
+        //       name:'任务二',
+        //       progress:12,
+        //       totaltime:4,
+        //       ticket:'#98545,#65412',
+        //       description:'兼容D3.js',
+        //       time:'2016-7-15',
+        //       status:1,
+        //       isdelay:true,
+        //       delayreason:'在IE下表现特别诡异，难以处理'
+        //     },{
+        //       name:'任务三',
+        //       progress:100,
+        //       totaltime:7,
+        //       ticket:'#98545,#65412',
+        //       description:'兼容D3.js',
+        //       time:'2016-7-18',
+        //       status:3,
+        //       isdelay:false,
+        //       delayreason:''
+        //     },{
+        //       name:'任务四',
+        //       progress:65,
+        //       totaltime:4,
+        //       ticket:'#98545,#65412',
+        //       description:'兼容D3.js',
+        //       time:'2016-8-22',
+        //       status:1,
+        //       isdelay:true,
+        //       delayreason:'ffffffff'
+        //     },{
+        //       name:'任务五',
+        //       progress:33,
+        //       totaltime:4,
+        //       ticket:'#98545,#65412',
+        //       description:'dfgdfhgs.js',
+        //       time:'2016-7-15',
+        //       status:2,
+        //       isdelay:false,
+        //       delayreason:''
+        //     },{
+        //       name:'任务六',
+        //       progress:100,
+        //       totaltime:4,
+        //       ticket:'#98545,#65412',
+        //       description:'兼容WebGL啊',
+        //       time:'2016-12-25',
+        //       status:4,
+        //       isdelay:true,
+        //       delayreason:'212'
+        //     },{
+        //       name:'任务七',
+        //       progress:22,
+        //       totaltime:4,
+        //       ticket:'#98545,#65412',
+        //       description:'兼容D3.js',
+        //       time:'2016-7-15',
+        //       status:2,
+        //       isdelay:true,
+        //       delayreason:'234234'
+        //     }
+        //   ];
+        // this.setState({
+        //   tableData:data,
+        //   pageOptions:{
+        //     curPerPage:val,
+        //     rowsPerPage:this.state.pageOptions.rowsPerPage,
+        //     currentPage:1,
+        //     maxPage:Math.ceil(this.count/val),
+        //     changeCallBack:this.state.pageOptions.changeCallBack,
+        //     count:this.count,
+        //     isShow:true,
+        //     offset:0
+        //   }
+        // })
       });
   }
   navigateRight() {
@@ -377,84 +377,84 @@ export class ExtendTable extends React.Component {
         this.state.pageOptions.changeCallBack(options).then(d=>{
 
         }).catch(e=>{
-          let data = [
-            {
-              name:'任务一',
-              isdelay:false,
-              delayreason:'',
-              progress:45,
-              totaltime:4,
-              time:'2016-7-15',
-              status:1,
-              ticket:'#98545,#65412',
-              description:'兼容D3.js',
-            },{
-              name:'任务二',
-              progress:12,
-              totaltime:4,
-              ticket:'#98545,#65412',
-              description:'兼容D3.js',
-              time:'2016-7-15',
-              status:1,
-              isdelay:true,
-              delayreason:'在IE下表现特别诡异，难以处理'
-            },{
-              name:'任务三',
-              progress:100,
-              totaltime:7,
-              ticket:'#98545,#65412',
-              description:'兼容D3.js',
-              time:'2016-7-18',
-              status:3,
-              isdelay:false,
-              delayreason:''
-            },{
-              name:'任务四',
-              progress:65,
-              totaltime:4,
-              ticket:'#98545,#65412',
-              description:'兼容D3.js',
-              time:'2016-8-22',
-              status:1,
-              isdelay:true,
-              delayreason:'ffffffff'
-            },{
-              name:'任务五',
-              progress:33,
-              totaltime:4,
-              ticket:'#98545,#65412',
-              description:'dfgdfhgs.js',
-              time:'2016-7-15',
-              status:2,
-              isdelay:false,
-              delayreason:''
-            },{
-              name:'任务六',
-              progress:100,
-              totaltime:4,
-              ticket:'#98545,#65412',
-              description:'兼容WebGL啊',
-              time:'2016-12-25',
-              status:4,
-              isdelay:true,
-              delayreason:'212'
-            },{
-              name:'任务七',
-              progress:22,
-              totaltime:4,
-              ticket:'#98545,#65412',
-              description:'兼容D3.js',
-              time:'2016-7-15',
-              status:2,
-              isdelay:true,
-              delayreason:'asd'
-            }
-          ];
-          this.state.pageOptions.currentPage = this.state.pageOptions.currentPage+1;
-          this.setState({
-            tableData:data
-          });
-          this.forceUpdate();
+          // let data = [
+          //   {
+          //     name:'任务一',
+          //     isdelay:false,
+          //     delayreason:'',
+          //     progress:45,
+          //     totaltime:4,
+          //     time:'2016-7-15',
+          //     status:1,
+          //     ticket:'#98545,#65412',
+          //     description:'兼容D3.js',
+          //   },{
+          //     name:'任务二',
+          //     progress:12,
+          //     totaltime:4,
+          //     ticket:'#98545,#65412',
+          //     description:'兼容D3.js',
+          //     time:'2016-7-15',
+          //     status:1,
+          //     isdelay:true,
+          //     delayreason:'在IE下表现特别诡异，难以处理'
+          //   },{
+          //     name:'任务三',
+          //     progress:100,
+          //     totaltime:7,
+          //     ticket:'#98545,#65412',
+          //     description:'兼容D3.js',
+          //     time:'2016-7-18',
+          //     status:3,
+          //     isdelay:false,
+          //     delayreason:''
+          //   },{
+          //     name:'任务四',
+          //     progress:65,
+          //     totaltime:4,
+          //     ticket:'#98545,#65412',
+          //     description:'兼容D3.js',
+          //     time:'2016-8-22',
+          //     status:1,
+          //     isdelay:true,
+          //     delayreason:'ffffffff'
+          //   },{
+          //     name:'任务五',
+          //     progress:33,
+          //     totaltime:4,
+          //     ticket:'#98545,#65412',
+          //     description:'dfgdfhgs.js',
+          //     time:'2016-7-15',
+          //     status:2,
+          //     isdelay:false,
+          //     delayreason:''
+          //   },{
+          //     name:'任务六',
+          //     progress:100,
+          //     totaltime:4,
+          //     ticket:'#98545,#65412',
+          //     description:'兼容WebGL啊',
+          //     time:'2016-12-25',
+          //     status:4,
+          //     isdelay:true,
+          //     delayreason:'212'
+          //   },{
+          //     name:'任务七',
+          //     progress:22,
+          //     totaltime:4,
+          //     ticket:'#98545,#65412',
+          //     description:'兼容D3.js',
+          //     time:'2016-7-15',
+          //     status:2,
+          //     isdelay:true,
+          //     delayreason:'asd'
+          //   }
+          // ];
+          // this.state.pageOptions.currentPage = this.state.pageOptions.currentPage+1;
+          // this.setState({
+          //   tableData:data
+          // });
+          // this.forceUpdate();
         });
       }
     }
@@ -476,84 +476,84 @@ export class ExtendTable extends React.Component {
         this.state.pageOptions.changeCallBack(options).then(d=>{
 
         }).catch(e=>{
-          let data = [
-            {
-              name:'任务一',
-              isdelay:false,
-              delayreason:'',
-              progress:45,
-              totaltime:4,
-              time:'2016-7-15',
-              status:1,
-              ticket:'#98545,#65412',
-              description:'兼容D3.js',
-            },{
-              name:'任务二',
-              progress:12,
-              totaltime:4,
-              ticket:'#98545,#65412',
-              description:'兼容D3.js',
-              time:'2016-7-15',
-              status:1,
-              isdelay:true,
-              delayreason:'在IE下表现特别诡异，难以处理'
-            },{
-              name:'任务三',
-              progress:100,
-              totaltime:7,
-              ticket:'#98545,#65412',
-              description:'兼容D3.js',
-              time:'2016-7-18',
-              status:3,
-              isdelay:false,
-              delayreason:''
-            },{
-              name:'任务四',
-              progress:65,
-              totaltime:4,
-              ticket:'#98545,#65412',
-              description:'兼容D3.js',
-              time:'2016-8-22',
-              status:1,
-              isdelay:true,
-              delayreason:'ffffffff'
-            },{
-              name:'任务五',
-              progress:33,
-              totaltime:4,
-              ticket:'#98545,#65412',
-              description:'dfgdfhgs.js',
-              time:'2016-7-15',
-              status:2,
-              isdelay:false,
-              delayreason:''
-            },{
-              name:'任务六',
-              progress:100,
-              totaltime:4,
-              ticket:'#98545,#65412',
-              description:'兼容WebGL啊',
-              time:'2016-12-25',
-              status:4,
-              isdelay:true,
-              delayreason:'212'
-            },{
-              name:'任务七',
-              progress:22,
-              totaltime:4,
-              ticket:'#98545,#65412',
-              description:'兼容D3.js',
-              time:'2016-7-15',
-              status:2,
-              isdelay:true,
-              delayreason:'asd'
-            }
-          ];
-          this.state.pageOptions.currentPage = this.state.pageOptions.currentPage-1;
-          this.setState({
-            tableData:data
-          });
-          this.forceUpdate();
+          // let data = [
+          //   {
+          //     name:'任务一',
+          //     isdelay:false,
+          //     delayreason:'',
+          //     progress:45,
+          //     totaltime:4,
+          //     time:'2016-7-15',
+          //     status:1,
+          //     ticket:'#98545,#65412',
+          //     description:'兼容D3.js',
+          //   },{
+          //     name:'任务二',
+          //     progress:12,
+          //     totaltime:4,
+          //     ticket:'#98545,#65412',
+          //     description:'兼容D3.js',
+          //     time:'2016-7-15',
+          //     status:1,
+          //     isdelay:true,
+          //     delayreason:'在IE下表现特别诡异，难以处理'
+          //   },{
+          //     name:'任务三',
+          //     progress:100,
+          //     totaltime:7,
+          //     ticket:'#98545,#65412',
+          //     description:'兼容D3.js',
+          //     time:'2016-7-18',
+          //     status:3,
+          //     isdelay:false,
+          //     delayreason:''
+          //   },{
+          //     name:'任务四',
+          //     progress:65,
+          //     totaltime:4,
+          //     ticket:'#98545,#65412',
+          //     description:'兼容D3.js',
+          //     time:'2016-8-22',
+          //     status:1,
+          //     isdelay:true,
+          //     delayreason:'ffffffff'
+          //   },{
+          //     name:'任务五',
+          //     progress:33,
+          //     totaltime:4,
+          //     ticket:'#98545,#65412',
+          //     description:'dfgdfhgs.js',
+          //     time:'2016-7-15',
+          //     status:2,
+          //     isdelay:false,
+          //     delayreason:''
+          //   },{
+          //     name:'任务六',
+          //     progress:100,
+          //     totaltime:4,
+          //     ticket:'#98545,#65412',
+          //     description:'兼容WebGL啊',
+          //     time:'2016-12-25',
+          //     status:4,
+          //     isdelay:true,
+          //     delayreason:'212'
+          //   },{
+          //     name:'任务七',
+          //     progress:22,
+          //     totaltime:4,
+          //     ticket:'#98545,#65412',
+          //     description:'兼容D3.js',
+          //     time:'2016-7-15',
+          //     status:2,
+          //     isdelay:true,
+          //     delayreason:'asd'
+          //   }
+          // ];
+          // this.state.pageOptions.currentPage = this.state.pageOptions.currentPage-1;
+          // this.setState({
+          //   tableData:data
+          // });
+          // this.forceUpdate();
         });
       }
     }
@@ -615,7 +615,7 @@ export class ExtendTable extends React.Component {
     return data.map((item, index) => {
       if (item.paginationInfo) return undefined;
       return (
-        <TableRow key={index}>
+        <TableRow key={index} className={item.isdelay?'delay':''} hovered={item.isdelay?true:false}>
           {this.mapDataToProperties(properties, item,cols)}
           <TableRowColumn style={{display:this.moreOperConfig.hasOpers?'block':'none',paddingTop:'10px',paddingBottom:'10px'}}>
             {this.renderMoreOps(item)}

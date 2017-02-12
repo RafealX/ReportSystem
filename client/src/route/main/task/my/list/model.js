@@ -85,8 +85,8 @@ let TaskObj = {
 			result:[],
 			count:0
 		},
-		limit:2,
-		offset:-2
+		limit:20,
+		offset:-20
 	},
 	unfinish:{
 		data:[],
@@ -153,7 +153,7 @@ export let TaskModel={
 		list:function(data){
 			TaskObj.list.data.result = [];
 			TaskObj.list.data.result.length = 0;
-			TaskObj.list.data.result = data;
+			TaskObj.list.data.result = data.list;
 			TaskObj.list.data.count = data.count;
 			return TaskObj.list.data;
 		},
@@ -166,18 +166,35 @@ export let TaskModel={
 
 	},
 	opers:{
-		delay:function(itm){
+		list:{
+			delay:function(itm){
+				_.each(TaskObj.list.data.result,item=>{
+					itm.id==item.id?(item.delayreason = itm.delayreason,item.time=itm.time,item.isdelay=true):'';
+				});
+			},
+			delete:function(itm){
+				_.each(TaskObj.list.data.result,item=>{
+					itm.id==item.id?(item.status=4):'';
+				});
+			},
+			edit:function(itm){
+				_.each(TaskObj.list.data.result,item=>{
+					itm.id==item.id?(item.description = itm.description,item.name=itm.name,item.ticket=itm.ticket):'';
+				});
+			},
+			detail:function(itm){
+				var history = this.get.history(tm);
+
+			}
+			
+		},
+		delay:{
 
 		},
-		delete:function(itm){
+		unfinish:{
 
 		},
-		edit:function(itm){
 
-		},
-		detail:function(itm){
-			var history = this.get.history(tm);
-
-		}
+		
 	}
 }

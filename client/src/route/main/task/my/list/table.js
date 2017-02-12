@@ -20,6 +20,7 @@ import pubsub from 'vanilla-pubsub';
 import Editor from 'cpn/Editor';
 import format from 'date-format';
 import { ExtendTable } from 'cpn/ExtendTable';
+
 import _ from 'lodash';
 import Backend from 'lib/backend';
 import {TaskModel} from './model';
@@ -27,7 +28,8 @@ import {TaskDetail as ShowDetail} from './detail.js'
 
 const maps = {
   name:{
-    title:'任务名'
+    title:'任务名',
+    width:'12%'
   },
   progress:{
     title:'进度',
@@ -55,9 +57,6 @@ const maps = {
     formatter:function(data){
       let result = '';
       switch(data.status+''){
-        case '1':
-          result = '未开始';
-          break;
         case '2':
           result='进行中';
           break;
@@ -72,13 +71,14 @@ const maps = {
     }
   },
   description:{
-    title:'描述'
+    title:'描述',
+    width:'10%'
   },
 };
 
 export default React.createClass({
     getInitialState() {
-        return {list: [],count:0};
+        return {list: [],count:0,delayrow:null};
     },
     componentDidMount() {
         this._loadList();
@@ -87,20 +87,22 @@ export default React.createClass({
 
     },
     handleOpers(row,type,refname) {
+    	console.log(row,type);
+
 	    this.refname = refname;
 	    console.log(this.refname);
 	    switch(type+''){
 	      case 'edit':
-	        this.onEdit(row);
+	        this.handle.edit.call(this,row);
 	        break;
 	      case 'info':
-	        this.onDetail(row);
+	        this.handle.detail.call(this,row);
 	        break;
 	      case 'delay'://申请延期
-	        this.onDelay(row);
+	        this.setState({delayrow:row})
 	        break;
 	      case 'delete'://删除
-	        this.onDelete(row);
+	        this.handle.delete.call(this,row);
 	        break;
 	    }
 	  },
@@ -113,7 +115,7 @@ export default React.createClass({
 		  if(maps[key])
 		    columns.push({
 		      property:key,
-		      width:'10%',
+		      width:maps[key].width?maps[key].width:'9%',
 		      title:maps[key].title,
 		      renderAs:maps[key].formatter?maps[key].formatter : function(data){
 		       return data[key]
@@ -121,7 +123,7 @@ export default React.createClass({
 		    });
 		});
 		columns.push({
-		  title:'延期及原因',width:'30%',renderAs:function(data){
+		  title:'延期及原因',width:'20%',renderAs:function(data){
 		    let result = '延期了，因为';
 		    data.isdelay ? (result+=data.delayreason):(result="没有延期");
 		    return result;
@@ -144,12 +146,20 @@ export default React.createClass({
 		    handleCb:this.handleOpers,
 		    style:{isSelect:false},
 		    opers:[
+		     {
+		        name:'info',
+		        title:'查看详情',
+		        creator:function(self,row){
+
+		          return <IconButton   onClick={this.handleCb.bind(this,row,self.name)}  title={self.title} key={self.name}><InfoIcn color={blue300}/></IconButton>
+		        },
+		      },
 		      {
 		        name:'edit',
 		        title:'编辑',
 		        creator:function(self,row){
 		          let showorhidden = row.status!=3&&row.status!=4;
-		          return <IconButton style={{display:showorhidden?'inline-block':'none'}} title={self.title} key={self.name}><EditIcn color={cyan300}/></IconButton>
+		          return <IconButton  onClick={this.handleCb.bind(this,row,self.name)}  style={{display:showorhidden?'inline-block':'none'}} title={self.title} key={self.name}><EditIcn color={cyan300}/></IconButton>
 		        },
 		      },
 		      {
@@ -157,23 +167,15 @@ export default React.createClass({
 		        title:'删除',
 		        creator:function(self,row){
 		          let showorhidden = row.status!=4;
-		          return <IconButton style={{display:showorhidden?'inline-block':'none'}}  title={self.title} key={self.name}><DeleteIcn color={red300}/></IconButton>
-		        },
-		      },
-		      {
-		        name:'info',
-		        title:'查看详情',
-		        creator:function(self,row){
-
-		          return <IconButton  title={self.title} key={self.name}><InfoIcn color={blue300}/></IconButton>
+		          return <IconButton  onClick={this.handleCb.bind(this,row,self.name)}  style={{display:showorhidden?'inline-block':'none'}}  title={self.title} key={self.name}><DeleteIcn color={red300}/></IconButton>
 		        },
 		      },
 		      {
 		        name:'delay',
 		        title:'申请延期',
 		        creator:function(self,row){
-		          let showorhidden =!row.isdelay &&row.status!=4;
-		          return <IconButton title={self.title} key={self.name} style={{display:showorhidden?'inline-block':'none'}}><DelayIcn color={deepOrange300}/></IconButton>
+		          let showorhidden =!row.isdelay && row.status!=4 &&row.status!=3;
+		          return <IconButton  onClick={this.handleCb.bind(this,row,self.name)}  title={self.title} key={self.name} style={{display:showorhidden?'inline-block':'none'}}><DelayIcn color={deepOrange300}/></IconButton>
 		        },
 		      }
 		    ],
@@ -198,8 +200,43 @@ export default React.createClass({
 		return null;
 	},
     render() {
+    	const delayActions = [
+            <FlatButton
+              label="取消"
+              onTouchTap={e=>{this.setState({delayrow:null})}}
+            />,
+            <FlatButton
+              label="确定"
+              primary={true} 
+              keyboardFocused={true}
+              onTouchTap={e=>{if(!this.refs.delayreson.getValue() || !this.refs.delaytime.state.date){popup.error('请填写延期理由及时间');return;} this.handle.delay.call(this,this.state.delayrow,this.refs.delayreson.getValue(),this.refs.delaytime.state.date);this.setState({delayrow:null})}}
+            />,
+          ];
         return <div > 
         	{this.state.list&&this.state.list.length>0&&this.renderTable()}
+        	{!!this.state.delayrow?
+	          <Dialog title="确定延期？"
+	         actions={delayActions}
+	         modal={false}
+	         open={!!this.state.delayrow?true:false}>
+	          <TextField ref='delayreson' fullWidth={true}
+	            defaultValue=""
+	            floatingLabelText="请填写延期理由"
+	          />
+	          <TextField 
+	            defaultValue={(new Date(this.state.delayrow.time)).toLocaleDateString()} disabled={true}
+	            floatingLabelText="当前截止时间" style={{display:'inline-block'}}
+	          />
+	          <DatePicker 
+	              locale="zh-Hans-CN" ref='delaytime'
+	              DateTimeFormat={Intl.DateTimeFormat}
+	              cancelLabel="取消" okLabel="确定" 
+	              style={{width: '120px'}} defaultDate={new Date(this.state.delayrow.time)}
+	              textFieldStyle={{width: '120px'}}
+	              hintText="延期至？" minDate={new Date(this.state.delayrow.time)}/>
+	        </Dialog>
+	          :null}
+	           <ShowDetail ref="showdetailcpn" />
         </div>;
     },
     _renderStatus() {
@@ -219,14 +256,13 @@ export default React.createClass({
         this.props.loadList()
             .then(d=>{
                 console.log(d);
-                let data = d.list;
-                let result = this.props.formatter(data);
+                let result = this.props.formatter(d);
                	console.log(result);
-                if(result && result.length>0){
-                    this.setState({'list':this.props.getter()});
+                if(result && result.result.length>0){
+                    this.setState({'list':this.props.getter().result,count:this.props.getter().count});
                 }
                 if(result && result.length==0){
-                    this.setState({status:'done',loaded:true});
+                    this.setState({'list':this.props.getter().result});
                 }else{
                     this.setState({status:'loaded'});
                 }
@@ -238,23 +274,63 @@ export default React.createClass({
             });
     },
     handle:{
-    	 delete() {
-	        // this.setState({'list':this.props.getter()});
-	        // var target = _.filter(this.state.list,itm=>{
-	        //     return itm.status!=3;
-	        // });
-	        // if(target.length<=1){
-	        //     this._loadList();
-	        // }
+    	delete(row) {
+    		var _self = this;
+    		popup.confirm({
+	            msg: '确定删除此条任务?',
+	            onOk: () => {
+	                Backend.task.delete(row.id)
+	                    .then(d => {
+	                        _self.props.operations.delete(row);
+	                        _self.setState({list:_self.props.getter().result});
+	                        popup.success('删除成功');
+	                    })
+	                    .catch(e => {
+	                        popup.success('删除失败');
+	                    })
+	            }
+	        });
 	    },
-	    edit() {
-
+		detail(data) {
+		    this.refs.showdetailcpn.switchType(3,data);
+		  },
+		edit(row){
+			var _self = this;
+		    //mock
+		    this.refs.showdetailcpn.switchType(2,row,function(data){
+		      Backend.task.edit(data)
+                .then(d => {
+                    _self.props.operations.edit(data);
+                    _self.setState({list:_self.props.getter().result});
+                    popup.success('编辑成功');
+                })
+                .catch(e => {
+                    popup.success('编辑失败');
+                })
+		    }.bind(this));
+		  
+		  },
+	    delay(row,reason,time) {
+	    	var _self = this;
+	    	console.log(arguments);
+	    	var data = _.clone(row,true);
+	    	data.delayreason = reason;
+	    	let date = new Date(time);
+	    	date = new Date(date.toLocaleDateString());
+	    	data.time = date.getTime();
+	    	data.isdelay = true;
+	    	Backend.task.delay(data)
+                .then(d => {
+                    // Report.operation.delete(rp);
+                    // this.refs.listView.delete();
+                    _self.props.operations.delay(data);
+                    _self.setState({list:_self.props.getter().result});
+                    popup.success('嗯，延期了');
+                })
+                .catch(e => {
+                    popup.success('申请延期失败');
+                })
 	    },
-
-	    updateView() {
-	        this.setState({'list':this.props.getter()});
-
-	    }
     },
    
 });

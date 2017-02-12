@@ -84,7 +84,7 @@ let MockTask = function () {
 	for(;i<cur;i++){
         let date = new Date();
         date = new Date(date.toLocaleDateString());
-		var isDelay = Math.floor(Math.random()*10)%2==0?false:true;
+		var isDelay = false;//Math.floor(Math.random()*10)%2==0?false:true;
 		var reason = '';
 		if(isDelay){
 			reason = reasons[Math.floor(Math.random()*10)%2];
@@ -224,11 +224,20 @@ router.post('/add',auth.mustLogin(), function* () {
  */
 router.post('/edit', auth.mustLogin(), function* () {
 	let rData = this.request.params;
-	let taskid = rData.taskid;
+	let taskid = rData.id;
 	let taskparams = {};
 	taskparams["$set"] = {
 		name: rData.name,
-		description: rData.description
+		description: rData.description,
+        status: rData.status,
+        userid: rData.userid,
+        groupid: rData.groupid,
+        ticket: rData.ticket,
+        progress: rData.progress,
+        totaltime: rData.totaltime,
+        time: rData.time,
+        isdelay:  rData.isdelay,
+        delayreason: rData.delayreason
 	}
     let mtask = yield Task.update({id:taskid},taskparams);
 	this.body = {
