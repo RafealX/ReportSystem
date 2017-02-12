@@ -18,12 +18,18 @@ const ErrCode = BusinessError.ErrCode;
 
 /**
  * 获取个人任务列表
+ * limit
+ * offset
  */
 router.post('/get/list', auth.mustLogin(), function* () {
 	let params = this.request.params;
-	let tasklist = yield Task.find({userid: this.state.loginUser.id,status:{"$lte":2}});
+	let tasklist = yield Task.find({userid: this.state.loginUser.id})
+        .skip(parseInt(params.offset) || 0)
+        .limit(parseInt(params.limit) || 15);
+	let count = tasklist.length;
 	this.body={
 		code: 200,
+		count:count,
 		list: tasklist
 	};
 });
