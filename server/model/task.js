@@ -14,7 +14,7 @@ let schema = helper.schema({
 	id: {type:String,default:util.uuid},
 	totaltime: Number,
     description: {type:String,default:''},
-    time:Date,
+    time: {type:Number,default:0},
 	isdelay: {type:Boolean,defaule:false},
 	delayreason: {type:String,default:''}
 }, {collection:'Task'});

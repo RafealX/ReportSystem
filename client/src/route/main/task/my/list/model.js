@@ -6,7 +6,6 @@ import _ from 'lodash';
 import Backend from 'lib/backend';
 import {uuid} from 'lib/util';
 import pubsub from 'vanilla-pubsub';
-import Mock from 'cpn/Mock';
 /**
  * 写日报依赖数据
  * @type {[type]}

@@ -12,8 +12,8 @@ import pubsub from 'vanilla-pubsub';
  * @type {Object}
  */
 let TeamReportObj = {
-	offset:-2,
-	limit:2,
+	offset:-4,
+	limit:4,
 	data:[]
 };
 
