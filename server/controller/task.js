@@ -23,10 +23,11 @@ const ErrCode = BusinessError.ErrCode;
  */
 router.post('/get/list', auth.mustLogin(), function* () {
 	let params = this.request.params;
-	let tasklist = yield Task.find({userid: this.state.loginUser.id})
+	let taskalllist = yield Task.find({userid: this.state.loginUser.id});
+	let tasklist = taskalllist
         .skip(parseInt(params.offset) || 0)
         .limit(parseInt(params.limit) || 15);
-	let count = tasklist.length;
+	let count = taskalllist.length;
 	this.body={
 		code: 200,
 		count:count,
