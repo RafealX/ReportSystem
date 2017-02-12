@@ -5,7 +5,7 @@
 let helper = require('./helper');
 const util = require('../lib/util');
 let schema = helper.schema({
-	status: Number,
+	status: {type:Number,default:2},
 	name: String,
 	userid: String,
 	groupid: Number,

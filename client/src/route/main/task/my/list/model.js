@@ -81,9 +81,12 @@ let fakeTask = {
 let TaskObj = {
 	time:null,
 	list:{
-		data:[],
-		limit:20,
-		offset:-20
+		data:{
+			result:[],
+			count:0
+		},
+		limit:2,
+		offset:-2
 	},
 	unfinish:{
 		data:[],
@@ -137,7 +140,7 @@ export let TaskModel={
 	},
 	getter:{
 		list:function(data){
-			
+			return TaskObj.list.data;
 		},
 		unfinish:function(data){
 			
@@ -148,7 +151,11 @@ export let TaskModel={
 	},
 	formatter:{
 		list:function(data){
-			
+			TaskObj.list.data.result = [];
+			TaskObj.list.data.result.length = 0;
+			TaskObj.list.data.result = data;
+			TaskObj.list.data.count = data.count;
+			return TaskObj.list.data;
 		},
 		unfinish:function(data){
 			

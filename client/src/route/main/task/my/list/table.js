@@ -25,10 +25,60 @@ import Backend from 'lib/backend';
 import {TaskModel} from './model';
 import {TaskDetail as ShowDetail} from './detail.js'
 
+const maps = {
+  name:{
+    title:'任务名'
+  },
+  progress:{
+    title:'进度',
+    formatter:function(data){
+      return data.progress? data.progress+'%' : '';
+    }
+  },
+  totaltime:{
+    title:'耗时',
+    formatter:function(data){
+      return data.totaltime? data.totaltime+'h' : '';
+    }
+  },
+  ticket:{
+    title:'ticket'
+  },
+  time:{
+    title:'截止时间',
+    formatter:function(data){
+      return data.time? (new Date(data.time)).toLocaleDateString() : '';
+    }
+  },
+  status:{
+    title:'任务状态',
+    formatter:function(data){
+      let result = '';
+      switch(data.status+''){
+        case '1':
+          result = '未开始';
+          break;
+        case '2':
+          result='进行中';
+          break;
+        case '3':
+          result='已完成';
+          break;
+        case '4':
+          result='已删除';
+          break;
+      }
+      return result;
+    }
+  },
+  description:{
+    title:'描述'
+  },
+};
 
 export default React.createClass({
     getInitialState() {
-        return {list: []};
+        return {list: [],count:0};
     },
     componentDidMount() {
         this._loadList();
@@ -55,12 +105,12 @@ export default React.createClass({
 	    }
 	  },
 	renderTable(curTab,target,refname) {
-		let items = target.list;
+		let items = this.state.list;
 		if(_.isArray(items) && items.length>0){
 		let firstItm = _.first(items);
 		let columns = [];
 		_.forIn(firstItm,(value,key)=>{
-		  if(maps[key] && curTab.hiddenfields.indexOf(key)<0)
+		  if(maps[key])
 		    columns.push({
 		      property:key,
 		      width:'10%',
@@ -76,20 +126,17 @@ export default React.createClass({
 		    data.isdelay ? (result+=data.delayreason):(result="没有延期");
 		    return result;
 		  }
-		})
-		// let config = {
-		//   paginated: true,
-		//   search: 'name',   
-		//   data: target,
-		//   count:target.count,
-		//   columns: columns,
-		//   opers:this.handleOpers
-		// };
-		var rect = this.refs.TaskContainer.getBoundingClientRect();
+		});
+
+		var rect ={};// this.refs.TaskContainer.getBoundingClientRect();
+		target = {
+			list:this.state.list,
+			count:this.state.count
+		};
 		let config = {
 		  tablemode:2,
 		  data:target,
-		  maxWidth:rect.width,
+		  maxWidth:rect.width||500,
 		  body:{
 		    columns:columns,
 		    hasOpers:true,
@@ -102,7 +149,7 @@ export default React.createClass({
 		        title:'编辑',
 		        creator:function(self,row){
 		          let showorhidden = row.status!=3&&row.status!=4;
-		          return <IconButton onClick={this.handleCb.bind(this,row,self.name,refname)} style={{display:showorhidden?'inline-block':'none'}} title={self.title} key={self.name}><EditIcn color={cyan300}/></IconButton>
+		          return <IconButton style={{display:showorhidden?'inline-block':'none'}} title={self.title} key={self.name}><EditIcn color={cyan300}/></IconButton>
 		        },
 		      },
 		      {
@@ -110,7 +157,7 @@ export default React.createClass({
 		        title:'删除',
 		        creator:function(self,row){
 		          let showorhidden = row.status!=4;
-		          return <IconButton style={{display:showorhidden?'inline-block':'none'}} onClick={this.handleCb.bind(this,row,self.name,refname)}  title={self.title} key={self.name}><DeleteIcn color={red300}/></IconButton>
+		          return <IconButton style={{display:showorhidden?'inline-block':'none'}}  title={self.title} key={self.name}><DeleteIcn color={red300}/></IconButton>
 		        },
 		      },
 		      {
@@ -118,7 +165,7 @@ export default React.createClass({
 		        title:'查看详情',
 		        creator:function(self,row){
 
-		          return <IconButton onClick={this.handleCb.bind(this,row,self.name,refname)}  title={self.title} key={self.name}><InfoIcn color={blue300}/></IconButton>
+		          return <IconButton  title={self.title} key={self.name}><InfoIcn color={blue300}/></IconButton>
 		        },
 		      },
 		      {
@@ -126,7 +173,7 @@ export default React.createClass({
 		        title:'申请延期',
 		        creator:function(self,row){
 		          let showorhidden =!row.isdelay &&row.status!=4;
-		          return <IconButton onClick={this.handleCb.bind(this,row,self.name,refname)} title={self.title} key={self.name} style={{display:showorhidden?'inline-block':'none'}}><DelayIcn color={deepOrange300}/></IconButton>
+		          return <IconButton title={self.title} key={self.name} style={{display:showorhidden?'inline-block':'none'}}><DelayIcn color={deepOrange300}/></IconButton>
 		        },
 		      }
 		    ],
@@ -135,7 +182,7 @@ export default React.createClass({
 		  toolbar:{
 		    pagenation:{
 		      rowsPerPage:[5,10,20],
-		      foldCallback:Backend.task.get.list,
+		      foldCallback:this.props.loadlist,
 		      locate:'top'
 		    },
 		    search:{
@@ -151,7 +198,9 @@ export default React.createClass({
 		return null;
 	},
     render() {
-        return (<div > </div>);
+        return <div > 
+        	{this.state.list&&this.state.list.length>0&&this.renderTable()}
+        </div>;
     },
     _renderStatus() {
         switch (this.state.status) {
@@ -173,7 +222,14 @@ export default React.createClass({
                 let data = d.list;
                 let result = this.props.formatter(data);
                	console.log(result);
-                
+                if(result && result.length>0){
+                    this.setState({'list':this.props.getter()});
+                }
+                if(result && result.length==0){
+                    this.setState({status:'done',loaded:true});
+                }else{
+                    this.setState({status:'loaded'});
+                }
             })
             .catch(e => {
                 

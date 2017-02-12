@@ -56,8 +56,12 @@ let MockTask = function () {
 		'etcetcetc',
 		'这是个fake数据'
 	];
+    let reportstatus = [
+        1,
+    	2,
+        3,
+    ];
     let taskstatus = [
-        '1',
         '2',
         '3',
         '4'
@@ -86,7 +90,7 @@ let MockTask = function () {
 		let task = new Task({
 			id:id,
 			userid:userid,
-			status:taskstatus[Math.floor(Math.random()*10)%4],
+			status:taskstatus[Math.floor(Math.random()*10)%3],
             name: taskname,
 			description:"这是描述-_-"+i,
 			groupid:1,
@@ -122,7 +126,7 @@ let MockTask = function () {
 			})
 			reportitmString = reportitmString.substring(0,reportitmString.length-1);
 			let report = new Report({
-                status: taskstatus[Math.floor(Math.random()*10)%3],
+                status: reportstatus[Math.floor(Math.random()*10)%3],
                 time: date.getTime(),
                 others: reports[Math.floor(Math.random()*10)%3],
                 tasks: reportitmString,
