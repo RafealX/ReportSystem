@@ -21,13 +21,16 @@ const ObjectId = require('mongodb').ObjectId;
 
 /**
  * 获取个人日报
+ * userid
+ * offset
+ * limit
  */
 
 router.get('/get',auth.mustLogin(), function* () {
     let reports = [];
     let params = this.request.params;
     let list = yield Report.find({userid: params.userid,status:{"$ne":3}})
-    .sort({updateTime: 1})
+    .sort({"time":-1})
     .skip(parseInt(params.offset) || 0)
     .limit(parseInt(params.limit) || 15);
     for(let x=0,k=list.length;x<k;x++){
@@ -91,7 +94,7 @@ router.post('/add', auth.mustLogin(),function* () {
     //report
     let rReport = {};
     rReport.status = 1;
-    rReport.time = new Date().getTime();
+    rReport.time = rData.time;
     rReport.others = rData.others;
     rReport.userid = rData.userid;
     rReport.groupid = rData.groupid;
@@ -228,7 +231,7 @@ router.post('/team/get',auth.mustLogin(),function* () {
     let reports = [];
     let params = this.request.params;
     let list = yield Report.find({groupid: params.groupid})
-        .sort({updateTime: 1})
+        .sort({time: 1})
         .skip(parseInt(params.offset) || 0)
         .limit(parseInt(params.limit) || 15);
     for(let x=0,k=list.length;x<k;x++){
