@@ -496,9 +496,18 @@ module.exports = React.createClass({
           ];
         return (
             <div className={style} ref='TaskContainer'>
+              <Toolbar style={{backgroundColor:'#7cccb5'}}>
+                <ToolbarGroup firstChild={true}> 
+                <FlatButton labelStyle={{color:'#fff'}} hoverColor="#7cccb5"
+                  label="新增任务"  onClick={this.onAdd}
+                  primary={true} style={{marginLeft:'0px'}} style={{height:'100%',padding:0,margin:0}}
+                  icon={<AddIcon color={'#fff'}/>}
+                />
+                </ToolbarGroup>
+                </Toolbar>
                  <ShowDetail ref="showdetailcpn" />
-                <Tabs
-                    >
+                <Tabs style={{margin: '10px'}}
+                    > 
                     <Tab label={'所有'} value={14}>
                       <div>
                       <TableView loadList={TaskModel.get.list} operations={TaskModel.opers.list} getter={TaskModel.getter.list} formatter={TaskModel.formatter.list} />

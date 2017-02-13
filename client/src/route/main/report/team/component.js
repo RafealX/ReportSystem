@@ -104,6 +104,14 @@ module.exports = React.createClass({
         ;
         return (
             <div className={style}>
+                <Toolbar style={{backgroundColor:'#7cccb5'}}>
+                    <ToolbarGroup firstChild={true}> 
+                    <FlatButton labelStyle={{color:'#fff'}} hoverColor="rgba(0,0,0,0)" disabled={true}
+                      label="新增工作日记" 
+                      primary={true} style={{marginLeft:'0px'}} style={{'cursor':'default',height:'100%',padding:0,margin:0}}
+                    />
+                    </ToolbarGroup>
+                    </Toolbar>
             <Stepper orientation="vertical" linear={false} children={[]}>
                 <TeamReportListView ref="listView" loadList={TeamReport.get} getter={TeamReport.operation.get} formatter={TeamReport.formatter} itemRender={itemRender}/>
             </Stepper>

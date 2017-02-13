@@ -67,30 +67,69 @@ router.post('/add', auth.mustLogin(),function* () {
     report*/
     for(var i=0,l=taskhistorylist.length;i<l;i++){
         let taskid = taskhistorylist[i].targettask;
+        let targetTask = yield Task.findOne({id:taskid});
+        if(!targetTask){
+            this.body={
+                code:400,
+                msg:'没有相应任务'
+            };
+            return;
+        }
+        let targetTaskObject = targetTask.toObject();
+        if(targetTaskObject.progress==taskhistorylist[i].progress){
+            var taskparams = {};
+            if(!isNaN(taskhistorylist[i].elapse*1)){
+                taskparams['$inc']={
+                    totaltime:taskhistorylist[i].elapse*1
+                }
+            }
+            let mtask = yield Task.update({id:taskid},taskparams);
+            let mtaskhistory = {};
+            mtaskhistory.id = util.uuid();
+            reporttaskids+=mtaskhistory.id+',';
+            mtaskhistory.targettask = taskhistorylist[i].targettask;
+            mtaskhistory.taskname = taskhistorylist[i].taskname;
+            mtaskhistory.elapse = taskhistorylist[i].elapse*1;
+            mtaskhistory.question = taskhistorylist[i].question;
+            mtaskhistory.summary = taskhistorylist[i].summary;
+            mtaskhistory.description="没进度";
+            let date = new Date();
+            date = new Date(date.toLocaleDateString());
+            mtaskhistory.time = date.getTime();
+            mtaskhistory.progress = taskhistorylist[i].progress;
+            let taskhistory = new Taskhistory(mtaskhistory);
+            yield taskhistory.save();
+        }else{
+            var taskparams = {};
+
+            taskparams['$set'] = {
+                progress:taskhistorylist[i].progress
+            };
+            if(!isNaN(taskhistorylist[i].elapse*1)){
+                taskparams['$inc']={
+                    totaltime:taskhistorylist[i].elapse*1
+                }
+            }
+
+            let mtask = yield Task.update({id:taskid},taskparams);
+            let mtaskhistory = {};
+            mtaskhistory.id = util.uuid();
+            reporttaskids+=mtaskhistory.id+',';
+            mtaskhistory.targettask = taskhistorylist[i].targettask;
+            mtaskhistory.taskname = taskhistorylist[i].taskname;
+            mtaskhistory.elapse = taskhistorylist[i].elapse*1;
+            mtaskhistory.question = taskhistorylist[i].question;
+            mtaskhistory.summary = taskhistorylist[i].summary;
+            let date = new Date();
+            date = new Date(date.toLocaleDateString());
+            mtaskhistory.time = date.getTime();
+            mtaskhistory.progress = taskhistorylist[i].progress;
+            let taskhistory = new Taskhistory(mtaskhistory);
+            yield taskhistory.save();
+        }
         //task
 
-        var taskparams = {};
-        taskparams['$set'] = {
-            progress:taskhistorylist[i].progress
-        };
-        taskparams['$inc']={
-            totaltime:taskhistorylist[i].elapse
-        }
-        let mtask = yield Task.update({id:taskid},taskparams);
-        let mtaskhistory = {};
-        mtaskhistory.id = util.uuid();
-        reporttaskids+=mtaskhistory.id+',';
-        mtaskhistory.targettask = taskhistorylist[i].targettask;
-        mtaskhistory.taskname = taskhistorylist[i].taskname;
-        mtaskhistory.elapse = taskhistorylist[i].elapse*1;
-        mtaskhistory.question = taskhistorylist[i].question;
-        mtaskhistory.summary = taskhistorylist[i].summary;
-        let date = new Date();
-        date = new Date(date.toLocaleDateString());
-        mtaskhistory.time = date.getTime();
-        mtaskhistory.progress = taskhistorylist[i].progress;
-        let taskhistory = new Taskhistory(mtaskhistory);
-        yield taskhistory.save();
+
     }
     reporttaskids = reporttaskids.substring(0,reporttaskids.length-1);
     //report
@@ -151,15 +190,16 @@ router.post('/edit',auth.mustLogin(), function* () {
         taskparams['$set'] = {
             progress:taskhistorylist[i].progress
         };
-        taskparams['$inc']={
-            totaltime:taskhistorylist[i].elapse
-        }
+        if(!isNaN(taskhistorylist[i].elapse*1))
+            taskparams['$inc']={
+                totaltime:taskhistorylist[i].elapse
+            }
         let mtask = yield Task.update({id:taskid},taskparams);
 
         console.log(mtask);
         //taskhistory
         let mtaskhistory = {};
-        mtaskhistory.id = taskhistorylist.id;
+        mtaskhistory.id = taskhistorylist[i].id;
         if(!taskhistorylist[i].id){
             //说明是编辑里新增的记录
             let newTask = new Taskhistory({

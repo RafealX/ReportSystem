@@ -73,6 +73,9 @@ export class TaskDetail extends React.Component {
 				data.time = new Date((new Date(data.time).toLocaleDateString())).getTime();
 				Backend.task.add(data).then(d=>{
 					popup.success('添加成功');
+					if(this.callback){
+						this.callback(d.task);
+					}
 					pubsub.publish('task.list.reload');
 				}).catch(e=>{
 					popup.error('添加失败');

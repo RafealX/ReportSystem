@@ -41,8 +41,8 @@ export let UnFinish = {
 		Backend.task.get.unfinished(user.id).then(d=>{
 			
 			UnFinishedTask = formatter(d.data);
+			Report.inject.task(UnFinishedTask);
 			console.log(UnFinishedTask);
-			console.log(d);
 			pubsub.publish('Task.Unfinished.load');
 		}).catch(e=>{
 			UnFinishedTask = formatter(MockUnfinish());
@@ -70,7 +70,7 @@ let fakeTask = {
 		elapse:null
 	},
 	task:{
-		elapse:null,
+		elapse:'',
 		targettask:'',
 		taskname:'',
 		question:'',
@@ -172,7 +172,27 @@ export let Report={
 			//需要初始化数据并且对Unfinished数据进行操作，基本是要等待Unfinished载入完成才能做动作的。
 			let callback = function(){
 				TaskObj.report = data.reports || [];
-				TaskObj.task = data.taskhistorylist || [];
+				console.log(TaskObj.task,data.taskhistorylist);
+				//编辑时，需要过滤已经写上了的数据
+				if(TaskObj.task.length>0){
+					//找到已经填写编辑的任务，删除之
+					for(let i=0;i<data.taskhistorylist.length;i++){
+						let tempTask = data.taskhistorylist[i];
+						var index = _.findIndex(TaskObj.task,itm=>{
+							return itm.targettask==tempTask.targettask;
+						});
+						if(index>=0){
+							TaskObj.task.splice(index,1,tempTask);
+						}else{
+							TaskObj.task.push(tempTask);
+						}
+					}
+					
+				}else{
+					TaskObj.task = TaskObj.task.concat(data.taskhistorylist);
+				}
+				console.log('TaskObj.task',TaskObj.task);
+				//TaskObj.task = TaskObj.task.concat(data.taskhistorylist);
 				TaskObj.time = data.time || null;
 				_.each(TaskObj.report,itm=>{
 					itm.status=1;
@@ -197,5 +217,20 @@ export let Report={
 			}
 		},
 		
+	},
+	inject:{
+		task:function(unfinishtasks){
+			//把未完成的任务注入到task里
+			if(_.isArray(unfinishtasks) && unfinishtasks.length>0){
+				_.each(unfinishtasks,(itm)=>{
+					let clonetask = _.clone(fakeTask.task,true);
+					clonetask.targettask = itm.id;
+					clonetask.taskname = itm.taskname;
+					clonetask.progress = itm.progress;
+					clonetask.status=1;
+					TaskObj.task.push(clonetask);
+				});
+			}
+		}
 	}
 }

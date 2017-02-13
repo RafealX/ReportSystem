@@ -12,7 +12,8 @@ let schema = helper.schema({
     question: String,
     summary: String,
     time: {type:Number,default:0},
-    progress: Number
+    progress: Number,
+    description:String//本日无进度时会进行填写
 }, {
     collection:'TaskHistory'
 });

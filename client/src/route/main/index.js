@@ -8,7 +8,7 @@ import TopNav from 'cpn/TopNav';
 import pubsub from 'vanilla-pubsub';
 import {User} from 'lib/auth';
 
-const barStyle = {boxShadow: 0,width:'auto',marginLeft:'256px',backgroundColor:'#68a5c3'};
+const barStyle = {boxShadow: 0,width:'auto',marginLeft:'256px',backgroundColor:'#8cc0da'};
 const style = {height: '100%'};
 let requestId;
 
@@ -33,10 +33,7 @@ const Cpn = React.createClass({
         let barConf = this.state.barConf;
         return (
             <div style={style}>
-                <AppBar
-                    style={barStyle}
-                    onLeftIconButtonTouchTap={this._toggleOpen}
-                    {...barConf}/>
+               
                 <Overlay
                     lock
                     onTouchTap={evt=>this.setState({open: false})}
@@ -49,7 +46,7 @@ const Cpn = React.createClass({
                 <div
                     id="main-container"
                     className={this.props.className}
-                    style={{marginLeft: this.state.forceOpen ? '256px' : 0, height: 'calc(100% - 64px)', overflowY: 'auto'}}>
+                    style={{marginLeft: this.state.forceOpen ? '256px' : 0, height: 'calc(100%)', overflowY: 'auto'}}>
                     {this.props.children}
                 </div>
             </div>

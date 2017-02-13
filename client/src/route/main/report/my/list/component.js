@@ -77,8 +77,10 @@ module.exports = React.createClass({
                 <span>{x.progress?x.progress+'%  ':''}</span>
                 <span>{x.elapse?x.elapse+'小时':''}</span>
             </div>
-            <h4 style={{fontWeight:'normal',lineHeight:'24px',marginLeft: '20px'}}>问题：{x.question}</h4>
-            <h4 style={{fontWeight:'normal',lineHeight:'24px',marginLeft: '20px'}}>总结：{x.summary}</h4>
+            {x.description && x.description!=''?(
+            <h4 style={{fontWeight:'normal',lineHeight:'24px',marginLeft: '20px'}}>本日没进度</h4>):(<div><h4 style={{fontWeight:'normal',lineHeight:'24px',marginLeft: '20px'}}>问题：{x.question}</h4>
+                <h4 style={{fontWeight:'normal',lineHeight:'24px',marginLeft: '20px'}}>总结：{x.summary}</h4></div>)}
+            
             </div>;
         let itemRender = (x, i) => 
         <Step active={true} className="step" style={{display:x.status!=3?'block':'none'}}>
@@ -119,13 +121,13 @@ module.exports = React.createClass({
             </Card>
             </div>
             <div style={{'display':x.status==1?'block':'none',padding:'16px'}}>
-            <RaisedButton label="删除" backgroundColor={red300} labelColor='#fff'
+            <RaisedButton style={{margin:'0 5px'}} label="删除" backgroundColor={red300} labelColor='#fff'
                   onClick={this._delete.bind(this, x)}
                 />
-                <RaisedButton label="编辑" backgroundColor={lightBlue300} labelColor='#fff'
+                <RaisedButton style={{margin:'0 10px'}} label="编辑" backgroundColor={lightBlue300} labelColor='#fff'
                   onClick={this._onEdit.bind(this, x)}
                 />
-                <RaisedButton label="发送" backgroundColor={cyan300} labelColor='#fff'
+                <RaisedButton style={{margin:'0 10px'}} label="发送" backgroundColor={cyan300} labelColor='#fff'
                   onClick={this._onSend.bind(this, x)}
                 
                 />
@@ -135,6 +137,15 @@ module.exports = React.createClass({
         ;
         return (
             <div className={style} ref="reportcontainer">
+                <Toolbar style={{backgroundColor:'#7cccb5'}}>
+                <ToolbarGroup firstChild={true}> 
+                <FlatButton labelStyle={{color:'#fff'}} hoverColor="#7cccb5"
+                  label="新增工作日记"  onClick={this._create}
+                  primary={true} style={{marginLeft:'0px'}} style={{height:'100%',padding:0,margin:0}}
+                  icon={<AddIcon color={'#fff'}/>}
+                />
+                </ToolbarGroup>
+                </Toolbar>
                 <Stepper orientation="vertical" linear={false} children={[]}>
                   <ListView ref="listView" loadList={Report.get} getter={Report.operation.get} formatter={Report.formatter} itemRender={itemRender}/>
                 </Stepper>

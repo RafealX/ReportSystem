@@ -46,10 +46,17 @@ let Mock5 = function () {
 	return i;
 }
 let MockTask = function () {
-    cur+=50;
+    cur+=80;
     if(cur>max)
     	return;
 	let users = [
+		'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
+        'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
+        'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
+        'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
+        'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
+		'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek150icfb9jd',
+        'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek150icfb9jd',
 		'hf3fdsffd231dh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
 		'hf3fdsffd231dh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
         'hf3fdsffd231dh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
@@ -58,6 +65,13 @@ let MockTask = function () {
 	];
 
     let usersnames = [
+    	'项方念',
+        '项方念',
+        '项方念',
+        '项方念',
+        '项方念',
+    	'凌浩',
+		'凌浩',
         '曹偲',
         '曹偲',
         '曹偲',
@@ -72,14 +86,17 @@ let MockTask = function () {
 		'这是个fake数据'
 	];
     let reportstatus = [
-        1,
-    	2,
+        2,
+		2,
         3,
     ];
     let taskstatus = [
-        '2',
-        '3',
-        '4'
+        3,
+        3,
+        3,
+        3,
+        3,
+        4
     ];
 
     let reports = [
@@ -100,14 +117,14 @@ let MockTask = function () {
 		}
 		var id = util.uuid();
 		var progress = Mock5();
-		let userradom = Math.floor(Math.random()*10)%5;
+		let userradom = Math.floor(Math.random()*100)%12;
 		let userid = users[userradom];
 		let username = usersnames[userradom];
 		let taskname ="0_0这可能是个假任务"+i;
 		let task = new Task({
 			id:id,
 			userid:userid,
-			status:taskstatus[Math.floor(Math.random()*10)%3],
+			status:taskstatus[Math.floor(Math.random()*10)%6],
             name: taskname,
 			description:"这是描述-_-"+i,
 			groupid:1,
