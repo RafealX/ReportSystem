@@ -34,7 +34,7 @@ export function fetch(url, option) {
                 //走登录流程
                 browserHistory.replace({
                     pathname:'/login',
-                    state: { nextState: window.location.path?window.location.path:'/m/report/my/list' }
+                    state: { nextState: window.location.pathname?window.location.pathname:'/m/report/my/list' }
                 })
             } else{
                 throw data;

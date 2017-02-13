@@ -50,19 +50,19 @@ let MockTask = function () {
     if(cur>max)
     	return;
 	let users = [
-		'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek150icfb9jd',
-		'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
-        'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
-        'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
-        'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek6521afb9ja'
+		'hf3fdsffd231dh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
+		'hf3fdsffd231dh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
+        'hf3fdsffd231dh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
+        'hf3fdsffd231dh9n4321pdglh6nndlcjfh1dek6521afb9ja',
+        'hf3fdsffd231dh9n4321pdglh6nndlcjfh1dek6521afb9ja'
 	];
 
     let usersnames = [
-        '凌浩',
-        '项方念',
-        '项方念',
-        '项方念',
-        '项方念'
+        '曹偲',
+        '曹偲',
+        '曹偲',
+        '詹民拥',
+        '詹民拥'
     ];
 
 	let reasons=[

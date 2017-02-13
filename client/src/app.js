@@ -35,7 +35,14 @@ browserHistory.listen((location, action)=>{
             browserHistory.replace('/m/report/my/list');
         }
     }else{
-
+        if(!User.check()){
+            //console.log('stop');
+            console.log(window.location.pathname);
+            browserHistory.replace({
+                pathname:'/login',
+                state: { nextState: window.location.pathname?window.location.pathname:'/m/report/my/list' }
+            })
+        }
     }
 });
 
