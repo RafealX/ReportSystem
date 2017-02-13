@@ -324,8 +324,9 @@ export default React.createClass({
                 .then(d => {
                     // Report.operation.delete(rp);
                     // this.refs.listView.delete();
-                    _self.props.operations.delay(data);
-                    _self.setState({list:_self.props.getter().data.result});
+                   /* _self.props.operations.delay(data);
+                    _self.setState({list:_self.props.getter().data.result});*/
+                    pubsub.publish('task.list.reload.current');
                     popup.success('嗯，延期了');
                 })
                 .catch(e => {
