@@ -245,16 +245,15 @@ router.post('/delete',auth.mustLogin(),function* () {
     }
     for(var i=0,l=taskhistorylist.length;i<l;i++){
         let taskid = taskhistorylist[i];
-        let mtaskhistory = yield Taskhistory.find({id: taskid}).sort({"time":-1});
-        let targettask = mtaskhistory[0].targettask;
+        let mtaskhistory = yield Taskhistory.findOne({id: taskid});
+        let targettask = mtaskhistory.targettask;
         let mtask = yield  Task.findOne({id: targettask});
         mtask.totaltime -= mtaskhistory.elapse;
         if(mtask.totaltime<0)mtask.totaltime = 0;
         yield mtaskhistory.remove();
-        let mtaskhistorys = yield Taskhistory.find({id:taskid});
-        if(mtaskhistorys&&mtaskhistorys.length>0){
-            let mthistorylist = mtaskhistorys.sort({"time":-1})[0]
-            mtask.progress = mthistorylist.progress;
+        let mtaskhistorys = yield Taskhistory.findOne({id:taskid});
+        if(mtaskhistorys){
+            mtask.progress = mtaskhistorys.progress;
         }
         yield  mtask.save();
 
