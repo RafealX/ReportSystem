@@ -84,43 +84,42 @@ module.exports = React.createClass({
         <Step active={true} className="step" style={{display:x.status!=3?'block':'none'}}>
         <StepLabel iconContainerStyle={containerStyle}>{new Date(x.time).toLocaleDateString()}</StepLabel>
         <StepContent>
-          <Card initiallyExpanded key={i} className="item">
-            <CardText expandable>
-                <GridList cellHeight={'auto'} cols={2}>
-                    <GridTile >
-                        <Toolbar>
-                            <ToolbarGroup style={{textAlign:'center',width:'100%'}}>
-                                <ToolbarTitle text="普通事项" style={{textAlign:'center',width:'100%'}}/>
-                            </ToolbarGroup>
-                        </Toolbar>
-                          <List>
-                            {x.reports.map((row, index) => (
-                              <ListItem disabled={true} key={index}  selected={row.selected}>
-                                {reportRender(row,index)}
-                              </ListItem>
-                              ))}
-                          </List>  
-                          
-                    </GridTile>
-
-                    <GridTile>
-                        <Toolbar>
-                            <ToolbarGroup style={{textAlign:'center',width:'100%'}}>
-                                <ToolbarTitle text="任务事项" style={{textAlign:'center',width:'100%'}}/>
-                            </ToolbarGroup>
-                        </Toolbar>
-                            <List>
-                            {x.taskhistorylist.map( (row, index) => (
-                              <ListItem disabled={true} key={index}  selected={row.selected}>
-                                {taskRender(row,index)}
-                              </ListItem>
-                              ))}
-                          </List>  
-                    </GridTile>
-                </GridList>
-            </CardText>
-            <CardActions style={{'display':x.status==1?'block':'none',padding:'16px'}}>
-                <RaisedButton label="删除" backgroundColor={red300} labelColor='#fff'
+            <div className="clearfix">
+            <Card initiallyExpanded key={i*2} className="item" style={{display:x.taskhistorylist&&x.taskhistorylist.length>0?'block':'none',width:'45%',float:'left'}}>
+                <CardText expandable>
+                    <Toolbar>
+                        <ToolbarGroup style={{textAlign:'center',width:'100%'}}>
+                            <ToolbarTitle text="任务事项" style={{textAlign:'center',width:'100%'}}/>
+                        </ToolbarGroup>
+                    </Toolbar>
+                        <List>
+                        {x.taskhistorylist&&x.taskhistorylist.length>0&&x.taskhistorylist.map( (row, index) => (
+                          <ListItem disabled={true} key={index}  selected={row.selected}>
+                            {taskRender(row,index)}
+                          </ListItem>
+                          ))}
+                      </List> 
+                </CardText>
+            </Card>
+            <Card initiallyExpanded key={i} className="item" style={{display:x.reports&&x.reports.length>0?'block':'none',width:'45%',float:'left'}}>
+                <CardText expandable>
+                    <Toolbar>
+                        <ToolbarGroup style={{textAlign:'center',width:'100%'}}>
+                            <ToolbarTitle text="普通事项" style={{textAlign:'center',width:'100%'}}/>
+                        </ToolbarGroup>
+                    </Toolbar>
+                      <List>
+                        {x.reports&&x.reports.length>0&&x.reports.map((row, index) => (
+                          <ListItem disabled={true} key={index}  selected={row.selected}>
+                            {reportRender(row,index)}
+                          </ListItem>
+                          ))}
+                      </List>  
+                </CardText>
+            </Card>
+            </div>
+            <div style={{'display':x.status==1?'block':'none',padding:'16px'}}>
+            <RaisedButton label="删除" backgroundColor={red300} labelColor='#fff'
                   onClick={this._delete.bind(this, x)}
                 />
                 <RaisedButton label="编辑" backgroundColor={lightBlue300} labelColor='#fff'
@@ -130,8 +129,7 @@ module.exports = React.createClass({
                   onClick={this._onSend.bind(this, x)}
                 
                 />
-            </CardActions>
-        </Card>
+            </div>
         </StepContent>
         </Step>
         ;
