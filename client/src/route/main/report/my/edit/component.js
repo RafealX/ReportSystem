@@ -270,96 +270,7 @@ module.exports = React.createClass({
                 {this.state.loading?(<div className="loadingStage">
                     <CircularProgress color="#FF9800" className="loading"/>
                 </div>):(
-                    this.state.unfinishtask.length==0?(
-                        <Grid fluid>
-
-                            <Row>
-                                <Col xs={1} sm={1} md={4} lg={4}></Col>
-                                <Col xs={10} sm={10} md={4} lg={4}>
-                                    <Row>
-                                        <Col xs={12} sm={12} md={12} lg={12}>
-                                            <div style={{margin:'0 6px'}}>
-                                             <h2 style={{fontSize:'26px',fontWeight:'normal',textAlign:'center',margin:'15px',color:'#a5a5a5'}}>普通事项</h2>
-                                            <Card style={{margin:'10px 6px'}}>
-                                                <CardText>
-                                                    <TextField                                  
-                                                      floatingLabelText="耗时"
-                                                      type='number'
-                                                      value={this.state.fakereport.elapse}
-                                                      onChange={(e,news)=>{let report=this.state.fakereport;report.elapse = news;this.setState({fakereport:report})}}
-                                                    />
-                                                    <TextField              
-                                                      floatingLabelText="ticket"
-                                                      value={this.state.fakereport.ticket}
-                                                      onChange={(e,news)=>{let report=this.state.fakereport;report.ticket = news;this.setState({fakereport:report})}}
-                                                    />
-                                                    <TextField                                  
-                                                      floatingLabelText="内容"
-                                                      type='textarea' multiLine={true}
-                                                      value={this.state.fakereport.content}
-                                                      rows={4}
-                                                      rowsMax={10} fullWidth={true}
-                                                      onChange={(e,news)=>{let report=this.state.fakereport;report.content = news;this.setState({fakereport:report})}}
-                                                    />
-
-                                                </CardText>
-                                                 <CardActions>
-                                                  <RaisedButton label="新增普通事项" onClick={this.handle.add.bind(this,'report')}/>
-                                                </CardActions>
-                                            </Card>
-                                            {this.state.report&&this.state.report.length>0&&<Divider style={{marginTop:'10px'}}/>}
-                                            {this.state.report&&this.state.report.length>0&&this.state.report.map((itm,idx)=>{
-                                                return (
-                                                     <Card style={{margin:'10px 6px'}} key={idx}>
-                                                <CardText >
-                                                    <TextField                                  
-                                                      floatingLabelText="耗时"
-                                                      type='number' disabled={itm.status==1?true:false}
-                                                      defaultValue={itm.elapse}
-                                                      onChange={(e,news)=>{itm.elapse = news}}
-                                                    />
-                                                    <TextField  style={{marginLeft:'5px'}}                              
-                                                      floatingLabelText="ticket" disabled={itm.status==1?true:false}
-                                                      defaultValue={itm.ticket}
-                                                      onChange={(e,news)=>{itm.ticket = news}}
-                                                    />
-                                                    <TextField                                  
-                                                      floatingLabelText="内容" disabled={itm.status==1?true:false}
-                                                      type='textarea' multiLine={true}
-                                                      defaultValue={itm.content}
-                                                      rows={4}
-                                                      rowsMax={10} fullWidth={true}
-                                                      onChange={(e,news)=>{itm.content = news}}
-                                                    />
-
-                                                    </CardText>
-                                                     <CardActions>
-                                                     {itm.status==1?(
-                                                        <div>
-                                                        <RaisedButton label="编辑" labelColor={'#fff'} backgroundColor={lightBlue300} onClick={this.handle.report.edit.bind(this,itm)} />
-                                                        <RaisedButton label="删除" labelColor={'#fff'}  style={{marginLeft:'10px'}} backgroundColor={red300} onClick={this.handle.report.delete.bind(this,itm)} />
-                                                        </div>
-                                                        ):(
-                                                        <div>
-                                                        <RaisedButton label="确定" labelColor={'#fff'}  style={{marginRight:'10px'}} backgroundColor={cyan300} onClick={this.handle.report.confirm.bind(this,itm)} />
-                                                        <RaisedButton label="取消" onClick={this.handle.report.cancel.bind(this,itm,_.clone(itm,true))} />
-                                                        </div>
-                                                     )}
-                                                      
-                                                    </CardActions>
-                                                </Card>
-                                                );
-                                            })}
-                                             </div>
-                                        </Col>
-                                       
-                                    </Row>
-                                  </Col>
-                                <Col xs={1} sm={1} md={4} lg={4}></Col>
-                            </Row>
-                      </Grid>
-                        ):(
-                        <Grid fluid>
+                    <Grid fluid>
 
                             <Row>
                                 <Col xs={1} sm={1} md={1} lg={1}></Col>
@@ -456,72 +367,6 @@ module.exports = React.createClass({
                                                 <IconButton tooltip="点我新增任务！" onClick={this.handle.task.add.bind(this)} style={{position:'absolute',right:'0',top:'0',width: '30',height: '30',padding:'0'}}><AddIcn color={'rgba(0,0,0,0.6)'}/></IconButton>
                                                 </div>
                                             </h2>
-                                            
-                                            <Card style={{margin:'10px 6px',display:'none'}}>
-                                                <CardText>
-                                                    {this.state.unfinishtask&&this.state.unfinishtask.length>0?(
-                                                        <SelectField
-                                                            autoWidth={true}
-                                                            value={this.state.selectedtask}
-                                                            onChange={(e, k, payload) => {let fake = Report.fake.task();fake.targettask=payload.id;fake.taskname=payload.taskname;fake.progress=payload.progress;this.setState({selectedtask:payload,faketask:fake})}}
-                                                            hintText="请选择任务">
-                                                             {this.state.unfinishtask.map((itm,idx)=>(
-                                                                <MenuItem value={itm} primaryText={itm.taskname} label={itm.taskname} style={{display:itm.status==1?'inline-block':'none'}}/>
-                                                            ))}
-                                                        </SelectField>
-                                                    ):('')}
-                                                    {this.state.selectedtask?(
-                                                        <div>
-                                                        <TextField 
-                                                          type="number"
-                                                          name="currentprogress"
-                                                          min={Math.floor(this.state.selectedtask.progress/10)*10}
-                                                          max={100}
-                                                          hintText="进度"
-                                                          floatingLabelText="进度选择"
-                                                          step={5}
-                                                          value={this.state.faketask.progress}
-                                                          onChange={(e,n)=>{let faketask=this.state.faketask;faketask.progress=n;this.setState({faketask:faketask});}}
-                                                        />
-                                                        <TextField 
-                                                            type="number"
-                                                            name="elapse"
-                                                            hintText="耗时"
-                                                            floatingLabelText="耗时"
-                                                            min={0}
-                                                            value={this.state.faketask.elapse}
-                                                            onChange={(e,n)=>{let faketask=this.state.faketask;faketask.elapse=n;this.setState({faketask:faketask});}}
-                                                        />
-                                                        <TextField 
-                                                            type="textarea"
-                                                            fullWidth={true}
-                                                            rows={4}
-                                                            rowsMax={6}
-                                                            name="summary"
-                                                            hintText="内容概要"
-                                                            floatingLabelText="内容概要"
-                                                            value={this.state.faketask.summary}
-                                                            onChange={(e,n)=>{let faketask=this.state.faketask;faketask.summary=n;this.setState({faketask:faketask});}}
-                                                        />
-                                                        <TextField 
-                                                            type="textarea"
-                                                            rows={4}
-                                                            fullWidth={true}
-                                                            rowsMax={6}
-                                                            name="question"
-                                                            hintText="遇到的问题"
-                                                            floatingLabelText="遇到的问题"
-                                                            value={this.state.faketask.question}
-                                                            onChange={(e,n)=>{let faketask=this.state.faketask;faketask.question=n;this.setState({faketask:faketask});}}
-                                                        />
-                                                        </div>
-                                                    ):('')}
-
-                                                </CardText>
-                                                 <CardActions>
-                                                  <RaisedButton label="新增任务事项" onClick={this.handle.add.bind(this,'task')}/>
-                                                </CardActions>
-                                            </Card>
                                             {this.state.task&&this.state.task.length>0&&<Divider style={{marginTop:'10px',marginBottom:'10px'}}/>}
                                             {this.state.task&&this.state.task.length>0&&this.state.task.map((itm,idx)=>{
                                                 return (
@@ -589,6 +434,7 @@ module.exports = React.createClass({
                                                 </Card>
                                                 );
                                             })}
+                                            {!this.state.loading&&this.state.unfinishtask&&this.state.unfinishtask.length==0?(<h3>当前没有未完成的任务，可以点击右上角按钮新增任务</h3>):(null)}
                                             </div>
                                         </Col>
                                     </Row>
@@ -596,7 +442,6 @@ module.exports = React.createClass({
                                 <Col xs={1} sm={1} md={1} lg={1}></Col>
                             </Row>
                       </Grid>
-                    )
                 )}
                 
             </div>
