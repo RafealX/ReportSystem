@@ -16,7 +16,8 @@ let schema = helper.schema({
     description: {type:String,default:''},
     time: {type:Number,default:0},
 	isdelay: {type:Boolean,defaule:false},
-	delayreason: {type:String,default:''}
+	delayreason: {type:String,default:''},
+	delaycount:{type:Number,default:0}
 }, {collection:'Task'});
 
 module.exports = helper.model('Task', schema);

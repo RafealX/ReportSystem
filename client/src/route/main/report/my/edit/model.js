@@ -24,7 +24,7 @@ let formatter = arr =>{
 			id:itm.id,
 			progress:itm.progress,
 			taskname:itm.name,
-			status:1//表示还没被选
+			time:itm.time
 		});
 	});
 	return result;
@@ -40,13 +40,13 @@ export let UnFinish = {
 	init:function(){
 		Backend.task.get.unfinished(user.id).then(d=>{
 			
-			UnFinishedTask = formatter(d.data);
+			UnFinishedTask = d.data;
 			Report.inject.task(UnFinishedTask);
 			console.log(UnFinishedTask);
 			pubsub.publish('Task.Unfinished.load');
 		}).catch(e=>{
-			UnFinishedTask = formatter(MockUnfinish());
-			pubsub.publish('Task.Unfinished.load');
+			//UnFinishedTask = formatter(MockUnfinish());
+			//pubsub.publish('Task.Unfinished.load');
 		});
 	},
 	clear:function(){
@@ -67,30 +67,31 @@ let fakeTask = {
 		content:'',
 		ticket:'',
 		id:'',
-		elapse:null
+		elapse:''
 	},
 	task:{
 		elapse:'',
 		targettask:'',
-		taskname:'',
+		taskname:'新建任务',
+		description:'',
 		question:'',
 		summary:'',
-		progress:''
+		progress:0,
+		time:new Date(),
+		isdelay:''
 	}
 };
 
 let TaskObj = {
-	time:null,
+	time:new Date(),
 	report:[],
-	task:[]
+	task:[],
+	original:{
+		report:null,
+		task:null,
+	}
 };
 
-_.each(TaskObj.report,itm=>{
-	itm.status=1;
-});
-_.each(TaskObj.task,itm=>{
-	itm.status=1;
-});
 
 export let Report={
 	send:function(){
@@ -101,7 +102,8 @@ export let Report={
 		}
 		let report = '';
 		_.each(result.report,itm=>{
-			report+=itm.content+','+itm.elapse+','+itm.ticket+';';
+			if(itm.content&&itm.elapse)
+				report+=itm.content+','+itm.elapse+','+(itm.ticket||'')+';';
 		});
 		report = report.substring(0,report.length-1);
 		data.report = report;
@@ -121,7 +123,8 @@ export let Report={
 			time:data.time
 		}
 		editReportId?(sendData.reportid=editReportId):'';
-		return editReportId?Backend.report.edit(sendData):Backend.report.add(sendData);
+		return '';
+		//return editReportId?Backend.report.edit(sendData):Backend.report.add(sendData);
 	},
 	get:function(){
 		return TaskObj;
@@ -192,13 +195,16 @@ export let Report={
 					TaskObj.task = TaskObj.task.concat(data.taskhistorylist);
 				}
 				console.log('TaskObj.task',TaskObj.task);
+				//把原始的数据保存下来
+				TaskObj.original.task = _.clone(TaskObj.task,true);
+				TaskObj.original.report = _.clone(TaskObj.report,true);
 				//TaskObj.task = TaskObj.task.concat(data.taskhistorylist);
 				TaskObj.time = data.time || null;
 				_.each(TaskObj.report,itm=>{
-					itm.status=1;
+					itm.status=2;
 				});
 				_.each(TaskObj.task,itm=>{
-					itm.status=1;
+					itm.status=2;
 					_.each(UnFinish.get(),item=>{
 						item.id==itm.id?item.status=0:'';
 					})
@@ -225,11 +231,19 @@ export let Report={
 				_.each(unfinishtasks,(itm)=>{
 					let clonetask = _.clone(fakeTask.task,true);
 					clonetask.targettask = itm.id;
-					clonetask.taskname = itm.taskname;
+					clonetask.taskname = itm.name;
+					clonetask.isdelay = itm.isdelay;
+					clonetask.time = itm.time;
+					clonetask.description = itm.description;
 					clonetask.progress = itm.progress;
-					clonetask.status=1;
+					clonetask.status=2;
 					TaskObj.task.push(clonetask);
 				});
+			}
+		},
+		report:function(){
+			if(TaskObj.report.length==0){
+				TaskObj.report.unshift(Report.fake.report());
 			}
 		}
 	}

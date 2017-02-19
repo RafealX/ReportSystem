@@ -124,16 +124,17 @@ let MockTask = function () {
 		let task = new Task({
 			id:id,
 			userid:userid,
-			status:taskstatus[Math.floor(Math.random()*10)%6],
+			status:2,
             name: taskname,
 			description:"这是描述-_-"+i,
 			groupid:1,
             ticket:Math.floor(Math.random()*10)%2?'#125114,#631441':'#8745,#9632',
 			totaltime:Math.floor(Math.random()*20),
 			progress:progress,
-            isdelay: isDelay,
+            isdelay: false,
 			time:(date.setDate(date.getDate()-i-1),date.getTime()),
-			delayreason:reason
+			delayCount:0,
+			delayreason:''
 		});
 
         /*let newDate = new Date(date);

@@ -496,9 +496,9 @@ module.exports = React.createClass({
           ];
         return (
             <div className={style} ref='TaskContainer'>
-              <Toolbar style={{backgroundColor:'#7cccb5'}}>
+              <Toolbar style={{backgroundColor:'#87d9ea'}}>
                 <ToolbarGroup firstChild={true}> 
-                <FlatButton labelStyle={{color:'#fff'}} hoverColor="#7cccb5"
+                <FlatButton labelStyle={{color:'#fff'}} hoverColor="#87d9ea"
                   label="新增任务"  onClick={this.onAdd}
                   primary={true} style={{marginLeft:'0px'}} style={{height:'100%',padding:0,margin:0}}
                   icon={<AddIcon color={'#fff'}/>}

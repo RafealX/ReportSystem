@@ -2,22 +2,8 @@
     .item {
         margin: 10px 20px;
         line-height: 1.8em;
-        .content {
-            color: #555;
-            h2 {
-                font-size: 1.5em;
-                line-height: 1.5em;
-            }
-            h3 {
-                font-size: 1.17em;
-                line-height: 1.5em;
-            }
-            ol, ul {
-                padding-left: 30px;
-            }
-            li {
-                list-style: inherit;
-            }
+        .borderleft{
+            border-left:1px solid #efefef;
         }
         .team {
             margin: 0 16px;
@@ -54,17 +40,25 @@
                 display:none
             }
             circle{
-                fill:#c7dfea;
-            }
-        }
-        table{
-            thead tr th:first-child,tbody tr td:first-child{
-                display:none !important;
+                fill:#49b7ea;
             }
         }
         div[icon]{
             border-left: 1px dashed rgb(189, 189, 189) !important;
         }
+    }
+
+    .tasktitle{
+        padding: 7px 10px;
+        background: #ef6868;
+        border-radius: 5px;
+        color: #fff;
+    }
+    .reporttitle{
+        padding: 7px 10px;
+        background: #479fd4;
+        border-radius: 5px;
+        color: #fff;
     }
     .clearfix:after{
         content: " "; /* Older browser do not support empty content */

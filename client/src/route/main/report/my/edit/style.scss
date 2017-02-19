@@ -5,4 +5,30 @@
   .loadingStage{
     text-align:center;
   }
+  .unfinishtitle{
+  	height: 60px;
+    line-height: 60px;
+    text-align: right;
+    font-size:14px;
+    font-weight:normal;
+    color:#666;
+  }
+  .taskcard{
+  	.mainctn{
+  		position:relative;
+		opacity: 1;
+  		transform:translateY(0%);
+  	}
+  	.mainctn.hidden{
+  		opacity: 0;
+  		height: 0;
+  		padding:0 !important;
+  		transform:translateY(-100%);
+  	}
+  }
+  .toolbar{
+  	background:#fff !important;
+
+  }
+
 }

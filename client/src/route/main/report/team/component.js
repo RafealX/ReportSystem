@@ -2,7 +2,8 @@
  * 报告
  */
 import React from 'react';
-import {FlatButton, Toolbar,ToolbarGroup,ToolbarTitle,Card, CardActions, CardHeader, IconButton,Dialog,DatePicker,Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn,GridList, GridTile,
+import { Grid, Row, Col } from 'react-flexbox-grid';
+import {FlatButton,Paper, Toolbar,ToolbarGroup,ToolbarTitle,Card, CardActions, CardHeader, IconButton,Dialog,DatePicker,Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn,GridList, GridTile,
     CardText, List, ListItem, Divider, Popover, Menu, MenuItem,Step,Stepper,StepLabel,StepContent} from 'material-ui';
 import AddIcon from 'material-ui/svg-icons/content/add';
 import {fetch} from 'lib/util';
@@ -26,6 +27,7 @@ let groupid = 12;
 
 module.exports = React.createClass({
     getInitialState() {
+        TeamReport.reset();
         return {rps: [], teamMap: {}, userMap: {}};
     },
     componentDidMount() {
@@ -50,7 +52,14 @@ module.exports = React.createClass({
                 </div>);
             })
        }
-            
+        reportRender = (x,i)=>
+        <tr key={i}>
+        
+        <td><span>{(i+1)}</span></td>
+        <td>{x.content}&nbsp;&nbsp;</td>
+        <td>{x.elapse?x.elapse+'小时  ':''}</td>
+        <td>{x.ticket}&nbsp;&nbsp;</td>
+        </tr>;    
             
         let taskRender = (arr)=>{
             return arr.map((x,i)=>{
@@ -64,14 +73,81 @@ module.exports = React.createClass({
                         </div>);
             })
         };
+        taskRender = (x,i)=>
+        <tr>
+            <td>{(i+1)+'.'}&nbsp;&nbsp;</td>
+            <td>{x.taskname}&nbsp;&nbsp;</td>
+            <td>{x.progress?x.progress+'%  ':''}</td>
+            <td>{x.elapse?x.elapse+'小时':''}</td>
+            <td>{x.description && x.description!=''?'本日没进度':x.summary}</td>
+            <td>{x.isdelay ?'延期至':''}</td>
+        </tr>;
         let itemRender = (value, k) => 
         <Step active={true} className="step">
         <StepLabel iconContainerStyle={containerStyle}>{new Date(k*1).toLocaleDateString()}</StepLabel>
         <StepContent>
           <Card initiallyExpanded key={k} className="item">
             <CardText expandable>
-                <Table
-                          height={this.state.height}
+                <Grid fluid>
+                    
+                    {value.map((x,i)=>
+                        <Row>
+                            <Col xs={1} sm={1} md={1} lg={1}>
+                                <p className={'f-textvertical f-tc'}>{x.username}</p>
+                            </Col>
+                            <Col xs={11} sm={11} md={11} lg={11}>
+                                <Row>
+                                     <Col xs={1} sm={1} md={2} lg={2}>
+                                     <p className={'f-textvertical f-tc borderleft'}><span className={'tasktitle'}>任务事项</span></p>
+                                    </Col>
+                                    <Col xs={11} sm={11} md={9} lg={9}>
+                                        <table className={'ui celled small table'} style={{margin:'1em',width:'100%'}}>
+                                            <thead>
+                                                <tr >
+                                                    <th>序号</th>
+                                                    <th>任务名</th>
+                                                    <th>进度</th>
+                                                    <th>耗时</th>
+                                                    <th>完成内容</th>
+                                                    <th>备注</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {x.taskhistorylist&&x.taskhistorylist.length>0&&x.taskhistorylist.map((row, index) => (
+                                                    taskRender(row,index)
+                                                ))}
+                                            </tbody>
+                                        </table> 
+                                    </Col>
+                                    <Col xs={1} sm={1} md={2} lg={2}>
+                                        <p className={'f-textvertical f-tc borderleft'}><span className={'reporttitle'}>普通事项</span></p>
+                                    </Col>
+                                    <Col xs={11} sm={11} md={9} lg={9}>
+                                        <table className={'ui celled small table'} style={{margin:'1em'}}>
+                                        <thead>
+                                            <tr >
+                                                <th>序号</th>
+                                                <th>内容</th>
+                                                <th>耗时</th>
+                                                <th>ticket</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {x.reports&&x.reports.length>0&&x.reports.map((row, index) => (
+                                                reportRender(row,index)
+                                            ))}
+                                        </tbody>
+                                        </table>
+                                    </Col>
+                                </Row>
+                            </Col>
+                            <Divider style={{display:i==value.length-1?'none':'block',width:'100%'}}/>
+                         </Row>
+                            
+                    )}
+                   
+                </Grid>
+                <Table height={this.state.height} style={{display:'none'}}
                         >
                           <TableHeader displaySelectAll={false}
                           >
@@ -104,19 +180,24 @@ module.exports = React.createClass({
         ;
         return (
             <div className={style}>
-                <Toolbar style={{backgroundColor:'#7cccb5'}}>
-                    <ToolbarGroup firstChild={true}> 
-                    <FlatButton labelStyle={{color:'#fff'}} hoverColor="rgba(0,0,0,0)" disabled={true}
-                      label="新增工作日记" 
-                      primary={true} style={{marginLeft:'0px'}} style={{'cursor':'default',height:'100%',padding:0,margin:0}}
-                    />
-                    </ToolbarGroup>
-                    </Toolbar>
+                <Paper zDepth={1} style={{backgroundColor:'#fff',height:'56px'}}>
+                    <Grid fluid style={{height:'100%'}}>
+                        <Row style={{height:'100%'}}>
+                            <Col xs={1} sm={1} md={2} lg={2} style={{height:'100%'}}>
+                                <p style={{fontSize:'18px',display: 'flex','align-items': 'center','margin-right': '9px',color:'#666',height:'100%'}}>小组日报</p>
+                            </Col>
+                        </Row>
+                    </Grid>
+                </Paper>
             <Stepper orientation="vertical" linear={false} children={[]}>
                 <TeamReportListView ref="listView" loadList={TeamReport.get} getter={TeamReport.operation.get} formatter={TeamReport.formatter} itemRender={itemRender}/>
             </Stepper>
             </div>
         );
+    },
+    
+    componentWillUnMount() {
+        console.log('team report unloaded');
     },
 
     _sendMail(teamReportId) {

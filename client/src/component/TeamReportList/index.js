@@ -48,6 +48,9 @@ export default React.createClass({
                 this.setState({status: 'error'});
             });
     },
+    componentWillUnMount() {
+         document.getElementById('main-container').onscroll = null;
+    },
     renderResult() {
         var result = null;
         _.forIn(this.state.list,(v,k)=>{

@@ -81,7 +81,7 @@ export default React.createClass({
                             leftIcon={<TeamateIcn/>}
                             primaryText="小组"/>
                     ]}/>
-                    <ListItem
+                    <ListItem style={{display:'none'}}
                         primaryTogglesNestedList                        
                         primaryText="任务"
                         leftIcon={<ContentPaste/>}

@@ -34,6 +34,9 @@ export default React.createClass({
                 return <Empty tip="列表加载出错"/>;
         }
     },
+    componentWillUnMount() {
+         document.getElementById('main-container').onscroll = null;
+    },
     _checkScroll() {
         let box = document.getElementById('main-container');
         if (this.state.loaded || this.state.status == 'loading') {

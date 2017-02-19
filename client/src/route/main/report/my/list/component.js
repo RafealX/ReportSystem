@@ -3,7 +3,8 @@
  */
 import React from 'react';
 import {browserHistory} from 'react-router';
-import {FlatButton,RaisedButton, Toolbar,ToolbarGroup,ToolbarTitle,Card, CardActions, CardHeader, IconButton,Dialog,DatePicker,Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn,GridList, GridTile,
+import { Grid, Row, Col } from 'react-flexbox-grid';
+import {FlatButton,RaisedButton,FloatingActionButton, Paper,Toolbar,ToolbarGroup,ToolbarTitle,Card, CardActions, CardHeader, IconButton,Dialog,DatePicker,Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn,GridList, GridTile,
     CardText, List, ListItem, Avatar, Divider, Popover, Menu, MenuItem,Step,Stepper,StepLabel,StepContent} from 'material-ui';
 import AddIcon from 'material-ui/svg-icons/content/add';
 import {red300,red200,lightBlue300,cyan300} from 'material-ui/styles/colors';
@@ -24,10 +25,14 @@ const StepperStyle = {
 const containerStyle = {
     display:'none'
 }
+const conststyle = {
+    floatingButton:{
+        position:'fixed',
+        right:'40px',
+        bottom:'20px'
+    }
+};
 
-// let unlisten = browserHistory.listen((location, action)=>{
-//     Report.reset();
-// });
 
 module.exports = React.createClass({
     getInitialState() {
@@ -65,11 +70,20 @@ module.exports = React.createClass({
     render() {
         let reportRender = (x,i)=>
             <div>
+            
             <span>{(i+1)+'.'}&nbsp;&nbsp;</span>
             <span>{x.content}&nbsp;&nbsp;</span>
             <span>{x.elapse?x.elapse+'小时  ':''}</span>
             <span>{x.ticket}&nbsp;&nbsp;</span>
             </div>;
+        reportRender = (x,i)=>
+            <tr key={i}>
+            
+            <td><span>{(i+1)}</span></td>
+            <td>{x.content}&nbsp;&nbsp;</td>
+            <td>{x.elapse?x.elapse+'小时  ':''}</td>
+            <td>{x.ticket}&nbsp;&nbsp;</td>
+            </tr>;
         let taskRender = (x,i)=><div>
             <div className="top" style={{lineHeight:'24px',}}>
                 <span>{(i+1)+'.'}&nbsp;&nbsp;</span>
@@ -82,32 +96,96 @@ module.exports = React.createClass({
                 <h4 style={{fontWeight:'normal',lineHeight:'24px',marginLeft: '20px'}}>总结：{x.summary}</h4></div>)}
             
             </div>;
+        taskRender = (x,i)=>
+            <tr>
+                <td>{(i+1)+'.'}&nbsp;&nbsp;</td>
+                <td>{x.taskname}&nbsp;&nbsp;</td>
+                <td>{x.progress?x.progress+'%  ':''}</td>
+                <td>{x.elapse?x.elapse+'小时':''}</td>
+                <td>{x.description && x.description!=''?'本日没进度':x.summary}</td>
+                <td>{x.isdelay ?'延期至':''}</td>
+            </tr>
+        ;
         let itemRender = (x, i) => 
         <Step active={true} className="step" style={{display:x.status!=3?'block':'none'}}>
         <StepLabel iconContainerStyle={containerStyle}>{new Date(x.time).toLocaleDateString()}</StepLabel>
         <StepContent>
             <div className="clearfix">
-            <Card initiallyExpanded key={i*2} className="item" style={{display:x.taskhistorylist&&x.taskhistorylist.length>0?'block':'none',width:'45%',float:'left'}}>
-                <CardText expandable>
-                    <Toolbar>
+            <Card initiallyExpanded key={i*2} className="item" style={{display:x.taskhistorylist&&x.taskhistorylist.length>0?'block':'none',width:'auto',display:'block'}}>
+                <CardText expandable style={{paddingTop:0,paddingBottom:0}}>
+                    <Toolbar style={{backgroundColor:'#7dbcda',display:'none'}}>
                         <ToolbarGroup style={{textAlign:'center',width:'100%'}}>
-                            <ToolbarTitle text="任务事项" style={{textAlign:'center',width:'100%'}}/>
+                            <ToolbarTitle text="任务事项" style={{color:'#fff',textAlign:'center',width:'100%'}}/>
                         </ToolbarGroup>
                     </Toolbar>
-                        <List>
-                        {x.taskhistorylist&&x.taskhistorylist.length>0&&x.taskhistorylist.map( (row, index) => (
-                          <ListItem disabled={true} key={index}  selected={row.selected}>
-                            {taskRender(row,index)}
-                          </ListItem>
-                          ))}
+                        <List style={{display:x.taskhistorylist&&x.taskhistorylist.length>0?'block':'none'}}>
+                            <Grid className={'f-nonemargin f-fullwidth'}>
+                                <Row>
+                                    <Col xs={1} sm={1} md={2} lg={2}>
+                                    <p className={'f-textvertical f-tc'} ><span className={'tasktitle f-fs20'}>任务事项</span></p>
+                                    </Col>
+                                    <Col xs={9} sm={9} md={9} lg={9}>
+                                        {x.taskhistorylist&&x.taskhistorylist.length>0&&x.taskhistorylist.map( (row, index) => (
+                                          <ListItem disabled={true} key={index}  selected={row.selected} style={{display:'none'}}>
+                                            {taskRender(row,index)}
+                                          </ListItem>
+                                          ))}
+                                         <table className={'ui celled  table'} style={{margin:'1em',width:'100%'}}>
+                                            <thead>
+                                                <tr >
+                                                    <th>序号</th>
+                                                    <th>任务名</th>
+                                                    <th>进度</th>
+                                                    <th>耗时</th>
+                                                    <th>完成内容</th>
+                                                    <th>备注</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {x.taskhistorylist&&x.taskhistorylist.length>0&&x.taskhistorylist.map((row, index) => (
+                                                    taskRender(row,index)
+                                                ))}
+                                            </tbody>
+                                        </table> 
+                                    </Col>
+                                </Row>
+                            </Grid>
                       </List> 
+                      <Divider style={{display:x.taskhistorylist&&x.taskhistorylist.length>0?'block':'none'}}/>
+                      <List style={{display:x.reports&&x.reports.length>0?'block':'none'}}>
+                            <Grid className={'f-nonemargin f-fullwidth'}>
+                                <Row>
+                                    <Col xs={1} sm={1} md={2} lg={2}>
+                                    <p className={'f-textvertical f-tc'} ><span className={'reporttitle f-fs20'}>普通事项</span></p>
+                                    </Col>
+                                    <Col xs={9} sm={9} md={9} lg={9}>
+                                        <table className={'ui celled  table'} style={{margin:'1em'}}>
+                                        <thead>
+                                            <tr >
+                                                <th>序号</th>
+                                                <th>内容</th>
+                                                <th>耗时</th>
+                                                <th>ticket</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {x.reports&&x.reports.length>0&&x.reports.map((row, index) => (
+                                                reportRender(row,index)
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                       
+                                    </Col>
+                                </Row>
+                            </Grid>
+                      </List>
                 </CardText>
             </Card>
-            <Card initiallyExpanded key={i} className="item" style={{display:x.reports&&x.reports.length>0?'block':'none',width:'45%',float:'left'}}>
+            <Card initiallyExpanded key={i} className="item" style={{display:x.reports&&x.reports.length>0?'block':'none',width:'45%',float:'left',display:'none'}}>
                 <CardText expandable>
-                    <Toolbar>
+                    <Toolbar style={{backgroundColor:'#7dbcda'}}>
                         <ToolbarGroup style={{textAlign:'center',width:'100%'}}>
-                            <ToolbarTitle text="普通事项" style={{textAlign:'center',width:'100%'}}/>
+                            <ToolbarTitle text="普通事项" style={{color:'#fff',textAlign:'center',width:'100%'}}/>
                         </ToolbarGroup>
                     </Toolbar>
                       <List>
@@ -137,19 +215,21 @@ module.exports = React.createClass({
         ;
         return (
             <div className={style} ref="reportcontainer">
-                <Toolbar style={{backgroundColor:'#7cccb5'}}>
-                <ToolbarGroup firstChild={true}> 
-                <FlatButton labelStyle={{color:'#fff'}} hoverColor="#7cccb5"
-                  label="新增工作日记"  onClick={this._create}
-                  primary={true} style={{marginLeft:'0px'}} style={{height:'100%',padding:0,margin:0}}
-                  icon={<AddIcon color={'#fff'}/>}
-                />
-                </ToolbarGroup>
-                </Toolbar>
+                <Paper zDepth={1} style={{backgroundColor:'#fff',height:'56px'}}>
+                    <Grid fluid style={{height:'100%'}}>
+                        <Row style={{height:'100%'}}>
+                            <Col xs={1} sm={1} md={2} lg={2} style={{height:'100%'}}>
+                                <p style={{fontSize:'18px',display: 'flex','align-items': 'center','margin-right': '9px',color:'#666',height:'100%'}}>我的日报</p>
+                            </Col>
+                        </Row>
+                    </Grid>
+                </Paper>
                 <Stepper orientation="vertical" linear={false} children={[]}>
                   <ListView ref="listView" loadList={Report.get} getter={Report.operation.get} formatter={Report.formatter} itemRender={itemRender}/>
                 </Stepper>
-                
+                 <FloatingActionButton tooltip={'添加日报'} secondary={true} style={conststyle.floatingButton}  onClick={this._create} >
+                  <AddIcon />
+                </FloatingActionButton>
                 <Popover
                     open={!!this.state.currentRp}
                     anchorEl={this.state.anchorEl}

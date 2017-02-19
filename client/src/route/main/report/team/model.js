@@ -87,8 +87,11 @@ export let TeamReport={
 
 	},
 	reset:function(){
-		TeamReportObj.offset = TeamReportObj.limit*-1;
+		TeamReportObj.first = true;
 		TeamReportObj.data = [];
 		TeamReportObj.data.length = [];
+		TeamReportObj.result = {};
+		TeamReportObj.limit = 1;
+		TeamReportObj.offset = 0;
 	}
 }

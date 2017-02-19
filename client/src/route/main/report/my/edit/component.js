@@ -8,13 +8,16 @@ import {Paper,FlatButton, CircularProgress,SelectField, TextField, MenuItem,Font
     Card, CardActions, CardHeader,CardText,Divider,DropDownMenu,Slider,
     DatePicker, Toolbar, ToolbarGroup, RaisedButton, ToolbarSeparator} from 'material-ui';
 //colors
-import {red300,red200,lightBlue300,cyan300} from 'material-ui/styles/colors';
+import {red300,red200,lightBlue300,lightBlue400,cyan300} from 'material-ui/styles/colors';
 //icons
 import Bulleted from 'material-ui/svg-icons/editor/format-list-bulleted';
 import Numbered from 'material-ui/svg-icons/editor/format-list-numbered';
 import Title from 'material-ui/svg-icons/editor/title';
 import BackIcn from 'material-ui/svg-icons/Hardware/keyboard-backspace';
 import AddIcn from 'material-ui/svg-icons/Content/add';
+import EditIcn from 'material-ui/svg-icons/Editor/mode-edit';
+
+import DeleteIcn from 'material-ui/svg-icons/Action/delete';
 import {fetch,uuid} from 'lib/util';
 import popup from 'cpn/popup';
 import pubsub from 'vanilla-pubsub';
@@ -24,13 +27,6 @@ import {TaskDetail as ShowDetail} from '../../../task/my/list/detail.js';
 import {Report,UnFinish} from './model.js';
 import {style} from './style.scss';
 
-
-
-const types = [
-    <MenuItem key="day" value="day" primaryText="日报"/>,
-    <MenuItem key="week" value="week" primaryText="周报"/>,
-    <MenuItem key="month" value="month" primaryText="月报"/>
-];
 
 const iconStyle = {fontSize: '16px', fontWeight: 'bold', marginTop: '4px'};
 const mystyle = {
@@ -42,19 +38,18 @@ const DatePickerStyle ={
         color:'#fff'
     }
 }
+const textstyle ={
+    floatingLabelStyle: {
+        color: "#bbb",
+    },
+    floatingLabelFocusStyle:{
+        color:'#00bcd4'
+    },
+    underlineStyle:{
+        borderColor:'#aaa'
+    }
+}
 
-//发送日报模板
-let targetReport = {
-        //日报时间，作为title用
-        time:'2017-01-18T12:36:39.387Z',
-        //日报内容
-        report:'',
-        reports:[],
-        //日报状态 1未发送 2已发送 3已删除
-        status:1,
-        tasks:[],
-        userId: "58442c1ac32a8d204e44cd89"
-};
 
 let today = new Date();
 let theDayBeforeYester = new Date(today.setDate(today.getDate()-2));
@@ -63,7 +58,7 @@ let firstLoad = true;
 module.exports = React.createClass({
     getInitialState() {
         console.log(Report.get().time);
-        return {loading:true,isEdit:false,saving:false,report:Report.get().report,task:Report.get().task,fakereport:Report.fake.report(),faketask:Report.fake.task(),time:Report.get().time,unfinishtask:null,selectedtask:null}
+        return {loading:true,isEdit:false,saving:false,report:Report.get().report,task:Report.get().task,fakereport:Report.fake.report(),faketask:Report.fake.task(),time:Report.get().time||today,unfinishtask:null,selectedtask:null}
     },
     componentDidMount() {
         var _self = this;
@@ -91,9 +86,8 @@ module.exports = React.createClass({
             if(UnFinish.get().length==0){
                 popup.success('当前没有未完成的任务');
             }
-            this.setState({'unfinishtask':UnFinish.get(),loading:false,task:Report.get().task});
-            console.log(this.state.task);
-            console.log('unfinishtask',this.state.unfinishtask);
+            console.log('task',Report.get().task);
+            this.setState({'unfinishtask':UnFinish.get(),loading:false,task:Report.get().task,report:Report.get().report});
         },
         add(type) {
             let addedData;
@@ -136,6 +130,29 @@ module.exports = React.createClass({
             }
         },
         report:{
+            add() {
+                let fakereport = Report.fake.report();
+                // this.state.report.unshift(fakereport);
+                // setTimeout(()=>{
+                //     this.forceUpdate();
+                // },10);
+                
+                let reports = _.clone(this.state.report,true);
+                reports.unshift(fakereport);
+                this.setState({report:[]});
+                
+                setTimeout(()=>{
+                    //this.state.report = repor
+                    this.setState({report:reports});
+                    //this.forceUpdate();
+                },10);
+                console.log('reverse',reports);
+                
+
+            },
+            save(itm) {
+                console.log(itm);
+            },
             edit(itm) {
                 itm.status=0;
                 this.setState({report:Report.get().report});
@@ -165,7 +182,23 @@ module.exports = React.createClass({
         },
         task:{
             add() {
-               this.refs.showdetailcpn.switchType(1,{},this.handle.task.callback.bind(this));
+                let faketask = Report.fake.task();
+                // this.state.report.unshift(fakereport);
+                // setTimeout(()=>{
+                //     this.forceUpdate();
+                // },10);
+                
+                let tasks = _.clone(this.state.task,true);
+                tasks.unshift(faketask);
+                this.setState({task:[]});
+                
+                setTimeout(()=>{
+                    //this.state.report = repor
+                    this.setState({task:tasks});
+                    //this.forceUpdate();
+                },10);
+                //console.log('reverse',reports);
+               //this.refs.showdetailcpn.switchType(1,{},this.handle.task.callback.bind(this));
             },
             callback(data) {
                 console.log(data);
@@ -193,7 +226,7 @@ module.exports = React.createClass({
                 this.setState({task:[]});
                 setTimeout(()=>{
                     this.setState({task:Report.get().task});
-                },200);
+                },10);
             },
             delete(itm) {
                 popup.confirm({
@@ -240,100 +273,333 @@ module.exports = React.createClass({
                     console.log(Report.get().time);
                     this.setState({report:Report.get().report,task:Report.get().task,time:Report.get().time,unfinishtask:UnFinish.get(),isEdit:true});
                 });
+            }else{
+                Report.inject.report();
             }
             UnFinish.init();   
             firstLoad = false;
         }
-        
+            
+        let taskRender = (itm,idx)=>
+            <div className={'taskitm'}>
+                <Grid fluid >
+                    <Row>
+                        <Col xs={6} sm={6} md={6} lg={6}>
+                            <h3>{itm.taskname}</h3>
+                        </Col>
+                        <Col xs={3} sm={3} md={3} lg={3}>
+                            <h3>{itm.progress+'%'}</h3>
+                        </Col>
+                        <Col xs={3} sm={3} md={3} lg={3}>
+                            <h3>{new Date(itm.time).toLocaleDateString()}</h3>
+                        </Col>
+                    </Row>
+                    <Row className={'row'}>
+                        <Card style={{margin:'10px 0'}} key={idx} initiallyExpanded={false} expandable={true} showExpandableButton={true} >
+                             <CardHeader style={{margin:'0 -2rem',paddingTop:0}}>
+                                <Grid fluid >
+                                    <Row>
+                                        <Col xs={3} sm={3} md={3} lg={3}>
+                                            <TextField   hintText="任务名"
+                                              floatingLabelText="任务名"
+                                              name="progressname"
+                                              value={itm.taskname}  style={{width:'100%'}}
+                                            />
+                                        </Col>
+                                        <Col xs={1} sm={1} md={2} lg={2}>
+                                             <TextField 
+                                              type="number"  style={{width:'100%'}}
+                                              name="currentprogress"
+                                              min={Math.floor(itm.progress/10)*10}
+                                              max={100}
+                                              hintText="进度"
+                                              floatingLabelText="进度选择"
+                                              step={5} disabled={itm.status==1?true:false}
+                                              defaultValue={itm.progress}
+                                              onChange={(e,n)=>{itm.progress = n;}}
+                                            />
+                                        </Col>
+                                        <Col xs={1} sm={1} md={2} lg={2}>
+                                            <TextField
+                                                type="number" style={{width:'100%'}}
+                                                name="elapse"
+                                                hintText="耗时"
+                                                floatingLabelText="耗时"
+                                                min={0}
+                                                defaultValue={itm.elapse} disabled={itm.status==1?true:false}
+                                                onChange={(e,n)=>{itm.elapse=n}}
+                                            />
+                                        </Col>
+                                        <Col xs={3} sm={3} md={3} lg={3}>
+                                        </Col>
+                                        
+
+                                    </Row>
+                                </Grid>
+                                
+                            
+                                
+                                </CardHeader>
+                            <CardText style={{margin:'0 -2rem',paddingTop:0}}>
+                                <Grid fluid>
+                                    <Row>
+                                        <Col xs={12} sm={12} md={12} lg={12} >
+                                            <TextField 
+                                                type="textarea"
+                                                name="question"
+                                                hintText="遇到的问题"
+                                                floatingLabelText="遇到的问题"
+                                                defaultValue={itm.question} disabled={itm.status==1?true:false}
+                                                onChange={(e,n)=>{itm.question=n;}}
+                                            />
+                                        </Col>
+                                        <Col xs={12} sm={12} md={12} lg={12}>
+                                            <TextField 
+                                                type="textarea"
+                                                name="summary"
+                                                hintText="今日进展"
+                                                floatingLabelText="今日进展"
+                                                defaultValue={itm.summary} disabled={itm.status==1?true:false}
+                                                onChange={(e,n)=>{itm.summary=n;}}
+                                            />
+                                        </Col>
+
+                                    </Row>
+                                </Grid>
+                                
+                            </CardText>
+                        </Card>
+                    </Row>
+                </Grid>
+            </div>
+            ;
 
         return (
             <div className={style}>
                 <ShowDetail ref="showdetailcpn" />
-                <Toolbar style={{backgroundColor:'#7cccb5'}}>
-                <ToolbarGroup firstChild={true}>
-                    <DatePicker textFieldStyle={DatePickerStyle.textField}
-                          locale="zh-Hans-CN" disabled={this.state.isEdit}
-                          DateTimeFormat={Intl.DateTimeFormat}
-                          cancelLabel="取消" okLabel="确定" value={this.state.time}
-                          style={{width: '120px', marginTop: '4px',marginLeft: '15px'}}
-                          textFieldStyle={{width: '120px'}} onChange={(n,newdate)=>{let date = new Date(newdate.toLocaleDateString());console.log(this.handle.time);this.handle.time.call(this,n,date)}}
-                          hintText="选择日期" minDate={theDayBeforeYester} maxDate={new Date}/>
-                </ToolbarGroup>
-                <ToolbarGroup lastChild={true}>
-                    <RaisedButton
-                            primary
-                            disabled={this.state.saving || (!this.state.time || this.state.report.length==0 && this.state.task.length==0)}
-                            label={this.state.saving ? '保存中...': '保存'}
-                            onTouchTap={this.handle.save.bind(this)}/>
-                </ToolbarGroup>
-                </Toolbar>
+                <Paper zDepth={1} style={{backgroundColor:'#fff'}}>
+                    <Grid fluid >
+                        <Row>
+                            <Col xs={1} sm={1} md={1} lg={1}>
+                                <p style={{fontSize:'18px',display: 'flex','align-items': 'center','margin-right': '9px',color:'#666',height:'100%'}}>编写日报</p>
+                            </Col>
+                            <Col xs={10} sm={10} md={10} lg={10}>
+                                <Toolbar style={{backgroundColor:'#fff'}} >
+                                    <ToolbarGroup firstChild={true} style={{paddingLeft: '30px'}}>
+                                        <p style={{fontSize:'16px',display: 'flex','align-items': 'center','margin-right': '9px'}}>日期</p>
+                                        <DatePicker textFieldStyle={DatePickerStyle.textField}
+                                              locale="zh-Hans-CN" disabled={this.state.isEdit}
+                                              DateTimeFormat={Intl.DateTimeFormat}
+                                              cancelLabel="取消" okLabel="确定" value={this.state.time}
+                                              style={{width: '120px', marginTop: '4px'}}
+                                              textFieldStyle={{width: '120px'}} onChange={(n,newdate)=>{let date = new Date(newdate.toLocaleDateString());console.log(this.handle.time);this.handle.time.call(this,n,date)}}
+                                              hintText="选择日期" minDate={theDayBeforeYester} maxDate={new Date}/>
+                                    </ToolbarGroup>
+                                    <ToolbarGroup lastChild={true}>
+                                        <RaisedButton style={{marginRight:'0'}}
+                                                backgroundColor={lightBlue300} labelColor={'#fff'}
+                                                disabled={this.state.saving || (!this.state.time || this.state.report.length==0 && this.state.task.length==0)}
+                                                label={this.state.saving ? '保存中...': '保存'}
+                                                onTouchTap={this.handle.save.bind(this)}/>
+                                        <RaisedButton style={{marginRight:'0px'}}
+                                                backgroundColor={lightBlue400} labelColor={'#fff'}
+                                                disabled={this.state.saving || (!this.state.time || this.state.report.length==0 && this.state.task.length==0)}
+                                                label={this.state.saving ? '保存中...': '保存并发送'}
+                                                onTouchTap={this.handle.save.bind(this)}/>
+                                        
+                                    </ToolbarGroup>
+                                </Toolbar>
+                            </Col>
+                            <Col xs={1} sm={1} md={1} lg={1}></Col>
+                        </Row>
+                    </Grid>
+                    
+                </Paper>
                 {this.state.loading?(<div className="loadingStage">
                     <CircularProgress color="#FF9800" className="loading"/>
                 </div>):(
-                    <Grid fluid>
-
+                    <Grid fluid >
                             <Row>
                                 <Col xs={1} sm={1} md={1} lg={1}></Col>
-                                <Col xs={10} sm={10} md={4} lg={4}>
-                                    <Row>
-                                        <Col xs={12} sm={12} md={12} lg={12}>
-                                            <div style={{margin:'0 6px'}}>
-                                             <h2 style={{fontSize:'26px',fontWeight:'normal',textAlign:'center',margin:'15px',color:'#a5a5a5'}}>普通事项</h2>
-                                             <Divider style={{marginTop:'10px',marginBottom:'10px'}}/>
-                                            <Card style={{margin:'10px 6px'}}>
-                                                <CardText>
-                                                    <TextField                                  
-                                                      floatingLabelText="耗时"
-                                                      type='number'
-                                                      value={this.state.fakereport.elapse}
-                                                      onChange={(e,news)=>{let report=this.state.fakereport;report.elapse = news;this.setState({fakereport:report})}}
-                                                    />
-                                                    <TextField              
-                                                      floatingLabelText="ticket"
-                                                      value={this.state.fakereport.ticket}
-                                                      onChange={(e,news)=>{let report=this.state.fakereport;report.ticket = news;this.setState({fakereport:report})}}
-                                                    />
-                                                    <TextField                                  
-                                                      floatingLabelText="内容"
-                                                      type='textarea' multiLine={true}
-                                                      value={this.state.fakereport.content}
-                                                      rows={4}
-                                                      rowsMax={10} fullWidth={true}
-                                                      onChange={(e,news)=>{let report=this.state.fakereport;report.content = news;this.setState({fakereport:report})}}
-                                                    />
+                                <Col xs={10} sm={10} md={10} lg={10}>
+                                    <Row style={{marginTop:'30px'}}>
+                                        
+                                        <Col xs={1} sm={1} md={1} lg={1}></Col>
+                                        <Col xs={11} sm={11} md={11} lg={11}>
+                                        <RaisedButton
+                                            label='新增任务' icon={<AddIcn color={'rgba(0,0,0,0.6)'}/>}
+                                            onClick={this.handle.task.add.bind(this)}/>
+                                        </Col>
 
-                                                </CardText>
-                                                 <CardActions>
-                                                  <RaisedButton label="新增普通事项" onClick={this.handle.add.bind(this,'report')}/>
-                                                </CardActions>
-                                            </Card>
-                                            {this.state.report&&this.state.report.length>0&&<Divider style={{marginTop:'10px'}}/>}
+                                        <Col xs={1} sm={1} md={1} lg={1}>
+                                            <h2 className={'unfinishtitle'}>未完成任务</h2>
+                                        </Col>
+                                        <Col xs={11} sm={11} md={11} lg={11}>
+                                            {this.state.task&&this.state.task.length>0&&this.state.task.map((itm,idx)=>{
+                                                return (
+                                                     <Card className={'taskcard'} style={{margin:'10px 0'}} key={idx} initiallyExpanded={false} expandable={true} showExpandableButton={true} >
+                                                         <CardHeader style={{margin:'0 -2rem',paddingTop:0,paddingBottom:0}}>
+                                                            <Grid fluid >
+                                                                <Row>
+                                                                    <Col xs={7} sm={7} md={7} lg={7}>
+                                                                        <p style={{fontSize:'16px',display: 'flex','align-items': 'center',height:'100%'}}>{itm.taskname}</p>
+                                                                        
+                                                                    </Col>
+                                                                    <Col xs={1} sm={1} md={2} lg={2}>
+                                                                        <p style={{fontSize:'16px',display: 'flex','align-items': 'center',height:'100%'}}>{itm.progress+'%'}</p>
+                                                                        
+                                                                    </Col>
+                                                                    <Col xs={1} sm={1} md={2} lg={2}>
+                                                                        <p style={{fontSize:'16px',display: 'flex','align-items': 'center',height:'100%'}}>{new Date(itm.time).toLocaleDateString()}</p>
+                                                                        
+                                                                    </Col>
+                                                                    <Col xs={3} sm={3} md={1} lg={1} style={{textAlign:'center'}}>
+                                                                        <IconButton  tooltip="点击展开填写" onClick={(e)=>{itm.show=!itm.show;this.forceUpdate();}}> <EditIcn color={lightBlue300}/></IconButton>
+                                                                    </Col>
+                                                                </Row>
+                                                            </Grid>
+                                                            
+                                                            
+                                                            
+                                                            </CardHeader>
+                                                        <Divider style={{display:!!itm.show?'block':'none',backgroundColor:'#c7c7c7'}}/>
+                                                        <CardText className={!!itm.show?'mainctn':'mainctn hidden'} style={{margin:'0 -2rem',paddingTop:0}}>
+                                                            <Grid fluid>
+                                                                <Row>
+                                                                    <Col xs={7} sm={7} md={7} lg={7}>
+                                                                    
+                                                                        <TextField   hintText="任务名"
+                                                                          floatingLabelText="任务名"
+                                                                          name="progressname" onChange={(e,n)=>{itm.taskname = n;this.forceUpdate();}}
+                                                                          defaultValue={itm.taskname}  style={{width:'100%'}}
+                                                                        />
+                                                                    </Col>
+                                                                    <Col xs={1} sm={1} md={2} lg={2}>
+                                                                         <TextField 
+                                                                          type="number"  style={{width:'100%'}}
+                                                                          name="currentprogress"
+                                                                          min={Math.floor(itm.progress/10)*10}
+                                                                          max={100}
+                                                                          floatingLabelText="进度"
+                                                                          step={5} disabled={itm.status==1?true:false}
+                                                                          defaultValue={itm.progress}
+                                                                          onChange={(e,n)=>{itm.progress = n;this.forceUpdate();}}
+                                                                        />
+                                                                    </Col>
+                                                                    <Col xs={1} sm={1} md={2} lg={2}>
+                                                                        
+                                                                        <DatePicker textFieldStyle={DatePickerStyle.textField}
+                                                                          locale="zh-Hans-CN" autoOk floatingLabelText="截止日期"
+                                                                          DateTimeFormat={Intl.DateTimeFormat}
+                                                                          cancelLabel="取消" okLabel="确定" value={new Date(itm.time)}
+                                                                          style={{width: '100%'}}
+                                                                          textFieldStyle={{width: '100%'}} onChange={(n,newdate)=>{}}
+                                                                          hintText="选择日期" minDate={new Date()}/>
+                                                                    </Col>
+                                                                    <Col xs={3} sm={3} md={1} lg={1}>
+                                                                        <TextField
+                                                                            type="number" style={{width:'100%'}}
+                                                                            name="elapse"
+                                                                            hintText="耗时"
+                                                                            floatingLabelText="耗时"
+                                                                            min={0} 
+                                                                            defaultValue={itm.elapse} disabled={itm.status==1?true:false}
+                                                                            onChange={(e,n)=>{itm.elapse=n}}
+                                                                        />
+                                                                    </Col>
+                                                                    <Col xs={12} sm={12} md={12} lg={12} >
+                                                                        <TextField 
+                                                                            type="textarea" fullWidth={true}
+                                                                            name="question"
+                                                                            hintText="任务目的"
+                                                                            floatingLabelText="任务目的"
+                                                                            defaultValue={itm.description} disabled={itm.status==1?true:false}
+                                                                            onChange={(e,n)=>{itm.question=n;}}
+                                                                        />
+                                                                    </Col>
+                                                                    
+                                                                    <Col xs={12} sm={12} md={12} lg={12}>
+                                                                        <TextField fullWidth={true}
+                                                                            type="textarea"
+                                                                            name="summary"
+                                                                            hintText="今日进展"
+                                                                            floatingLabelText="今日进展"
+                                                                            defaultValue={itm.summary} disabled={itm.status==1?true:false}
+                                                                            onChange={(e,n)=>{itm.summary=n;}}
+                                                                        />
+                                                                    </Col>
+
+                                                                </Row>
+                                                            </Grid>
+                                                            
+                                                        </CardText>
+                                                    </Card>
+                                                );
+                                            })}
+                                            {!this.state.loading&&this.state.unfinishtask&&this.state.unfinishtask.length==0?(<h3>当前没有未完成的任务，可以点击右上角按钮新增任务</h3>):(null)}
+                                            
+                                        </Col>
+                                        <Col xs={1} sm={1} md={1} lg={1}></Col>
+                                        <Col xs={11} sm={11} md={11} lg={11}>
+                                            <Divider style={{marginTop:'30px',marginBottom:'30px'}}/>
+                                        </Col>
+                                        
+                                        <Col xs={1} sm={1} md={1} lg={1}></Col>
+                                        <Col xs={11} sm={11} md={11} lg={11} >
+                                        <RaisedButton 
+                                            label='新增一般事项' icon={<AddIcn color={'rgba(0,0,0,0.6)'}/>}
+                                            onClick={this.handle.report.add.bind(this)}/>
+                                        </Col>
+
+                                        <Col xs={1} sm={1} md={1} lg={1}>
+                                            <h2 className={'unfinishtitle'}>一般事项</h2>
+                                        </Col>
+                                        <Col xs={11} sm={11} md={11} lg={11}>
                                             {this.state.report&&this.state.report.length>0&&this.state.report.map((itm,idx)=>{
                                                 return (
-                                                     <Card style={{margin:'10px 6px'}} key={idx}>
-                                                <CardText >
-                                                    <TextField                                  
-                                                      floatingLabelText="耗时"
-                                                      type='number' disabled={itm.status==1?true:false}
-                                                      defaultValue={itm.elapse}
-                                                      onChange={(e,news)=>{itm.elapse = news}}
-                                                    />
-                                                    <TextField  style={{marginLeft:'5px'}}                              
-                                                      floatingLabelText="ticket" disabled={itm.status==1?true:false}
-                                                      defaultValue={itm.ticket}
-                                                      onChange={(e,news)=>{itm.ticket = news}}
-                                                    />
-                                                    <TextField                                  
-                                                      floatingLabelText="内容" disabled={itm.status==1?true:false}
-                                                      type='textarea' multiLine={true}
-                                                      defaultValue={itm.content}
-                                                      rows={4}
-                                                      rowsMax={10} fullWidth={true}
-                                                      onChange={(e,news)=>{itm.content = news}}
-                                                    />
+                                                     <Card style={{margin:'10px 0',paddingTop:0}} key={idx}>
+                                                <CardText style={{margin:'0 -2rem',paddingTop:0}}>
+                                                    <Grid fluid >
+                                                        <Row>
+                                                            <Col xs={9} sm={9} md={7} lg={7}>
+                                                                <TextField                                  
+                                                                  floatingLabelText="填写内容" disabled={itm.status==1?true:false}
+                                                                  type='textarea' multiLine={true} underlineStyle={textstyle.underlineStyle} floatingLabelStyle={textstyle.floatingLabelStyle} floatingLabelFocusStyle={textstyle.floatingLabelFocusStyle}
+                                                                  defaultValue={itm.content} 
+                                                                  rows={1} 
+                                                                  rowsMax={2} fullWidth={true}
+                                                                  onChange={(e,news)=>{itm.content = news}}
+                                                                />
+                                                            </Col>
+                                                            <Col xs={1} sm={1} md={2} lg={2}>
+                                                                <TextField  style={{width:'100%'}}  underlineStyle={textstyle.underlineStyle} floatingLabelStyle={textstyle.floatingLabelStyle} floatingLabelFocusStyle={textstyle.floatingLabelFocusStyle}                            
+                                                                  floatingLabelText="填写耗时"  min={1}
+                                                                  type='number' disabled={itm.status==1?true:false}
+                                                                  defaultValue={itm.elapse}
+                                                                  onChange={(e,news)=>{itm.elapse = news}}
+                                                                />
+                                                            </Col>
+                                                               
+                                                            <Col xs={1} sm={1} md={2} lg={2}>
+                                                                <TextField  style={{width:'100%'}}   underlineStyle={textstyle.underlineStyle} floatingLabelStyle={textstyle.floatingLabelStyle} floatingLabelFocusStyle={textstyle.floatingLabelFocusStyle}
+                                                                  floatingLabelText="填写ticket" disabled={itm.status==1?true:false}
+                                                                  defaultValue={itm.ticket}
+                                                                  onChange={(e,news)=>{itm.ticket = news}}
+                                                                />
+                                                            </Col>
+                                                            <Col xs={1} sm={1} md={1} lg={1}>
+                                                                <IconButton style={{position: 'relative',top: '24px'}} tooltip="删除"  onClick={this.handle.report.delete.bind(this,itm)}>
+                                                                  <DeleteIcn color={red300}/>
+                                                                </IconButton>
+                                                            </Col>
+                                                        </Row>
+                                                    </Grid>
+                                                    
+                                                    
+                                                   
 
                                                     </CardText>
-                                                     <CardActions>
+                                                     <CardActions style={{display:'none'}}>
                                                      {itm.status==1?(
                                                         <div>
                                                         <RaisedButton label="编辑" labelColor={'#fff'} backgroundColor={lightBlue300} onClick={this.handle.report.edit.bind(this,itm)} />
@@ -350,92 +616,6 @@ module.exports = React.createClass({
                                                 </Card>
                                                 );
                                             })}
-                                             </div>
-                                        </Col>
-                                       
-                                    </Row>
-                                  </Col>
-                                <Col xs={1} sm={1} md={1} lg={1}></Col>
-                                <Col xs={1} sm={1} md={1} lg={1}></Col>
-                                <Col xs={10} sm={10} md={4} lg={4}>
-                                    <Row>
-                                        <Col xs={12} sm={12} md={12} lg={12}>
-                                            <div style={{margin:'0 6px'}}>
-                                            <h2 style={{fontSize:'26px',fontWeight:'normal',textAlign:'center',margin:'15px',color:'#a5a5a5'}}>
-                                                <div style={{position:'relative'}}>
-                                                <span>任务事项</span>
-                                                <IconButton tooltip="点我新增任务！" onClick={this.handle.task.add.bind(this)} style={{position:'absolute',right:'0',top:'0',width: '30',height: '30',padding:'0'}}><AddIcn color={'rgba(0,0,0,0.6)'}/></IconButton>
-                                                </div>
-                                            </h2>
-                                            {this.state.task&&this.state.task.length>0&&<Divider style={{marginTop:'10px',marginBottom:'10px'}}/>}
-                                            {this.state.task&&this.state.task.length>0&&this.state.task.map((itm,idx)=>{
-                                                return (
-                                                     <Card style={{margin:'10px 6px'}} key={idx}>
-                                                    <CardText >
-                                                    <TextField 
-                                                          name="progressname"
-                                                          value={itm.taskname} disabled={true}
-                                                        />
-                                                     <TextField 
-                                                          type="number"
-                                                          name="currentprogress"
-                                                          min={Math.floor(itm.progress/10)*10}
-                                                          max={100}
-                                                          hintText="进度"
-                                                          floatingLabelText="进度选择"
-                                                          step={5} disabled={itm.status==1?true:false}
-                                                          defaultValue={itm.progress}
-                                                          onChange={(e,n)=>{itm.progress = n;}}
-                                                        />
-                                                        <TextField
-                                                            type="number"
-                                                            name="elapse"
-                                                            hintText="耗时"
-                                                            floatingLabelText="耗时"
-                                                            min={0}
-                                                            defaultValue={itm.elapse} disabled={itm.status==1?true:false}
-                                                            onChange={(e,n)=>{itm.elapse=n}}
-                                                        />
-                                                        <TextField 
-                                                            type="textarea"
-                                                            fullWidth={true}
-                                                            rows={2}
-                                                            name="summary"
-                                                            hintText="内容概要"
-                                                            floatingLabelText="内容概要"
-                                                            defaultValue={itm.summary} disabled={itm.status==1?true:false}
-                                                            onChange={(e,n)=>{itm.summary=n;}}
-                                                        />
-                                                        <TextField 
-                                                            type="textarea"
-                                                            rows={2}
-                                                            fullWidth={true}
-                                                            rowsMax={6}
-                                                            name="question"
-                                                            hintText="遇到的问题"
-                                                            floatingLabelText="遇到的问题"
-                                                            defaultValue={itm.question} disabled={itm.status==1?true:false}
-                                                            onChange={(e,n)=>{itm.question=n;}}
-                                                        />
-                                                    </CardText>
-                                                     <CardActions>
-                                                     {itm.status==1?(
-                                                        <div>
-                                                        <RaisedButton label="编辑" labelColor={'#fff'} backgroundColor={lightBlue300} onClick={this.handle.task.edit.bind(this,itm)} />
-                                                        </div>
-                                                        ):(
-                                                        <div>
-                                                        <RaisedButton label="确定" labelColor={'#fff'}  style={{marginRight:'10px'}} backgroundColor={cyan300} onClick={this.handle.task.confirm.bind(this,itm)} />
-                                                        <RaisedButton label="取消" onClick={this.handle.task.cancel.bind(this,itm,_.clone(itm,true))} />
-                                                        </div>
-                                                     )}
-                                                      
-                                                    </CardActions>
-                                                </Card>
-                                                );
-                                            })}
-                                            {!this.state.loading&&this.state.unfinishtask&&this.state.unfinishtask.length==0?(<h3>当前没有未完成的任务，可以点击右上角按钮新增任务</h3>):(null)}
-                                            </div>
                                         </Col>
                                     </Row>
                                   </Col>
