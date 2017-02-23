@@ -12,7 +12,46 @@ const ErrCode = BusinessError.ErrCode;
 /**
  * 设置权限
  */
-router.all('*',auth.mustLogin());
-router.post('/set', function* () {});
+//router.all('*',auth.mustLogin());
+router.post('/set', auth.mustLogin(),function* () {
+    let rData = this.request.params;
+    let params = {};
+    if(!rData){
+        throw new BusinessError(ErrCode.ABSENCE_PARAM);
+    }
+    if(this.state.loginUser && this.state.loginUser.role>1){
+        let userid = rData.userid;
+        let role = rData.role;
+        params['$set'] = {
+            role:role
+        };
+        yield User.update({id:userid},params);
+        this.body = {
+            code:200
+        }
+    }else{
+        this.body = {
+            code:403,
+            msg:'未登录'
+        };
+        return;
+    }
 
+});
+router.post('/mock/set', function* () {
+    let rData = this.request.params;
+    let params = {};
+    if(!rData){
+        throw new BusinessError(ErrCode.ABSENCE_PARAM);
+    }
+    let userid = rData.userid;
+    let role = rData.role;
+    params['$set'] = {
+        role:role
+    };
+    yield User.update({id:userid},params);
+    this.body = {
+        code:200
+    }
+});
 module.exports = router;

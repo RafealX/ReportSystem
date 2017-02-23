@@ -10,11 +10,13 @@ const util = require('../lib/util');
 let schema = helper.schema({
     taskid:String,
     userid: String,
-    groupid: {type:Number,default:1},
+    groupid: {type:String,default:1},
+    time:Number,//创建时间
     id: {type:String,default:util.uuid},
-    time: {type:Number,default:0},
-    taskhistoryid:String,
-    delayreason: {type:String,default:''}
+    sourcetime: {type:Number,default:0},//原截止日期
+    targettime: {type:Number,default:0},//延期或提前
+    taskhistoryid:String,//如果在写日报的时候发生修改，就需要在此带上
+    reason: {type:String,default:''}//延期或提前原因
 }, {collection:'TaskDelayHistory'});
 
 module.exports = helper.model('TaskDelayHistory', schema);

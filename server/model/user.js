@@ -23,7 +23,7 @@ let passportLocalMongoose = require('passport-local-mongoose');
 let schema = helper.schema({
     id: String,
     name: String,
-    groupid: {type:Number,default:1},
+    groupid: {type:String,default:'0'},
     nickname:String,
     email:String,
     role: {type:Number,default:1}

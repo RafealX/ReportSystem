@@ -27,7 +27,6 @@ function* injectGroup(next) {
         }
     }
 }
-router.all('*',auth.mustLogin());
 /**
  * 获取所有小组
  */
@@ -64,6 +63,50 @@ router.post('/add', injectGroup,function* () {
         group: group
     }
 });
+
+/**
+ * 添加小组
+ */
+router.post('/create', auth.mustLogin(),function* () {
+    let rDate = this.request.params;
+    if(!rDate){
+        throw new BusinessError(ErrCode.ABSENCE_PARAM, '缺少必备参数');
+    }
+    //需要判断user是否有权限创建组
+    /*let user = this.state.loginUser;
+    let target = User.findOne({name:user.nickname})*/
+    let id = util.uuid();
+    let group = new Group({
+        id:id,
+        name: rDate.name,
+        members: JSON.stringify({}),
+        adminid: ''
+    });
+    yield group.save();
+    this.body = {
+        code: 200,
+        groupid: id
+    }
+});
+router.post('/create/mock', function* () {
+    let rDate = this.request.params;
+    if(!rDate){
+        throw new BusinessError(ErrCode.ABSENCE_PARAM, '缺少必备参数');
+    }
+    let id = util.uuid();
+    let group = new Group({
+        id:id,
+        name: rDate.name,
+        members: JSON.stringify({}),
+        adminid: ''
+    });
+    yield group.save();
+    this.body = {
+        code: 200,
+        groupid: id
+    }
+});
+
 /**
  * 编辑小组
  */
@@ -96,36 +139,221 @@ router.post('/delete',  injectGroup,function* () {
 /**
  * 获取小组成员
  */
-router.post('/getmember', injectGroup,function* () {
-    let group = Group.findById(this.request.params.id);
-    let members = group.members;
-    let lists = [];
-    group.members.forEach(m => {
-        lists.push(User.findById(m.id));
-    });
+router.post('/getmember', auth.mustLogin(),function* () {
+    let user = this.state.loginUser;
+    if(user){
+        let userid = user.id;
+        let groupid = user.groupid;
+        let group =yield Group.findOne({id:groupid});
+        if(group){
+            let group_ = group.toObject();
+            if(group_.adminid==userid){
+                this.body = {
+                    code:200,
+                    data:JSON.parse(group_.members)
+                }
+                return;
+            }else{
+                this.body ={
+                    code: 400,
+                    msg:'用户不是该组组长'
+                }
+                return;
+            }
+        }else{
+            this.body ={
+                code: 400,
+                msg:'用户不属于任何一个组'
+            }
+            return;
+        }
+    }
     this.body ={
-        code: 200,
-        list:lists
+        code: 400,
+        msg:'用户没登录'
     }
 });
 /**
  * 添加小组成员
  */
-router.post('/addmember', injectGroup,function* () {
-    let mail = this.request.params.mail;
-    if (!mail) throw new BusinessError(ErrCode.ABSENCE_PARAM);
-    let group = this.state.group;
-    let user = yield User.findOne({username: mail});
-    if (!user) throw new BusinessError(416, '用户不存在');
-    if (user.groupId) throw new BusinessError(417, '添加出错,该用户已选择组织');
-    user.groupid = group.id;
-    yield group.update({$push: {members: {userid: user.id, role: 1}}}).exec();
-    yield user.save();
-    this.body = {
-        code: 200,
-        user: user
-    };
+router.post('/addmember', auth.mustLogin(), function* () {
+    let rData = this.request.params;
+    if(!rData){
+        throw new BusinessError(ErrCode.ABSENCE_PARAM);
+    }
+    let groupid = rData.groupid;
+    let user = this.state.loginUser;
+    if(user){
+        let userid = user.id;
+        let usergroup = user.groupid;
+        let group = Group.findOne({id:groupid});
+        if(group){
+           this.body = {
+               code:400,
+               msg:'用户已属于'+group.toObject().name
+           }
+        }else{
+           let group = Group.findOne({id:groupid});
+           if(group){
+               let group_ = group.toObject();
+               let members = JSON.parse(group_.members);
+               if(!members.hasOwnProperty(userid)){
+                   this.body = {
+                       code:400,
+                       msg:'用户已属于该组'
+                   }
+               } else{
+                   members[userid] = user.name;
+                   var params = {};
+                   params['$set']= {
+                       members:JSON.stringify(members)
+                   }
+                   yield Group.update({id:groupid},params);
+                   this.body = {
+                       code:200,
+                       msg:'成功加入'+group_.name
+                   }
+               }
 
+           }
+        }
+    }
+    this.body ={
+        code: 400,
+        msg:'用户没登录'
+    }
+
+});
+router.post('/addmember/mock', function* () {
+    let rData = this.request.params;
+    if(!rData){
+        throw new BusinessError(ErrCode.ABSENCE_PARAM);
+    }
+    let groupid = rData.groupid;
+    let user = yield User.findOne({id:rData.userid});
+    if(user){
+        user = user.toObject();
+        let userid = user.id;
+        let usergroup = user.groupid;
+        let group =yield Group.findOne({id:usergroup});
+        if(group){
+            this.body = {
+                code:400,
+                msg:'用户已属于'+group.toObject().name
+            }
+        }else{
+            let group = yield Group.findOne({id:groupid});
+            if(group){
+                let group_ = group.toObject();
+                let members = JSON.parse(group_.members);
+                if(members.hasOwnProperty(userid)){
+                    this.body = {
+                        code:400,
+                        msg:'用户已属于该组'
+                    }
+                } else{
+                    members[userid] = user.name;
+                    var params = {};
+                    params['$set']= {
+                        members:JSON.stringify(members)
+                    }
+                    yield Group.update({id:groupid},params);
+                    params = {};
+                    params['$set'] = {
+                        groupid:groupid
+                    };
+                    yield User.update({id:userid},params);
+                    this.body = {
+                        code:200,
+                        msg:'成功加入'+group_.name
+                    }
+                    return;
+                }
+
+            }
+        }
+    }
+    this.body ={
+        code: 400,
+        msg:'用户没登录'
+    }
+
+});
+router.post('/addmemberall/mock', function* () {
+    //clear and mock
+    let rData = this.request.params;
+    if(!rData){
+        throw new BusinessError(ErrCode.ABSENCE_PARAM);
+    }
+    let groupid = rData.groupid;
+    let group =yield Group.findOne({id:groupid});
+    var params_g = {};
+    var members = {};
+    if(group){
+        let group_ = group.toObject();
+        let user = yield User.find({});
+        if(user.length>0){
+            for(let i =0;i<user.length;i++){
+                var tar_user = user[i].toObject();
+                members[tar_user.id] = tar_user.name;
+                let params = {};
+                params['$set'] = {
+                  groupid: groupid,
+                    role:1
+                };
+                yield User.update({id:tar_user.id},params);
+            }
+            params_g['$set'] = {
+                members:JSON.stringify(members)
+            };
+            yield Group.update({id:groupid},params_g);
+            this.body ={
+                code: 200,
+                msg:'成功'
+            }
+            return;
+        }
+    }
+
+    this.body ={
+        code: 400,
+        msg:'用户没登录'
+    }
+
+});
+
+router.post('/setadmin/mock',function* () {
+   let rData = this.request.params;
+   if(!rData){
+       throw new BusinessError(ErrCode.ABSENCE_PARAM, '缺少必备参数');
+   }
+   let groupid = rData.groupid;
+   let userid = rData.userid;
+   let group = yield Group.findOne({id:groupid});
+   let user = yield User.findOne({id:userid});
+   if(group && user){
+       let group_ = group.toObject();
+       let user_ = user.toObject();
+       let params = {};
+       params['$set'] = {
+         adminid:user_.id
+       };
+       yield Group.update({id:group_.id},params);
+       var params_g = {};
+       params_g['$set'] = {
+           role:2
+       };
+       yield User.update({id:userid},params_g);
+       this.body = {
+           code:200,
+           msg:'设置成功'
+       }
+       return;
+   }
+   this.body = {
+       code:400,
+       msg:''
+   }
 });
 /**
  * 删除小组成员

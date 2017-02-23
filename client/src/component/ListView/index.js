@@ -7,14 +7,47 @@ import Empty from 'cpn/Empty';
 import _ from 'lodash';
 
 import scss from './index.scss';
-
+let initialLoad = {
+    data:4,
+    isInitial:true
+}
 export default React.createClass({
     getInitialState() {
-        return {list: []};
+        return {list: [],count:0};
     },
     componentDidMount() {
-        this._loadList();
+        this.initialLoad();
         document.getElementById('main-container').onscroll = this._checkScroll;
+    },
+    initialLoad() {
+
+        this.setState({status:'loading'});
+        this.props.loadList()
+            .then(d=>{
+                console.log(d);
+                let data = d.reports;
+                let result = this.props.formatter(data);
+                if(result && result.length>0){
+                    let count = this.state.count;
+                    count+=result.length;
+                    this.setState({'list':this.props.getter(),count:count});
+                    if(this.state.count<initialLoad.data && initialLoad.isInitial){
+                        this.initialLoad();
+                    }
+                }
+                if(result && result.length==0){
+                    initialLoad.isInitial = false;
+                    this.setState({status:'empty',loaded:true});
+                }else{
+                    this.setState({status:'loaded'});
+                }
+                
+            })
+            .catch(e => {
+                
+                //后面需要撤销注释
+                this.setState({status: 'error'});
+            });
     },
     render() {
         return (<div className={scss.index}>
@@ -27,14 +60,14 @@ export default React.createClass({
             case 'loading':
                 return <CircularProgress className="loading"/>;
             case 'empty':
-                return <Empty tip=""/>;
+                return <Empty tip="暂无数据，请点击右下角按钮添加日报~"/>;
             case 'done':
                 return <Empty type={1} tip="我是有底线的~"/>;
             case 'error':
                 return <Empty tip="列表加载出错"/>;
         }
     },
-    componentWillUnMount() {
+    componentWillUnmount() {
          document.getElementById('main-container').onscroll = null;
     },
     _checkScroll() {

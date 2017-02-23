@@ -4,7 +4,7 @@
 
 import _ from 'lodash';
 import Backend from 'lib/backend';
-import {uuid} from 'lib/util';
+import {uuid,today} from 'lib/util';
 import pubsub from 'vanilla-pubsub';
 import Mock from 'cpn/Mock';
 /**
@@ -43,8 +43,9 @@ export let UnFinish = {
 			UnFinishedTask = d.data;
 			Report.inject.task(UnFinishedTask);
 			console.log(UnFinishedTask);
-			pubsub.publish('Task.Unfinished.load');
+			pubsub.publish('Task.Unfinished.load',);
 		}).catch(e=>{
+
 			//UnFinishedTask = formatter(MockUnfinish());
 			//pubsub.publish('Task.Unfinished.load');
 		});
@@ -67,18 +68,20 @@ let fakeTask = {
 		content:'',
 		ticket:'',
 		id:'',
-		elapse:''
+		elapse:'',
+		status:1//在写日报时新加的任务时允许删除，此项标识是新增的任务而非已经存在的未完成任务
 	},
 	task:{
 		elapse:'',
-		targettask:'',
+		taskid:'',
 		taskname:'新建任务',
-		description:'',
-		question:'',
-		summary:'',
+		description:'',//任务的目的描述
+		content:'',//本日进度
 		progress:0,
-		time:new Date(),
-		isdelay:''
+		startprogress:0,//只有进行编辑的时候才会用到此属性
+		time:today(),
+		tasktime:today(),
+		status:1//在写日报时新加的任务时允许删除，此项标识是新增的任务而非已经存在的未完成任务
 	}
 };
 
@@ -89,7 +92,8 @@ let TaskObj = {
 	original:{
 		report:null,
 		task:null,
-	}
+	},
+	editData:null,
 };
 
 
@@ -98,7 +102,7 @@ export let Report={
 		let result = TaskObj;
 		//格式化数据
 		let data = {
-			time:result.time.getTime(),
+			time:(result.time&&result.time.getTime()) || new Date().getTime(),
 		}
 		let report = '';
 		_.each(result.report,itm=>{
@@ -110,6 +114,7 @@ export let Report={
 
 		_.each(result.task,itm=>{
 			//itm.time = new Date(itm.time).getTime();
+			
 			delete result.status;
 		});
 		data.tasks = result.task;
@@ -123,22 +128,19 @@ export let Report={
 			time:data.time
 		}
 		editReportId?(sendData.reportid=editReportId):'';
-		return '';
-		//return editReportId?Backend.report.edit(sendData):Backend.report.add(sendData);
+		//return '';
+		return editReportId?Backend.report.edit(sendData):Backend.report.add(sendData);
 	},
 	get:function(){
 		return TaskObj;
 	},
 	set:{
 		report:function(data){
-			data.status=1;
-			fakeid++;
-			data.id = fakeid;
-			TaskObj.report.push(data);
+			TaskObj.report.unshift(data);
 		},
 		task:function(data){
-			data.status=1;
-			TaskObj.task.push(data);
+			TaskObj.task.unshift(data);
+
 		},
 		time:function(data){
 			TaskObj.time = data;
@@ -149,7 +151,7 @@ export let Report={
 			_.remove(TaskObj.report,(itm)=>{return data.id==itm.id});
 		},
 		task:function(data){
-			_.remove(TaskObj.task,(itm)=>{return data.targettask==itm.targettask});
+			_.remove(TaskObj.task,(itm)=>{return data.taskid==itm.taskid});
 		}
 	},
 	clear:function(){
@@ -166,60 +168,94 @@ export let Report={
 			return result;
 		},
 		task:function(){
-			return _.clone(fakeTask.task,true);
+			let result = _.clone(fakeTask.task,true);
+			result.id = uuid();
+			return result;
 		},
 	},
 	//被编辑调起
 	init:{
-		edit:function(data,cb){
+		edit:function(sourcedata,cb){
 			//需要初始化数据并且对Unfinished数据进行操作，基本是要等待Unfinished载入完成才能做动作的。
-			let callback = function(){
-				TaskObj.report = data.reports || [];
-				console.log(TaskObj.task,data.taskhistorylist);
-				//编辑时，需要过滤已经写上了的数据
-				if(TaskObj.task.length>0){
-					//找到已经填写编辑的任务，删除之
-					for(let i=0;i<data.taskhistorylist.length;i++){
-						let tempTask = data.taskhistorylist[i];
-						var index = _.findIndex(TaskObj.task,itm=>{
-							return itm.targettask==tempTask.targettask;
-						});
-						if(index>=0){
-							TaskObj.task.splice(index,1,tempTask);
-						}else{
-							TaskObj.task.push(tempTask);
+			TaskObj.editData = _.clone(sourcedata,true);
+			let callback = function(data){
+				var _source = data;
+				return function(){
+					_source = TaskObj.editData ;
+					TaskObj.report = _source.reports || [];
+
+					console.log(TaskObj.task,_source.taskhistorylist);
+					//编辑时，需要过滤已经写上了的数据
+					if(TaskObj.task.length>0){
+						//找到已经填写编辑的任务，删除之
+						for(let i=0;i<_source.taskhistorylist.length;i++){
+							let tempTask = _.clone(_source.taskhistorylist[i],true);
+
+							
+							//tempTask.tasktime = 
+							var index = _.findIndex(TaskObj.task,itm=>{
+								return itm.taskid==tempTask.taskid;
+							});
+							if(index>=0){
+								let pushitm = TaskObj.task[index];
+								pushitm.id = tempTask.id;
+								pushitm.content = tempTask.content;
+								pushitm.time = tempTask.time;
+								pushitm.elapse = tempTask.elapse;
+								pushitm.progress = tempTask.progress;
+								tempTask.startprogress && tempTask.startprogress>0?(pushitm.startprogress = tempTask.startprogress):'';
+								//TaskObj.task.splice(index,1,pushitm);
+							}else{
+								//新建数据项
+								//这个应该只会在一个任务已经处于完成状态时而去编辑有该项任务的日报才会执行这里的代码
+								let pushitm = tempTask;
+								pushitm.id = tempTask.id;
+								pushitm.taskid = tempTask.taskid;
+								pushitm.taskname = tempTask.taskname;
+								pushitm.description = '';//Todo 获取不在Unfinished中的任务
+								pushitm.content = tempTask.content;
+								pushitm.time = tempTask.time;
+								pushitm.tasktime = tempTask.tasktime;
+								pushitm.elapse = tempTask.elapse;
+								pushitm.progress = tempTask.progress;
+								pushitm.status = 2;
+								TaskObj.task.push(tempTask);
+							}
+
 						}
+						
+					}else{
+						TaskObj.task = TaskObj.task.concat(_source.taskhistorylist);
 					}
-					
-				}else{
-					TaskObj.task = TaskObj.task.concat(data.taskhistorylist);
+					console.log('TaskObj.task',TaskObj.task);
+					//把原始的数据保存下来
+					TaskObj.original.task = _.clone(TaskObj.task,true);
+					TaskObj.original.report = _.clone(TaskObj.report,true);
+					//TaskObj.task = TaskObj.task.concat(data.taskhistorylist);
+					TaskObj.time = _source.time || null;
+					_.each(TaskObj._source,itm=>{
+						itm.status=2;
+					});
+					_.each(TaskObj.task,itm=>{
+						itm.status=2;
+						_.each(UnFinish.get(),item=>{
+							item.id==itm.id?item.status=0:'';
+						})
+					});
+					if(_.isFunction(cb)){
+						cb();
+					}
+					console.log(TaskObj);
 				}
-				console.log('TaskObj.task',TaskObj.task);
-				//把原始的数据保存下来
-				TaskObj.original.task = _.clone(TaskObj.task,true);
-				TaskObj.original.report = _.clone(TaskObj.report,true);
-				//TaskObj.task = TaskObj.task.concat(data.taskhistorylist);
-				TaskObj.time = data.time || null;
-				_.each(TaskObj.report,itm=>{
-					itm.status=2;
-				});
-				_.each(TaskObj.task,itm=>{
-					itm.status=2;
-					_.each(UnFinish.get(),item=>{
-						item.id==itm.id?item.status=0:'';
-					})
-				});
-				if(_.isFunction(cb)){
-					cb();
-				}
-				console.log(TaskObj);
 			}
-			console.log(data);
-			editReportId = data.id;
+			
+			console.log(sourcedata);
+			editReportId = sourcedata.id;
+			let resultcall = callback(_.clone(sourcedata,true));
 			if(!UnFinishedTask){
-				UnFinish.listen(callback);
+				UnFinish.listen(resultcall);
 			}else{
-				callback();
+				resultcall();
 			}
 		},
 		
@@ -229,22 +265,22 @@ export let Report={
 			//把未完成的任务注入到task里
 			if(_.isArray(unfinishtasks) && unfinishtasks.length>0){
 				_.each(unfinishtasks,(itm)=>{
-					let clonetask = _.clone(fakeTask.task,true);
-					clonetask.targettask = itm.id;
+					let clonetask = Report.fake.task();
+					clonetask.taskid = itm.id;
 					clonetask.taskname = itm.name;
-					clonetask.isdelay = itm.isdelay;
-					clonetask.time = itm.time;
+					clonetask.tasktime = itm.endtime;
+					clonetask.time = new Date().getTime();
 					clonetask.description = itm.description;
 					clonetask.progress = itm.progress;
-					clonetask.status=2;
+					clonetask.status=2;//表明不是在写日报时
 					TaskObj.task.push(clonetask);
 				});
 			}
 		},
 		report:function(){
-			if(TaskObj.report.length==0){
-				TaskObj.report.unshift(Report.fake.report());
-			}
+			// if(TaskObj.report.length==0){
+			// 	TaskObj.report.unshift(Report.fake.report());
+			// }
 		}
 	}
 }

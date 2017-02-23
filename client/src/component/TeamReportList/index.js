@@ -14,9 +14,11 @@ let initialLoad = {
 export default React.createClass({
     getInitialState() {
         return {list:{},count:0};
+
     },
     componentDidMount() {
-        this.initialLoad()
+        this.initialLoad();
+
         document.getElementById('main-container').onscroll = this._checkScroll;
     },
     initialLoad() {
@@ -36,7 +38,7 @@ export default React.createClass({
                 }
                 if(result && result.length==0){
                     initialLoad.isInitial = false;
-                    this.setState({status:'done',loaded:true});
+                    this.setState({status:'empty',loaded:true});
                 }else{
                     this.setState({status:'loaded'});
                 }
@@ -48,7 +50,7 @@ export default React.createClass({
                 this.setState({status: 'error'});
             });
     },
-    componentWillUnMount() {
+    componentWillUnmount() {
          document.getElementById('main-container').onscroll = null;
     },
     renderResult() {

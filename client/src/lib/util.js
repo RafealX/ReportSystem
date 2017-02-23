@@ -4,6 +4,7 @@
 import 'whatwg-fetch';
 import {browserHistory} from 'react-router';
 import cookie from 'react-cookie';
+import _ from 'lodash';
 
 export const indexroute = '/m/report/my/list';
 
@@ -85,4 +86,9 @@ export function checkEnter(cb) {
 }
 export function uuid(){
     return Math.random().toString(26).slice(2);
+} 
+export function today(){
+    let date = new Date();
+    date = new Date(date.toLocaleDateString());
+    return date.getTime();
 } 

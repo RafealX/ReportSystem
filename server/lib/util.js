@@ -31,3 +31,8 @@ module.exports.isMail = function (str) {
 module.exports.uuid = function (){
     return Math.random().toString(26).slice(2);
 }
+module.exports.today = function () {
+    let date = new Date();
+    date = new Date(date.toLocaleDateString());
+    return date.getTime();
+}

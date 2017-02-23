@@ -68,7 +68,8 @@ const rootRoute = {
 };
 
 const customMuiTheme = getMuiTheme({
-    fontFamily:'"Microsoft YaHei", "PingFang SC", "仿宋", sans-serif'
+    fontFamily:'"Microsoft YaHei", "PingFang SC", "仿宋", sans-serif',
+    backgroundColor: '#f9f9f9'
 });
 
 render(

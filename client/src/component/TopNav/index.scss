@@ -1,6 +1,10 @@
 :local(.style) {
-
-    position: relative;
+    
+    & > div:first-child{
+        position: relative;
+        box-shadow: rgba(0, 0, 0, 0.156863) 0px 3px 0px, rgba(0, 0, 0, 0.227451) 0px 3px 3px !important;
+        width:230px !important;
+    }
     h1,h2 {
         height: 56px;
         line-height: 56px;
@@ -10,6 +14,23 @@
         font-weight:normal;
         font-family:"Microsoft YaHei", "PingFang SC", 仿宋, sans-serif;
         text-align: center;
+    }
+    .logo{
+        width:100%;
+        background:#ff7781;
+        height:82px;
+        padding:5px 0;
+    }
+    .logo svg{
+        height:40px;
+        line-height:56px;
+        fill:#fff;
+    }
+    h3{
+        color:#fff;
+        font-size:18px;
+        font-weight:normal;
+        margin:5px 0;
     }
     .user {
         height: 60px;

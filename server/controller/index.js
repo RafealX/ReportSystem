@@ -22,7 +22,6 @@ module.exports.initialize = function (app) {
     router.use(roleController.routes());
     router.use(taskController.routes());
     router.use(taskhistoryController.routes());
-
     app.use(function* (next){
         var path = this.path;
         yield next;

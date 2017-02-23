@@ -28,6 +28,8 @@
     "extract-text-webpack-plugin": "1.0.1",
     "file-loader": "0.8.5",
     "flexboxgrid": "^6.3.1",
+    "formsy-material-ui": "^0.5.5",
+    "formsy-react": "^0.19.2",
     "glob": "7.0.3",
     "gulp": "3.9.1",
     "gulp-clean": "0.3.2",

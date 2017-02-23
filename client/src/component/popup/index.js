@@ -4,6 +4,12 @@
 import React from 'react';
 import {Snackbar, FlatButton, Dialog} from 'material-ui';
 
+const popupStyle = {
+    bottom:'',
+    top:0,
+    transform: 'translate(0px, -48px)'
+}
+
 let hook;
 
 function success(msg) {
@@ -63,7 +69,7 @@ const Popup = React.createClass({
             );
         } else {
             return <Snackbar
-                autoHideDuration={2000}
+                autoHideDuration={2000} style={popupStyle}
                 onRequestClose={e => this.setState({open: false})}
                 open={this.state.open}
                 message={this.state.msg || ''}/>

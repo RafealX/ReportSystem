@@ -128,12 +128,9 @@ let Backend = {
 			return fetch(url,{body:data,method:'POST'});	
 		},
 		member:{
-			get:function(id){
-				let url = prefix+'/task'+'/member/get';
-				let data = {
-					id:id
-				};	
-				return fetch(url,{body:data,method:'GET'});	
+			get:function(){
+				let url = prefix+'/group'+'/getmember';
+				return fetch(url,{method:'POST'});	
 			}
 		}
 	}

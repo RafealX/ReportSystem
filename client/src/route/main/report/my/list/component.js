@@ -32,7 +32,15 @@ const conststyle = {
         bottom:'20px'
     }
 };
-
+const PaperStyle = {
+    boxShadow:'rgba(0, 0, 0, 0.117647) 0px 0px 0px, rgba(0, 0, 0, 0.117647) 0px 0px 4px',
+    backgroundColor:'#fff',
+    height:'56px',
+    borderRadius:0
+}
+const CardStyle = {
+    
+}
 
 module.exports = React.createClass({
     getInitialState() {
@@ -69,49 +77,27 @@ module.exports = React.createClass({
     },
     render() {
         let reportRender = (x,i)=>
-            <div>
-            
-            <span>{(i+1)+'.'}&nbsp;&nbsp;</span>
-            <span>{x.content}&nbsp;&nbsp;</span>
-            <span>{x.elapse?x.elapse+'小时  ':''}</span>
-            <span>{x.ticket}&nbsp;&nbsp;</span>
-            </div>;
-        reportRender = (x,i)=>
             <tr key={i}>
             
-            <td><span>{(i+1)}</span></td>
             <td>{x.content}&nbsp;&nbsp;</td>
             <td>{x.elapse?x.elapse+'小时  ':''}</td>
             <td>{x.ticket}&nbsp;&nbsp;</td>
             </tr>;
-        let taskRender = (x,i)=><div>
-            <div className="top" style={{lineHeight:'24px',}}>
-                <span>{(i+1)+'.'}&nbsp;&nbsp;</span>
-                <span>{x.taskname}&nbsp;&nbsp;</span>
-                <span>{x.progress?x.progress+'%  ':''}</span>
-                <span>{x.elapse?x.elapse+'小时':''}</span>
-            </div>
-            {x.description && x.description!=''?(
-            <h4 style={{fontWeight:'normal',lineHeight:'24px',marginLeft: '20px'}}>本日没进度</h4>):(<div><h4 style={{fontWeight:'normal',lineHeight:'24px',marginLeft: '20px'}}>问题：{x.question}</h4>
-                <h4 style={{fontWeight:'normal',lineHeight:'24px',marginLeft: '20px'}}>总结：{x.summary}</h4></div>)}
-            
-            </div>;
-        taskRender = (x,i)=>
-            <tr>
-                <td>{(i+1)+'.'}&nbsp;&nbsp;</td>
+        let taskRender = (x,i)=>
+            <tr key={i}>
                 <td>{x.taskname}&nbsp;&nbsp;</td>
                 <td>{x.progress?x.progress+'%  ':''}</td>
                 <td>{x.elapse?x.elapse+'小时':''}</td>
-                <td>{x.description && x.description!=''?'本日没进度':x.summary}</td>
-                <td>{x.isdelay ?'延期至':''}</td>
+                <td>{x.content && x.content!=''?x.content:(<span className={"noprogress"}>本日没进度</span>)}</td>
+                <td>{x.delay&&x.delaytotime?(x.delay>0?(<span className={"isdelay"}>{'延期至'+(new Date(x.delaytotime).toLocaleDateString())}{}</span>):(<span className={"isndelay"}>{'提前至'+(new Date(x.delaytotime).toLocaleDateString())}{}</span>)):''}</td>
             </tr>
         ;
         let itemRender = (x, i) => 
-        <Step active={true} className="step" style={{display:x.status!=3?'block':'none'}}>
+        <Step active={true} className="step" style={{display:x.status!=3?'block':'none'}} key={i*3}>
         <StepLabel iconContainerStyle={containerStyle}>{new Date(x.time).toLocaleDateString()}</StepLabel>
         <StepContent>
             <div className="clearfix">
-            <Card initiallyExpanded key={i*2} className="item" style={{display:x.taskhistorylist&&x.taskhistorylist.length>0?'block':'none',width:'auto',display:'block'}}>
+            <Card initiallyExpanded key={i*2} className="item" style={{display:x.taskhistorylist&&x.taskhistorylist.length>0?'block':'none',width:'auto',display:'block',boxShadow:'rgba(0, 0, 0, 0.117647) 0px 0px 1px, rgba(0, 0, 0, 0.117647) 0px 0px 1px'}}>
                 <CardText expandable style={{paddingTop:0,paddingBottom:0}}>
                     <Toolbar style={{backgroundColor:'#7dbcda',display:'none'}}>
                         <ToolbarGroup style={{textAlign:'center',width:'100%'}}>
@@ -119,10 +105,10 @@ module.exports = React.createClass({
                         </ToolbarGroup>
                     </Toolbar>
                         <List style={{display:x.taskhistorylist&&x.taskhistorylist.length>0?'block':'none'}}>
-                            <Grid className={'f-nonemargin f-fullwidth'}>
+                            <Grid fluid className={'f-nonemargin f-fullwidth'}>
                                 <Row>
                                     <Col xs={1} sm={1} md={2} lg={2}>
-                                    <p className={'f-textvertical f-tc'} ><span className={'tasktitle f-fs20'}>任务事项</span></p>
+                                    <p className={'f-textvertical f-tc'} ><span className={'tasktitle f-fs16'}>任务事项</span></p>
                                     </Col>
                                     <Col xs={9} sm={9} md={9} lg={9}>
                                         {x.taskhistorylist&&x.taskhistorylist.length>0&&x.taskhistorylist.map( (row, index) => (
@@ -133,7 +119,6 @@ module.exports = React.createClass({
                                          <table className={'ui celled  table'} style={{margin:'1em',width:'100%'}}>
                                             <thead>
                                                 <tr >
-                                                    <th>序号</th>
                                                     <th>任务名</th>
                                                     <th>进度</th>
                                                     <th>耗时</th>
@@ -151,18 +136,17 @@ module.exports = React.createClass({
                                 </Row>
                             </Grid>
                       </List> 
-                      <Divider style={{display:x.taskhistorylist&&x.taskhistorylist.length>0?'block':'none'}}/>
+                      <Divider style={{display:x.taskhistorylist&&x.taskhistorylist.length>0&&x.reports&&x.reports.length>0?'block':'none'}}/>
                       <List style={{display:x.reports&&x.reports.length>0?'block':'none'}}>
-                            <Grid className={'f-nonemargin f-fullwidth'}>
+                            <Grid fluid className={'f-nonemargin f-fullwidth'}>
                                 <Row>
                                     <Col xs={1} sm={1} md={2} lg={2}>
-                                    <p className={'f-textvertical f-tc'} ><span className={'reporttitle f-fs20'}>普通事项</span></p>
+                                    <p className={'f-textvertical f-tc'} ><span className={'reporttitle f-fs16'}>普通事项</span></p>
                                     </Col>
                                     <Col xs={9} sm={9} md={9} lg={9}>
                                         <table className={'ui celled  table'} style={{margin:'1em'}}>
                                         <thead>
                                             <tr >
-                                                <th>序号</th>
                                                 <th>内容</th>
                                                 <th>耗时</th>
                                                 <th>ticket</th>
@@ -215,11 +199,11 @@ module.exports = React.createClass({
         ;
         return (
             <div className={style} ref="reportcontainer">
-                <Paper zDepth={1} style={{backgroundColor:'#fff',height:'56px'}}>
+                <Paper zDepth={1} style={PaperStyle}>
                     <Grid fluid style={{height:'100%'}}>
                         <Row style={{height:'100%'}}>
                             <Col xs={1} sm={1} md={2} lg={2} style={{height:'100%'}}>
-                                <p style={{fontSize:'18px',display: 'flex','align-items': 'center','margin-right': '9px',color:'#666',height:'100%'}}>我的日报</p>
+                                <p style={{fontSize:'18px',display: 'flex','alignItems': 'center','marginRight': '9px',height:'100%'}}>我的日报</p>
                             </Col>
                         </Row>
                     </Grid>
@@ -227,7 +211,7 @@ module.exports = React.createClass({
                 <Stepper orientation="vertical" linear={false} children={[]}>
                   <ListView ref="listView" loadList={Report.get} getter={Report.operation.get} formatter={Report.formatter} itemRender={itemRender}/>
                 </Stepper>
-                 <FloatingActionButton tooltip={'添加日报'} secondary={true} style={conststyle.floatingButton}  onClick={this._create} >
+                 <FloatingActionButton tooltip={'添加日报'} backgroundColor={'#ff7781'} style={conststyle.floatingButton}  onClick={this._create} >
                   <AddIcon />
                 </FloatingActionButton>
                 <Popover
@@ -275,5 +259,6 @@ module.exports = React.createClass({
     },
     _onEdit(rp) {
         browserHistory.push({pathname: '/m/report/my/edit/' + rp.id, state: Object.assign({}, rp)});
+        Report.reset();
     }
 });

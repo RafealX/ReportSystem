@@ -26,31 +26,6 @@ OpenId.set.options({
     'fail_url':'/login'
 });
 
-/**
- * 用户登录
- */
-router.post('/login', function* () {
-    let params = this.request.params;
-    let user = yield thunkify(auth.authenticate)(params.username, params.password);
-    if (!user) {
-        throw new BusinessError(414, '该帐号未注册');
-    }
-    if (user && user.id) {
-        user = user.toObject();
-        if (user.groupId) {
-            let group = yield Group.findById(user.groupId);
-            user.groupAdmin = _.findIndex(group.members, {userId: user.id, admin: true}) > -1;
-        }
-        auth.login(this, user);
-        this.body = {
-            code: 200,
-            user: user
-        };
-    } else {
-        throw new BusinessError(407, '用户名或密码错误');
-    }
-});
-
 router.post('/login/openid', function* (next) {
     logger.info(this.request.body.last);
     OpenId.connect(this);
@@ -75,26 +50,12 @@ router.all('/login/openid/cb', function* (next) {
             groupid: 1,
             nickname:UserInfo.nickname,
             email:UserInfo.email,
-            role: 1,
             id:util.uuid()
         });
         insertResult.save();
         console.log(insertResult.toObject());
         OpenId.goBack(this,insertResult.toObject());
     }
-       /* .sort({updateTime: -1})
-        .skip(parseInt(params.offset) || 0)
-        .limit(parseInt(params.limit) || 15)
-        .forEach(t => {
-            let tasklist = [];
-            t.tasks.forEach(m => {
-                let task = Task.find({taskid: m});
-                tasklist.push(task);
-            })
-            t.push(tasklist);
-        });
-
-    OpenId.goBack(this,result);*/
 
 });
 /**
@@ -103,6 +64,40 @@ router.all('/login/openid/cb', function* (next) {
 router.get('/logout', function* () {
     OpenId.logout(this);
     this.body = {code: 200};
+});
+
+router.post('/add',function* () {
+    let rData = this.request.params;
+    if(!rData){
+        throw new BusinessError(ErrCode.ABSENCE_PARAM);
+    }
+    let UserInfo = {
+        fullname:rData.name,
+        nickname:rData.nickname,
+        email:rData.email,
+        id:util.uuid()
+    };
+    let user = yield User.findOne({nickname:UserInfo.nickname});
+    if(!user){
+        let insertResult = new User({
+            name: UserInfo.fullname,
+            groupid: 1,
+            nickname:UserInfo.nickname,
+            email:UserInfo.email,
+            id:UserInfo.id
+        });
+        let userInfo = yield insertResult.save();
+        this.body = {
+            code:200,
+            msg:UserInfo.id
+        }
+    }else{
+        this.body = {
+            code:400,
+            msg:user.toObject().id
+        }
+    }
+
 });
 /**
  * 找回密码
@@ -167,47 +162,45 @@ router.get('/search', auth.mustLogin(), function* () {
         list: list
     };
 });
-/**
- * 更新个人信息
- */
-router.post('/upinfo', auth.mustLogin(), function*() {
-    let params = this.request.params;
-    let loginUser = this.state.loginUser;
-    if (params.nickname) {
-        loginUser.nickname = params.nickname;
-    }
-    if (params.workMail) {
-        loginUser.workMail = params.workMail;
-    }
-    if (params.avatar) {
-        loginUser.avatar = params.avatar;
-    }
-    yield loginUser.save();
-    this.body = {
-        code: 200
-    };
-});
 
-/**
- * 更新个人信息
- */
-router.post('/uppass', auth.mustLogin(), function*() {
-    let params = this.request.params;
-    if (!params.oldPass || !params.newPass) {
-        throw new BusinessError(ErrCode.INVALID_PARAM);
-    }
-    let user = yield thunkify(auth.authenticate)(this.state.loginUser.username, params.oldPass);
-    if (!user) {
-        throw new BusinessError(414, '该帐号未注册');
-    }
-    if (!user.id) {
-        throw new BusinessError(409, '原密码不正确');
-    }
-    yield thunkify(user.setPassword).call(user, params.newPass);
-    yield user.save();
-    this.body = {
-        code: 200
-    };
+router.get('/mock',function* () {
+   let users = [
+       {
+           name: '项方念',
+           nickname:'hzxiangfangnian',
+           email:'hzxiangfangnian@crop.netease.com',
+       },
+       {
+           name: '曹偲',
+           nickname:'caocai',
+           email:'caocai@crop.netease.com',
+       },
+       {
+           name: '詹民拥',
+           nickname:'hzzhanminyong',
+           email:'hzzhanminyong@crop.netease.com',
+       },{
+           name: '郑海波',
+           nickname:'hzzhenghaibo',
+           email:'hzzhenghaibo@crop.netease.com',
+       },{
+           name: '徐超颖',
+           nickname:'hzxuchaoying',
+           email:'hzxuchaoying@crop.netease.com',
+       },{
+           name: '凌浩',
+           nickname:'hzlinghao',
+           email:'hzlinghao@crop.netease.com',
+       }
+   ];
+   users.forEach(itm=>{
+       let insertResult = new User({
+           name: itm.name,
+           nickname:itm.nickname,
+           email:itm.email
+       });
+       let userInfo = insertResult.save();
+   });
 });
 
 module.exports = router;

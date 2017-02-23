@@ -13,12 +13,13 @@
 
 'use strict';
 let helper = require('./helper');
+let util = require('../lib/util');
 let schema = helper.schema({
-	_id: String,
+	id: {type:String,default:util.uuid},
     name: String,
-    members: String,
-    owner: String
+    members: String,//以id，名字保存。分号间隔
+    adminid: String
 }, {ignores: 'members'});
 
-schema.set('collection', 'groups');
+schema.set('collection', 'Group');
 module.exports = helper.model('Group', schema);

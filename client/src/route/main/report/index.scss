@@ -5,6 +5,12 @@
         .borderleft{
             border-left:1px solid #efefef;
         }
+        .username{
+            padding: 4px 8px;
+            background: #b3b3b3;
+            border-radius: 5px;
+            color: #fff;
+        }
         .team {
             margin: 0 16px;
         }
@@ -40,23 +46,41 @@
                 display:none
             }
             circle{
-                fill:#49b7ea;
+                fill:#d3d3d3;
             }
         }
         div[icon]{
-            border-left: 1px dashed rgb(189, 189, 189) !important;
+            border-left: 1px dotted #d4d4d4 !important;
         }
     }
 
     .tasktitle{
         padding: 7px 10px;
-        background: #ef6868;
+        background: #f78888;
         border-radius: 5px;
         color: #fff;
     }
     .reporttitle{
         padding: 7px 10px;
-        background: #479fd4;
+        background: #6eadd2;
+        border-radius: 5px;
+        color: #fff;
+    }
+    .noprogress{
+         padding: 4px 8px;
+        background: #bab874;
+        border-radius: 5px;
+        color: #fff;
+    }
+    .isdelay{
+        padding: 4px 8px;
+        background: #c17171;
+        border-radius: 5px;
+        color: #fff;
+    }
+    .isndelay{
+        padding: 4px 8px;
+        background: #3ebda6;
         border-radius: 5px;
         color: #fff;
     }

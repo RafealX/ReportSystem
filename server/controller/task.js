@@ -9,6 +9,7 @@ const Group = require('../model/group');
 const Report = require('../model/report');
 const Task = require('../model/task');
 const TaskHistory = require('../model/taskhistory');
+const TaskDelayHistory = require('../model/delayhistory');
 const logger = require('../lib/logger');
 const auth = require('../lib/auth');
 const util = require('../lib/util');
@@ -53,30 +54,18 @@ let MockTask = function () {
 		'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
         'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
         'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
-        'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
-        'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
-		'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek150icfb9jd',
-        'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek150icfb9jd',
 		'hf3fdsffd231dh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
 		'hf3fdsffd231dh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
-        'hf3fdsffd231dh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
-        'hf3fdsffd231dh9n4321pdglh6nndlcjfh1dek6521afb9ja',
-        'hf3fdsffd231dh9n4321pdglh6nndlcjfh1dek6521afb9ja'
+        'hf3fdsffd231dh9n4n4jpdglh6nndlcjfh1dek6521afb9ja'
 	];
 
     let usersnames = [
     	'项方念',
         '项方念',
         '项方念',
-        '项方念',
-        '项方念',
-    	'凌浩',
-		'凌浩',
         '曹偲',
         '曹偲',
         '曹偲',
-        '詹民拥',
-        '詹民拥'
     ];
 
 	let reasons=[
@@ -124,7 +113,7 @@ let MockTask = function () {
 		let task = new Task({
 			id:id,
 			userid:userid,
-			status:2,
+			status:3,
             name: taskname,
 			description:"这是描述-_-"+i,
 			groupid:1,
@@ -205,8 +194,246 @@ let MockTaskHistoty = function (taskid,currentDay,progress,taskname) {
 	return taskhistory;
 };
 
+let GetEarlyDate = function (earlytime) {
+	let date = new Date();
+    date = new Date(date.toLocaleDateString());
+    return date.setDate(date.getDate()-earlytime),date.getTime();
+}
+let GetLateDate = function (latetime) {
+    let date = new Date();
+    date = new Date(date.toLocaleDateString());
+    return date.setDate(date.getDate()+latetime),date.getTime();
+}
+
+let Mock = function (options) {
+	//1.Mock Task
+	//2.Mock History
+	//3.Mock Delay
+	//4.Mock Report
+
+	//1.Mock Task
+	let timetoTask = {};
+	for(let i=1;i<3;i++){
+        let date = new Date();
+        date = new Date(date.toLocaleDateString());
+        var isDelay = false;//Math.floor(Math.random()*10)%2==0?false:true;
+        var reason = '';
+        if(isDelay){
+            reason = reasons[Math.floor(Math.random()*10)%2];
+        }
+        var id = util.uuid();
+        var taskoptions = {
+            id:util.uuid(),
+            name: options.task.taskname+i,
+			userid:options.userid,
+			username:options.username,
+            status:options.task.status,
+			starttime:options.task.starttime,
+			endtime:options.task.endtime,
+			delaycount:options.task.delaycount,
+			progress:options.task.progress,
+			groupid:options.groupid,
+            totaltime:options.task.totaltime,
+            description:options.task.description+i
+		};
+        let task = new Task(taskoptions);
+        task.save();
+        //Mock History,and report
+		let historys = [];
+		var starttime = taskoptions.starttime;
+		var endtime = taskoptions.endtime;
+		var progress = taskoptions.progress;
+		var delaycount = 1;
+		for(let j=0;endtime>starttime && progress>0;){
+			var hasProgress = Math.floor(Math.random()*10)%2==1?true:false;
+
+			var taskhistoryops = {
+                id: util.uuid(),
+                taskid: taskoptions.id,
+                taskname:taskoptions.name,
+                elapse: hasProgress?4:0,    //耗时
+                time:endtime,//创建时间，是跟随report创建时间
+                progress: progress,
+                startprogress:hasProgress?progress-5:progress,
+                userid:options.userid,
+                username:options.username,
+                groupid:options.groupid,
+                content:hasProgress?'完成了xxxxxxx':''
+			};
+			if(!timetoTask[taskhistoryops.time+'']){
+                timetoTask[taskhistoryops.time+''] = [];
+			}
+			timetoTask[taskhistoryops.time+''].push(taskhistoryops.id);
+            let taskhistory = new TaskHistory(taskhistoryops);
+            taskhistory.save();
+            if(!hasProgress&&delaycount<7){
+            	let date = new Date(options.task.endtime);
+            	date.setDate(date.getDate()-delaycount);
+                var delayhistoryops = {
+                    taskid:taskoptions.id,
+                    userid:options.userid,
+                    username:options.username,
+                    groupid:options.groupid,
+                    id:util.uuid(),
+                    sourcetime: taskoptions.starttime,//原截止日期
+                    targettime: date.getTime(),//延期或提前
+                    taskhistoryid:taskhistoryops.id,//如果在写日报的时候发生修改，就需要在此带上
+                    reason: ''
+                };
+                let delay = new TaskDelayHistory(delayhistoryops);
+                delay.save();
+                delaycount++;
+			}
+            j++;
+            let date = new Date(endtime);
+            date.setDate(date.getDate()-1);
+            endtime = date.getTime();
+            if(hasProgress)
+            	progress-=5;
+		}
+
+
+	}
+    //Mock Report
+    var starttime = options.task.starttime;
+    var endtime = options.task.endtime;
+    for(;starttime<util.today();){
+        var ids = timetoTask[starttime+''];
+        if(ids && ids.length>0){
+            var iditms = '';
+            ids.forEach(itm=>{
+                iditms+=itm+',';
+            })
+            iditms = iditms.substring(0,iditms.length-1);
+            var reportop = {
+                status: 2,
+                id: util.uuid(),
+                time: starttime,
+                userid:options.userid,
+                username:options.username,
+                groupid:options.groupid,
+                others: '今天完成了啥啥啥内容,3,#98652;研究了react,5,;做完了日志系统,6,#98541',
+                tasks:iditms
+            };
+            let report = new Report(reportop);
+            report.save();
+        }
+        let date = new Date(starttime);
+        date.setDate(date.getDate()+1);
+        starttime = date.getTime();
+    }
+}
+
+let MakeOptions = function* () {
+    var arrs = [];
+    var option = {
+        task:{
+            delaycount:2,
+            taskname:'0_0这可能是个假任务',
+            totaltime:20,
+            description:'这是描述-_-',
+            progress:80,
+            status:2,
+            starttime:GetEarlyDate(6),
+            endtime:GetLateDate(6),
+        },
+        taskhistory:{
+            taskid:'',
+            taskname:'',
+            elapse: 0,    //耗时
+            time: 0,
+            content:''//本日无进度时会进行填写
+        }
+    };
+    let users = yield User.find({});
+    if(users.length>0){
+        for(var i=1;i<users.length;i++){
+            let user = users[i].toObject();
+            if(user){
+                let ops = _.clone(option,true);
+                ops.userid = user.id;
+                ops.username = user.name;
+                ops.groupid = user.groupid;
+                arrs.push(ops);
+            }
+        }
+    }
+	var options = [{
+		task:{
+            delaycount:2,
+            taskname:'0_0这可能是个假任务',
+            totaltime:20,
+            description:'这是描述-_-',
+            progress:80,
+            status:2,
+            starttime:GetEarlyDate(6),
+			endtime:GetLateDate(6),
+		},
+		taskhistory:{
+			taskid:'',
+            taskname:'',
+            elapse: 0,    //耗时
+            time: 0,
+            content:''//本日无进度时会进行填写
+		},
+		userid:'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
+		username:'项方念',
+		groupid:1,
+	},{
+        task:{
+            delaycount:2,
+            taskname:'0_0这可能是个假任务',
+            totaltime:20,
+            description:'这是描述-_-',
+            progress:80,
+            status:2,
+            starttime:GetEarlyDate(6),
+            endtime:GetLateDate(6),
+        },
+        taskhistory:{
+            taskid:'',
+            taskname:'',
+            elapse: 0,    //耗时
+            time: 0,
+            content:''//本日无进度时会进行填写
+        },
+        userid:'hf3fdsffd231dh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
+        username:'曹偲',
+        groupid:1,
+    },{
+        task:{
+            delaycount:2,
+            taskname:'0_0这可能是个假任务',
+            totaltime:20,
+            description:'这是描述-_-',
+            progress:80,
+            status:2,
+            starttime:GetEarlyDate(6),
+            endtime:GetLateDate(6),
+        },
+        taskhistory:{
+            taskid:'',
+            taskname:'',
+            elapse: 0,    //耗时
+            time: 0,
+            content:''//本日无进度时会进行填写
+        },
+        userid:'hf3f8o4dsdfdfa4jpdglh6nndlcjfh1dek150icfb9jd',
+        username:'郑海波',
+        groupid:1,
+    }];
+	return arrs;
+}
 router.get('/mock',function* () {
-    MockTask();
+    yield Report.remove({});
+    yield Task.remove({});
+    yield TaskHistory.remove({});
+    yield TaskDelayHistory.remove({});
+    var options = yield MakeOptions();
+    options.forEach(itm=>{
+        Mock(itm);
+    })
+
     this.body = {
         code:200
     };
