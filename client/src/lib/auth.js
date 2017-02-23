@@ -2,7 +2,7 @@
  * 登陆相关接口
  */
 import cookie from 'react-cookie';
-
+window.default_route = '/m/report/my/edit';
 export let User = {
     resolve:function(){
         let report_info = cookie.load("report_uinfo") || '';
@@ -38,7 +38,7 @@ export let User = {
                     });
                 }else{
                     replace({
-                        pathname:'/m/report/my/list'
+                        pathname:window.default_route
                     })
                 }
             }

@@ -27,12 +27,12 @@ browserHistory.listen((location, action)=>{
         if(!User.check()){
             browserHistory.replace('/login');
         }else{
-            browserHistory.replace('/m/report/my/list');
+            browserHistory.replace(window.default_route);
         }
     }else if(location.pathname=='/login'){
         if(User.check()){
             //console.log('stop');
-            browserHistory.replace('/m/report/my/list');
+            browserHistory.replace(window.default_route);
         }
     }else{
         if(!User.check()){
@@ -40,7 +40,7 @@ browserHistory.listen((location, action)=>{
             console.log(window.location.pathname);
             browserHistory.replace({
                 pathname:'/login',
-                state: { nextState: window.location.pathname?window.location.pathname:'/m/report/my/list' }
+                state: { nextState: window.location.pathname?window.location.pathname:window.default_route }
             })
         }
     }

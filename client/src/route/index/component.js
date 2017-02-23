@@ -12,7 +12,7 @@ const btnStyle = {marginRight: '20px'};
 module.exports = React.createClass({
     getInitialState() {
         let next = this.props.location.state;
-        let defaultState = {continue:next&&next.nextState?next.nextState:'/m/report/my/list'};
+        let defaultState = {continue:next&&next.nextState?next.nextState:window.default_route};
         console.log(defaultState);
         return defaultState;
     },

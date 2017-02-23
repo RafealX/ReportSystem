@@ -37,7 +37,12 @@ export default React.createClass({
                 }
                 if(result && result.length==0){
                     initialLoad.isInitial = false;
-                    this.setState({status:'empty',loaded:true});
+                    if(this.state.count==0){
+                        this.setState({status:'empty',loaded:true});    
+                    }else{
+                        this.setState({status:'done',loaded:true});    
+                    }
+                    
                 }else{
                     this.setState({status:'loaded'});
                 }

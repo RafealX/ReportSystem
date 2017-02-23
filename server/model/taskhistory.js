@@ -14,6 +14,7 @@ let schema = helper.schema({
     startprogress:Number,
     userid:String,
     username:String,
+    status:{type:Number,default:1},//同report的记录值，1为未发送，2为发送，3为删除
     groupid:String,
     content:String//本日无进度时会进行填写
 }, {

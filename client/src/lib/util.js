@@ -35,7 +35,7 @@ export function fetch(url, option) {
                 //走登录流程
                 browserHistory.replace({
                     pathname:'/login',
-                    state: { nextState: window.location.pathname?window.location.pathname:'/m/report/my/list' }
+                    state: { nextState: window.location.pathname?window.location.pathname:window.default_route}
                 })
             } else{
                 throw data;
@@ -92,3 +92,10 @@ export function today(){
     date = new Date(date.toLocaleDateString());
     return date.getTime();
 } 
+export function getTime(date){
+    if(!date)
+        return today();
+    let date_n = new Date(date);
+    date_n = new Date(date_n.toLocaleDateString());
+    return date_n.getTime();  
+}

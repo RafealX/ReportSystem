@@ -192,7 +192,7 @@ module.exports = React.createClass({
     saveCb(result) {
         this.setState({saving:false});
     },
-    componentWillUnMount() {
+    componentWillUnmount() {
          isfirstLoad = true;
         console.log('team report unloaded');
     }

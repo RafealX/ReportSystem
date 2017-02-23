@@ -8,10 +8,25 @@ const Task = require('../model/task');
 const TaskHistory = require('../model/taskhistory');
 const TaskDelayHistory = require('../model/delayhistory');
 
-let modelController = {};
-modelController.task = {
-    add:function* (options) {
-
+let GroupControl = {
+    checkUser:function* (user,groupid,next) {
+        let group = Group.find({id:groupid});
+        if(!group){
+            return '';
+        }
     }
-}
-model.export = modelController;
+
+};
+
+let UserControl = {
+
+};
+
+
+
+
+
+
+
+
+model.export.Group = GroupControl;

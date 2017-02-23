@@ -275,6 +275,7 @@ let Mock = function (options) {
                     username:options.username,
                     groupid:options.groupid,
                     id:util.uuid(),
+                    time:endtime,
                     sourcetime: taskoptions.starttime,//原截止日期
                     targettime: date.getTime(),//延期或提前
                     taskhistoryid:taskhistoryops.id,//如果在写日报的时候发生修改，就需要在此带上
@@ -430,9 +431,9 @@ router.get('/mock',function* () {
     yield TaskHistory.remove({});
     yield TaskDelayHistory.remove({});
     var options = yield MakeOptions();
-    options.forEach(itm=>{
+    /*options.forEach(itm=>{
         Mock(itm);
-    })
+    })*/
 
     this.body = {
         code:200

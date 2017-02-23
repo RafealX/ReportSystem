@@ -4,7 +4,7 @@
 
 import _ from 'lodash';
 import Backend from 'lib/backend';
-import {uuid,today} from 'lib/util';
+import {uuid,today,getTime} from 'lib/util';
 import pubsub from 'vanilla-pubsub';
 import Mock from 'cpn/Mock';
 /**
@@ -12,11 +12,6 @@ import Mock from 'cpn/Mock';
  * @type {[type]}
  */
 let UnFinishedTask = null;
-let MockUnfinish = function(){
-	return _.filter(Mock.progress.my.list,(tab)=>{
-		return tab.progress<100 && tab.progress>0 && tab.status==2;
-	});
-}
 let formatter = arr =>{
 	let result = [];
 	_.each(arr,(itm,idx)=>{
@@ -34,8 +29,10 @@ export let UnFinish = {
 	get:function(){
 		return UnFinishedTask;
 	},
+	funcs:[],
 	listen:function(callback){
-		pubsub.subscribe('Task.Unfinished.load',callback);
+		UnFinish.funcs.push(callback);
+		pubsub.subscribe('Report.Unfinished.load',callback);
 	},
 	init:function(){
 		Backend.task.get.unfinished(user.id).then(d=>{
@@ -43,7 +40,7 @@ export let UnFinish = {
 			UnFinishedTask = d.data;
 			Report.inject.task(UnFinishedTask);
 			console.log(UnFinishedTask);
-			pubsub.publish('Task.Unfinished.load',);
+			pubsub.publish('Report.Unfinished.load',);
 		}).catch(e=>{
 
 			//UnFinishedTask = formatter(MockUnfinish());
@@ -54,8 +51,15 @@ export let UnFinish = {
 		UnFinishedTask = [];
 		UnFinishedTask.length = 0;
 		UnFinishedTask = null;
+		_.each(UnFinish.funcs,itm=>{
+			pubsub.unsubscribe('Report.Unfinished.load',itm);
+		});
+		UnFinish.funcs =[];
+		UnFinish.funcs.length = 0;
 	}
 }
+
+
 
 /**
  * 日报实体相关数据
@@ -102,7 +106,7 @@ export let Report={
 		let result = TaskObj;
 		//格式化数据
 		let data = {
-			time:(result.time&&result.time.getTime()) || new Date().getTime(),
+			time:(result.time&&getTime(result.time)) || today(),
 		}
 		let report = '';
 		_.each(result.report,itm=>{
@@ -160,6 +164,7 @@ export let Report={
 		TaskObj.task = [];
 		TaskObj.task.length = 0;
 		TaskObj.time = null;
+		editReportId = '';
 	},
 	fake:{
 		report:function(){
@@ -215,7 +220,7 @@ export let Report={
 								pushitm.description = '';//Todo 获取不在Unfinished中的任务
 								pushitm.content = tempTask.content;
 								pushitm.time = tempTask.time;
-								pushitm.tasktime = tempTask.tasktime;
+								//pushitm.tasktime = tempTask.tasktime;
 								pushitm.elapse = tempTask.elapse;
 								pushitm.progress = tempTask.progress;
 								pushitm.status = 2;
@@ -282,5 +287,31 @@ export let Report={
 			// 	TaskObj.report.unshift(Report.fake.report());
 			// }
 		}
+	},
+	validate:function(){
+		var result = true;
+		if(_.isArray(TaskObj.task) && TaskObj.task.length>0)
+			_.each(TaskObj.task,itm=>{
+				if((itm.content!='' &&(itm.elapse==''||itm.elapse==0)) ||(itm.content==''&&itm.elapse!='')){
+					result = false;
+
+					return result;
+				}
+			});
+		if(result){
+			if(_.isArray(TaskObj.report) && TaskObj.report.length>0)
+				_.each(TaskObj.report,itm=>{
+				if(itm.content=='' && (itm.elapse==''||itm.elapse==0)){
+
+				}else{
+					if((itm.content!='' &&itm.elapse==''||itm.elapse==0) ||(itm.content==''&&itm.elapse!='')){
+						result = false;
+						return result;
+					}	
+				}
+				
+			});
+		}
+		return result;
 	}
 }

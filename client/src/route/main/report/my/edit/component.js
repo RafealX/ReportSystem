@@ -68,11 +68,15 @@ const PaperStyle = {
     borderRadius:0
 }
 let today = new Date();
-let theDayBeforeYester = new Date(today.setDate(today.getDate()-2));
+let temp = new Date();
+let theDayBeforeYester = new Date(temp.setDate(temp.getDate()-2));
 
 let firstLoad = true;
 module.exports = React.createClass({
     getInitialState() {
+        UnFinish.clear();
+        Report.clear();
+        firstLoad = true;
         console.log(Report.get().time);
         return {loading:true,isEdit:false,saving:false,report:Report.get().report,task:Report.get().task,fakereport:Report.fake.report(),faketask:Report.fake.task(),time:Report.get().time||today,unfinishtask:null,selectedtask:null}
     },
@@ -92,9 +96,6 @@ module.exports = React.createClass({
     BackUrl() {
         console.log(browserHistory);
         browserHistory.goBack();
-    },
-    handleTime() {
-
     },
     handle:{
         unfinish:function(){
@@ -250,16 +251,21 @@ module.exports = React.createClass({
             },
         },
         save() {
-            this.setState({saving:true});
-            Report.send().then(d=>{
-                popup.success('保存成功');
-                browserHistory.replace('/m/report/my/list');
-            })
-            .catch(e=>{
-                popup.success('保存失败');
-                browserHistory.replace('/m/report/my/list');
-            });
+            //console.log(Report.get());
+            if(Report.validate()){
+                this.setState({saving:true});
+                Report.send().then(d=>{
+                    popup.success('保存成功');
+                    browserHistory.replace('/m/report/my/list');
+                })
+                .catch(e=>{
+                    popup.success(e.message||e.msg);
+                    browserHistory.replace('/m/report/my/list');
+                });    
+            }
+            
         },
+
         time(n,newdata) {
             Report.set.time(newdata);
             this.setState({time:newdata});
@@ -341,13 +347,11 @@ module.exports = React.createClass({
                                                                     <Col xs={1} sm={1} md={2} lg={2}>
                                                                          <TextField key={itm.id}
                                                                           type="number"  style={{width:'100%'}}
-                                                                          name="currentprogress"
-                                                                          min={Math.floor(itm.progress/10)*10}
-                                                                          max={100}
+                                                                          name="currentprogress" 
+                                                                          min={0} max={100} step={1}
                                                                           floatingLabelText="进度" onFocus={e=>{itm.show=true;this.forceUpdate();e&&e.stopPropagation?e.stopPropagation():'';}} 
-                                                                          step={5} 
-                                                                          defaultValue={itm.progress}
-                                                                          onChange={(e,n)=>{itm.progress = n;}}
+                                                                          defaultValue={itm.progress} value={itm.progress}
+                                                                          onChange={(e,n)=>{itm.progress = n;if(n*1<0) itm.progress=n;else if(n*1>100) itm.progress=100;else itm.progress =n;this.forceUpdate();}}
                                                                         />
                                                                     </Col>
                                                                     <Col xs={1} sm={1} md={2} lg={2}>
@@ -388,21 +392,31 @@ module.exports = React.createClass({
                                                                         <TextField fullWidth={true} key={itm.id}
                                                                             type="textarea" ref={itm.id+'content'}
                                                                             name="content" onBlur={(e,n)=>{console.log('blur', e.target.value)}}
-                                                                            hintText="今日进展"
+                                                                            hintText="今日进展" errorText={(itm.elapse!=''&&itm.elapse*1>0&&itm.content=='')?'请填写内容':''}
                                                                             floatingLabelText="今日进展"
                                                                             defaultValue={itm.content} 
-                                                                            onChange={(e,n)=>{itm.content=n;}}
+                                                                            onChange={(e,n)=>{itm.content=n;this.forceUpdate();}}
                                                                         />
                                                                     </Col>
                                                                     <Col xs={3} sm={3} md={2} lg={2}>
                                                                         <TextField key={itm.id}
                                                                             type="number" style={{width:'100%'}}
-                                                                            name="elapse"
-                                                                            hintText="耗时"
+                                                                            name="elapse" tooltip={'hellop'}
+                                                                            hintText="耗时" errorText={(itm.content!=''&&(itm.elapse*1==0||itm.elapse==''))?'请填写耗时':''}
                                                                             floatingLabelText="耗时"
-                                                                            min={0} 
-                                                                            defaultValue={itm.elapse}
-                                                                            onChange={(e,n)=>{itm.elapse=n}}
+                                                                            min={0} max={24} step={1}
+                                                                            defaultValue={itm.elapse} value={itm.elapse}
+                                                                            onChange={(e,n)=>
+                                                                                {
+                                                                                    console.log(n);
+                                                                                    if(n*1<0){
+                                                                                        itm.elapse=0;
+                                                                                    }else if(n*1>24){
+                                                                                        itm.elapse=24;
+                                                                                    }else
+                                                                                        itm.elapse = n;
+                                                                                    this.forceUpdate();
+                                                                               }}
                                                                         />
                                                                     </Col>
 
@@ -446,17 +460,24 @@ module.exports = React.createClass({
                                                                   floatingLabelText="填写内容" ref={itm.id}
                                                                   type='textarea' multiLine={true} underlineStyle={textstyle.underlineStyle} floatingLabelStyle={textstyle.floatingLabelStyle} floatingLabelFocusStyle={textstyle.floatingLabelFocusStyle}
                                                                   defaultValue={itm.content} 
-                                                                  rows={1} 
+                                                                  rows={1} errorText={(itm.elapse!=''&&itm.elapse*1>0&&itm.content=='')?'请填写内容':''}
                                                                   rowsMax={2} fullWidth={true}
-                                                                  onChange={(e,news)=>{itm.content = news}}
+                                                                  onChange={(e,news)=>{itm.content = news;this.forceUpdate();}}
                                                                 />
                                                             </Col>
                                                             <Col xs={1} sm={1} md={2} lg={2}>
                                                                 <TextField  style={{width:'100%'}} key={itm.id}    underlineStyle={textstyle.underlineStyle} floatingLabelStyle={textstyle.floatingLabelStyle} floatingLabelFocusStyle={textstyle.floatingLabelFocusStyle}                            
                                                                   floatingLabelText="填写耗时"  min={1}
-                                                                  type='number' 
+                                                                  type='number' errorText={(itm.content!=''&&(itm.elapse*1==0||itm.elapse==''))?'请填写耗时':''}
                                                                   defaultValue={itm.elapse}
-                                                                  onChange={(e,news)=>{itm.elapse = news}}
+                                                                  onChange={(e,n)=>{
+                                                                                    if(n*1<0){
+                                                                                        itm.elapse=0;
+                                                                                    }else if(n*1>24){
+                                                                                        itm.elapse=24;
+                                                                                    }else
+                                                                                        itm.elapse = n;
+                                                                                    this.forceUpdate();}}
                                                                 />
                                                             </Col>
                                                                
