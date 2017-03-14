@@ -16,6 +16,7 @@ const apiMiddleware = require('./middleware/api');
 const render = require('koa-ejs');
 const path = require('path');
 const session = require('koa-session');
+const koastatic = require('koa-static');
 
 
 if(process.env.NODE_ENV=='local'){
@@ -32,11 +33,13 @@ var CONFIG = {
     httpOnly: true, /** (boolean) httpOnly or not (default true) */
     signed: true, /** (boolean) signed or not (default true) */
 };
+//app.use(koastatic(__dirname+'/public'));
 app.use(session(CONFIG,app));
 app.use(bodyParser());
 app.use(paramsMiddleware());
 app.use(auth.resolveUser());
 app.use(apiMiddleware.errorToJson());
+
 render(app, {
     root: path.join(__dirname, 'view'),
     viewExt: 'html',

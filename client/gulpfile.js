@@ -55,7 +55,8 @@ gulp.task('serve', function (callback) {
 // 生产环境构建
 gulp.task('release', function (callback) {
     var config = Object.create(webpackConfig);
-    config.output.publicPath = 'http://'+getIPAdress()+':8005/';
+    console.log('target'+getIPAdress());
+    config.output.publicPath = '//'+getIPAdress()+':8005/';
     config.devtool = false;
     config.plugins = config.plugins.concat(
         new webpack.DefinePlugin({

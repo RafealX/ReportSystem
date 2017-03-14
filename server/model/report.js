@@ -50,6 +50,7 @@ let schema = helper.schema({
     tasks: String,
     userid: String,
     groupid: String,
+    issend:{type:Boolean,default:false}
 }, {
     collection:'Report'
 });

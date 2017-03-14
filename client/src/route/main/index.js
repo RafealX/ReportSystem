@@ -78,9 +78,9 @@ module.exports = {
     path: 'm',
     component: Cpn,
     childRoutes: [
-        require('./group'),
         require('./report'),
-        require('./team'),
         require('./task'),
+        require('./feedback')
     ]
 };
+window.user && window.user.role && window.user.role==2?module.exports.childRoutes.push(require('./group')):'';

@@ -1,0 +1,9 @@
+:local(.index) {
+    padding: 10px;
+    height: calc(100% - 76px);
+    outline: 0;
+    iframe {
+        height: 100%;
+        width: 100%;
+    }
+}

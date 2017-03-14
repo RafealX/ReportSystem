@@ -379,7 +379,7 @@ let MakeOptions = function* () {
 		},
 		userid:'hf3f8o4o1hppmdh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
 		username:'项方念',
-		groupid:1,
+		groupid:'1',
 	},{
         task:{
             delaycount:2,
@@ -400,7 +400,7 @@ let MakeOptions = function* () {
         },
         userid:'hf3fdsffd231dh9n4n4jpdglh6nndlcjfh1dek6521afb9ja',
         username:'曹偲',
-        groupid:1,
+        groupid:'1',
     },{
         task:{
             delaycount:2,
@@ -425,23 +425,45 @@ let MakeOptions = function* () {
     }];
 	return arrs;
 }
-router.get('/mock',function* () {
+/*router.get('/mock',function* () {
     yield Report.remove({});
     yield Task.remove({});
     yield TaskHistory.remove({});
     yield TaskDelayHistory.remove({});
     var options = yield MakeOptions();
-    /*options.forEach(itm=>{
+   /!* options.forEach(itm=>{
         Mock(itm);
-    })*/
+    })*!/
 
     this.body = {
         code:200
     };
     return ;
-})
+})*/
 
+/**
+ * 通过id获取特定task
+ */
+router.post('/get',auth.mustLogin(), function* () {
+    let rData = this.request.params;
 
+    if(!rData && !rData.taskid){
+        throw new BusinessError(ErrCode.ABSENCE_PARAM);
+    };
+    let taskid = rData.taskid;
+    let task = yield Task.findOne({id:taskid});
+    if(!task){
+        this.body = {
+            code:400,
+            msg:'不存在此任务'
+        };
+    }
+    let task_ = task.toObject();
+    this.body = {
+        code:200,
+        task: task_
+    };
+});
  /**
  * 添加任务
   * para   name
@@ -458,12 +480,14 @@ router.post('/add',auth.mustLogin(), function* () {
 	mtask.status = 2;
 	mtask.userid = this.state.loginUser.id;
 	mtask.groupid = this.state.loginUser.groupid;
-	mtask.time = rData.time;
+	mtask.username = this.state.loginUser.nickname;
     mtask.isdelay = false;
     mtask.delayreason = '';
     mtask.name = rData.name;
     mtask.ticket = rData.ticket;
     mtask.totaltime = 0;
+    mtask.starttime = util.today();
+    mtask.endtime = rData.time;
 	mtask.description = rData.description;
 	mtask.progress = 0;
     let task = new Task(mtask);

@@ -1,5 +1,8 @@
 :local(.style) {
     padding: 0 16px;
+    div[tabindex]{
+        outline:none !important;
+      }
     .box {
         max-width: 500px;
         margin: 0 auto 20px;

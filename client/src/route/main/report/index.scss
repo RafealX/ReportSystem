@@ -10,6 +10,7 @@
             background: #b3b3b3;
             border-radius: 5px;
             color: #fff;
+            margin-bottom:5px;
         }
         .team {
             margin: 0 16px;
@@ -90,5 +91,27 @@
        display: block;
        height: 0;
        clear: both;
+    }
+
+    .infodialog{
+        width: 40%;
+        .datepicker{
+            input{
+                color:rgb(0, 0, 0) !important;
+            }
+            div>hr{
+                border-bottom: 1px solid rgba(0, 0, 0, 0.17) !important;
+            }
+        }
+        .title{
+            font-size:12px;
+            color:#ccc;
+        }
+        .content{
+            margin:0.5em;
+            padding-bottom:5px;
+            font-size:16px;
+            border-bottom:1px solid #ddd;
+        }
     }
 }

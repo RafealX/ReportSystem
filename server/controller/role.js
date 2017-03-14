@@ -54,4 +54,19 @@ router.post('/mock/set', function* () {
         code:200
     }
 });
+
+/**
+ * 获取所有小组
+ */
+router.get('/get', function* () {
+    let groups = yield Group.find();
+    let lists = [];
+    groups.forEach(m => {
+        lists.push(m.name);
+    });
+    this.body = {
+        code: 200,
+        list: lists
+    }
+});
 module.exports = router;

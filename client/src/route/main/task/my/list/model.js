@@ -89,12 +89,18 @@ let TaskObj = {
 		offset:-10
 	},
 	unfinish:{
-		data:[],
+		data:{
+			result:[],
+			count:0
+		},
 		limit:20,
 		offset:-20
 	},
 	delay:{
-		data:[],
+		data:{
+			result:[],
+			count:0
+		},
 		limit:20,
 		offset:-20
 	}
@@ -114,7 +120,7 @@ export let TaskModel={
 			TaskObj.list.limit = limit;
 			return Backend.task.get.list(params);
 		},
-		unfinish:function(){
+		unfinish:function(limit,offset){
 			TaskObj.unfinish.offset+=TaskObj.unfinish.limit;
 			let params = {
 				userid:window.user.id,
@@ -145,7 +151,7 @@ export let TaskModel={
 			return TaskObj.list;
 		},
 		unfinish:function(data){
-			
+			return TaskObj.list;
 		},
 		delay:function(data){
 			

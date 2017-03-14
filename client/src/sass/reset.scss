@@ -98,11 +98,30 @@ body {
 .f-tc{
     text-align:center;
 }
+.f-pr{
+  position:relative;
+}
+.f-pa{
+  position:absolute;
+}
+.f-pf{
+  position:fixed; 
+}
 .f-textvertical{
     display:flex;
     align-items:center;
     justify-content: center;
     height:100%;
+}
+.f-flextop{
+  display:flex;
+  align-items:center;
+  justify-content: center;
+}
+.f-flexalignleft{
+  display:flex;
+  align-items:center;
+  justify-content: flex-start;
 }
 .f-nonemargin{
     margin:0;
@@ -116,7 +135,12 @@ body {
 .f-fullwidth{
     width:100%;
 }
-
+.f-hide{
+  display:none !important;
+}
+#main-container{
+  position:relative;
+}
 
   table{
       border-collapse: collapse;

@@ -6,7 +6,7 @@ import {RaisedButton} from 'material-ui';
 import {browserHistory} from 'react-router';
 import {style} from './index.scss';
 
-const labelColor = '#00bcd4';
+const labelColor = '#ff7781';
 const btnStyle = {marginRight: '20px'};
 
 module.exports = React.createClass({

@@ -5,7 +5,7 @@ import React from 'react';
 import {CircularProgress,Divder,Card,RaisedButton,Paper} from 'material-ui';
 import Empty from 'cpn/Empty';
 import _ from 'lodash';
-
+import pubsub from 'vanilla-pubsub';
 import scss from './index.scss';
 let initialLoad = {
     data:4,
@@ -39,10 +39,13 @@ export default React.createClass({
                 if(result && result.length==0){
                     initialLoad.isInitial = false;
                     if(this.state.count==0){
-                        this.setState({status:'empty',loaded:true});    
+                        this.setState({status:'empty',loaded:true});
+                        pubsub.publish('Group.Report.loaded');   
                     }else{
                         this.setState({status:'done',loaded:true});    
+                        pubsub.publish('Group.Report.loaded');
                     }
+
                     
                 }else{
                     this.setState({status:'loaded'});
@@ -66,7 +69,8 @@ export default React.createClass({
             if(v&&v.length>0){
                 result.push(this.props.itemRender(v,k));
             }
-        })
+        });
+      
         return result;
     },
     render() {
@@ -74,6 +78,7 @@ export default React.createClass({
             {this.renderResult()}
             {this._renderStatus()}
         </div>);
+
     },
     _renderStatus() {
         switch (this.state.status) {
@@ -108,6 +113,7 @@ export default React.createClass({
                 }
                 if(result && result.length==0){
                     this.setState({status:'done',loaded:true});
+                    pubsub.publish('Group.Report.loaded');
                 }else{
                     this.setState({status:'loaded'});
                 }

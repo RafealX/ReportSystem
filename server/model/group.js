@@ -18,7 +18,8 @@ let schema = helper.schema({
 	id: {type:String,default:util.uuid},
     name: String,
     members: String,//以id，名字保存。分号间隔
-    adminid: String
+    adminid: String,
+        copyto:''//抄送用户邮箱
 }, {ignores: 'members'});
 
 schema.set('collection', 'Group');

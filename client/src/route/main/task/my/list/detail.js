@@ -1,5 +1,6 @@
 import React from 'react';
 import {browserHistory} from 'react-router';
+import { Grid, Row, Col } from 'react-flexbox-grid';
 import {FlatButton,Dialog,DatePicker,TextField,
 	Card, CardActions, CardHeader, CardMedia, CardTitle, CardText,
 	Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn
@@ -138,170 +139,207 @@ export class TaskDetail extends React.Component {
 					open={this.state.open} autoDetectWindowHeight={false}
 					onRequestClose={this.close.bind(this)} className={style}>
 				{this.state.type+''=='1'?(
-					<div>
-					<TextField
-				      floatingLabelText="任务名称"
-				      disabled={this.state.type+''=='3'}
-				      defaultValue={this.state.data.name||''}
-				      onChange={event=>{
-				      	let data = _.clone(this.state.data,true);
-				      	data.name = event.target.value;
-				      	this.setState({data: data})
-				      }}
-				    />
-				    <TextField
-				      disabled={this.state.type+''=='3'}
-				      floatingLabelText="任务描述"
-				      defaultValue={this.state.data.description||''} 
-				      onChange={event=>{
-				      	let data = _.clone(this.state.data,true);
-				      	data.description = event.target.value;
-				      	this.setState({data: data})
-				      }}
-				    />
-				     <TextField				      
-				      floatingLabelText="任务关联ticket"
-				      disabled={this.state.type+''=='3'}
-				      defaultValue={this.state.data.ticket||''}
-				      onChange={event=>{
-				      	let data = _.clone(this.state.data,true);
-				      	data.ticket = event.target.value;
-				      	this.setState({data: data})
-				      }}
-				    />
-				    <DatePicker 
-                          locale="zh-Hans-CN"
-                          DateTimeFormat={Intl.DateTimeFormat}
-                          cancelLabel="取消" okLabel="确定"
-                          style={{width: '120px', marginTop: '4px'}}
-                          textFieldStyle={{width: '120px'}}
-                          hintText="任务截止时间" minDate={new Date} 
-                          onChange={(event,date)=>{
-					      	let data = _.clone(this.state.data,true);
-					      	data.time =date;
-					      	this.setState({data: data})
-					      }}
-				      />
-				    </div>
+					<Grid fluid>
+						<Row>
+							 <Col xs={12} sm={12} md={6} lg={6}>
+							 	<TextField
+								      floatingLabelText="任务名称"
+								      disabled={this.state.type+''=='3'}
+								      defaultValue={this.state.data.name||''}
+								      onChange={event=>{
+								      	let data = _.clone(this.state.data,true);
+								      	data.name = event.target.value;
+								      	this.setState({data: data})
+								      }}
+								    />
+							 </Col>
+							 <Col xs={12} sm={12} md={6} lg={6}>
+							 	<TextField
+							      disabled={this.state.type+''=='3'}
+							      floatingLabelText="任务描述"
+							      defaultValue={this.state.data.description||''} 
+							      onChange={event=>{
+							      	let data = _.clone(this.state.data,true);
+							      	data.description = event.target.value;
+							      	this.setState({data: data})
+							      }}
+							    />
+							     
+							 </Col>
+							 <Col xs={12} sm={12} md={6} lg={6}>
+							 	<TextField				      
+							      floatingLabelText="任务关联ticket"
+							      disabled={this.state.type+''=='3'}
+							      defaultValue={this.state.data.ticket||''}
+							      onChange={event=>{
+							      	let data = _.clone(this.state.data,true);
+							      	data.ticket = event.target.value;
+							      	this.setState({data: data})
+							      }}/>
+							 </Col>
+							 <Col xs={12} sm={12} md={6} lg={6}>
+								<DatePicker autoOk
+		                          locale="zh-Hans-CN"
+		                          DateTimeFormat={Intl.DateTimeFormat}
+		                          cancelLabel="取消" okLabel="确定"
+		                          style={{width: '120px',height:'100%'}}
+		                          textFieldStyle={{width: '120px',height:'100%'}} 
+		                          hintText="任务截止时间" minDate={new Date} 
+		                          onChange={(event,date)=>{
+							      	let data = _.clone(this.state.data,true);
+							      	data.time =date;
+							      	this.setState({data: data})
+							      }}
+						      />
+							 </Col>
+						</Row>
+					</Grid>
 				):
 				(this.state.type+''=='2'?(
-					<div>
-					<TextField
-				      floatingLabelText="任务名称"
-				      disabled={this.state.type+''=='3'}
-				      defaultValue={this.state.data.name||''}
-				      onChange={event=>{
-				      	let data = _.clone(this.state.data,true);
-				      	data.name = event.target.value;
-				      	this.setState({data: data})
-				      }}
-				    />
-				    <TextField
-				      disabled={this.state.type+''=='3'}
-				      floatingLabelText="任务描述"
-				      defaultValue={this.state.data.description||''} 
-				      onChange={event=>{
-				      	let data = _.clone(this.state.data,true);
-				      	data.description = event.target.value;
-				      	this.setState({data: data})
-				      }}
-				    />
-				     <TextField				      
-				      floatingLabelText="任务关联ticket"
-				      disabled={this.state.type+''=='3'}
-				      defaultValue={this.state.data.ticket||''}
-				      onChange={event=>{
-				      	let data = _.clone(this.state.data,true);
-				      	data.ticket = event.target.value;
-				      	this.setState({data: data})
-				      }}
-				    />
-				    
-				    </div>
+					<Grid fluid>
+						<Row>
+							<Col xs={12} sm={12} md={6} lg={6}>
+								<TextField
+							      floatingLabelText="任务名称"
+							      disabled={this.state.type+''=='3'}
+							      defaultValue={this.state.data.name||''}
+							      onChange={event=>{
+							      	let data = _.clone(this.state.data,true);
+							      	data.name = event.target.value;
+							      	this.setState({data: data})
+							      }}
+							    />
+							</Col>
+							<Col xs={12} sm={12} md={6} lg={6}>
+								<TextField
+							      disabled={this.state.type+''=='3'}
+							      floatingLabelText="任务描述"
+							      defaultValue={this.state.data.description||''} 
+							      onChange={event=>{
+							      	let data = _.clone(this.state.data,true);
+							      	data.description = event.target.value;
+							      	this.setState({data: data})
+							      }}
+							    />
+							</Col>
+							<Col xs={12} sm={12} md={6} lg={6}>
+								 <TextField				      
+							      floatingLabelText="任务关联ticket"
+							      disabled={this.state.type+''=='3'}
+							      defaultValue={this.state.data.ticket||''}
+							      onChange={event=>{
+							      	let data = _.clone(this.state.data,true);
+							      	data.ticket = event.target.value;
+							      	this.setState({data: data})
+							      }}
+							    />
+							</Col>
+						</Row>
+					</Grid>
 				):
 				(this.state.type+''=='3'?(
-				<div className={"fordetail"}>
-					<TextField
-				      floatingLabelText="任务名称"
-				      disabled={this.state.type+''=='3'}
-				      defaultValue={this.state.data.name||''}
-				      onChange={event=>{
-				      	let data = _.clone(this.state.data,true);
-				      	data.name = event.target.value;
-				      	this.setState({data: data})
-				      }}
-				    />
-				    <TextField
-				      disabled={this.state.type+''=='3'}
-				      floatingLabelText="任务描述"
-				      defaultValue={this.state.data.description||''} 
-				      onChange={event=>{
-				      	let data = _.clone(this.state.data,true);
-				      	data.description = event.target.value;
-				      	this.setState({data: data})
-				      }}
-				    />
-				     <TextField				      
-				      floatingLabelText="任务关联ticket"
-				      disabled={this.state.type+''=='3'}
-				      defaultValue={this.state.data.ticket||''}
-				      onChange={event=>{
-				      	let data = _.clone(this.state.data,true);
-				      	data.ticket = event.target.value;
-				      	this.setState({data: data})
-				      }}
-				    />
-				    <TextField				      
-				      floatingLabelText="任务进度"
-				      disabled={this.state.type+''=='3'}
-				      defaultValue={this.state.data.progress||''}
-				    />
-				    <TextField				      
-				      floatingLabelText="任务总耗时"
-				      disabled={this.state.type+''=='3'}
-				      defaultValue={this.state.data.totaltime||''}
-				    />
-				    <TextField				      
-				      floatingLabelText="任务状态"
-				      disabled={this.state.type+''=='3'}
-				      defaultValue={this.state.data.status?this.taskstatus[this.state.data.status]:''}
-				    />
-				    <DatePicker 
-                          locale="zh-Hans-CN" 
-                          DateTimeFormat={Intl.DateTimeFormat}
-                          cancelLabel="取消"  okLabel="确定"
-                          style={{width: '120px', marginTop: '4px'}}
-                          textFieldStyle={{width: '120px'}}
-                          hintText="任务截止时间" defaultDate={this.state.data.time?(new Date(this.state.data.time)):null}  disabled={true}
-				      />
-				      <Card style={{display:this.state.history&&this.state.history.length>0?'block':'none'}}>
-				      	<CardHeader  subtitle="任务历史" />
-				      	<CardText>
-				      		<Table >
-						    <TableHeader>
-						      <TableRow>
-						        <TableHeaderColumn>时间</TableHeaderColumn>
-						        <TableHeaderColumn>耗时</TableHeaderColumn>
-						        <TableHeaderColumn>概要</TableHeaderColumn>
-						        <TableHeaderColumn>碰到问题</TableHeaderColumn>
-						      </TableRow>
-						    </TableHeader>
-						    <TableBody>
-						    	{this.state.history&&this.state.history.length>0&&this.state.history.map((row,index)=>(
-									<TableRow key={index} selected={row.selected}>
-						                <TableRowColumn>{(new Date(row.time)).toLocaleDateString()}</TableRowColumn>
-						                <TableRowColumn>{row.elapse+'h'}</TableRowColumn>
-						                <TableRowColumn>{row.summary}</TableRowColumn>
-						                <TableRowColumn>{row.question}</TableRowColumn>
-						              </TableRow>
-								))}
-						    </TableBody>
-						    </Table>
-				      		
-				      	</CardText>
-				      </Card>
-					
-				</div>
+					<Grid fluid className={"fordetail"}>
+						<Row>
+						<Col xs={12} sm={12} md={6} lg={6}>
+							<TextField
+						      floatingLabelText="任务名称"
+						      disabled={this.state.type+''=='3'}
+						      defaultValue={this.state.data.name||''}
+						      onChange={event=>{
+						      	let data = _.clone(this.state.data,true);
+						      	data.name = event.target.value;
+						      	this.setState({data: data})
+						      }}
+						    />
+						</Col>
+						<Col xs={12} sm={12} md={6} lg={6}>
+							<TextField
+						      disabled={this.state.type+''=='3'}
+						      floatingLabelText="任务描述"
+						      defaultValue={this.state.data.description||''} 
+						      onChange={event=>{
+						      	let data = _.clone(this.state.data,true);
+						      	data.description = event.target.value;
+						      	this.setState({data: data})
+						      }}
+						    />
+						</Col>
+						<Col xs={12} sm={12} md={6} lg={6}>
+							<TextField				      
+						      floatingLabelText="任务关联ticket"
+						      disabled={this.state.type+''=='3'}
+						      defaultValue={this.state.data.ticket||''}
+						      onChange={event=>{
+						      	let data = _.clone(this.state.data,true);
+						      	data.ticket = event.target.value;
+						      	this.setState({data: data})
+						      }}
+						    />
+						</Col>
+						<Col xs={12} sm={12} md={6} lg={6}>
+							<TextField				      
+						      floatingLabelText="任务进度"
+						      disabled={this.state.type+''=='3'}
+						      defaultValue={this.state.data.progress||''}
+						    />
+						</Col>
+						<Col xs={12} sm={12} md={6} lg={6}>
+							<TextField				      
+						      floatingLabelText="任务总耗时"
+						      disabled={this.state.type+''=='3'}
+						      defaultValue={this.state.data.totaltime||''}
+						    />
+						</Col>
+						<Col xs={12} sm={12} md={6} lg={6}>
+							
+						    <DatePicker 
+		                          locale="zh-Hans-CN" 
+		                          DateTimeFormat={Intl.DateTimeFormat}
+		                          cancelLabel="取消"  okLabel="确定"
+		                          style={{width: '120px',height:'100%'}}
+		                          textFieldStyle={{width: '120px',height:'100%'}}
+		                          hintText="任务截止时间" defaultDate={this.state.data.endtime?(new Date(this.state.data.endtime)):null}  disabled={true}
+						      />
+						</Col>
+						<Col xs={12} sm={12} md={6} lg={6}>
+							<TextField				      
+						      floatingLabelText="任务状态"
+						      disabled={this.state.type+''=='3'}
+						      defaultValue={this.state.data.status?this.taskstatus[this.state.data.status]:''}
+						    />
+						</Col>
+						<Col xs={12} sm={12} md={6} lg={6}>
+						</Col>
+						<Col xs={12} sm={12} md={12} lg={12}>
+							<Card style={{display:this.state.history&&this.state.history.length>0?'block':'none'}}>
+						      	<CardHeader  subtitle="任务历史" />
+						      	<CardText>
+						      		<Table >
+								    <TableHeader>
+								      <TableRow>
+								        <TableHeaderColumn>时间</TableHeaderColumn>
+								        <TableHeaderColumn>耗时</TableHeaderColumn>
+								        <TableHeaderColumn>概要</TableHeaderColumn>
+								        <TableHeaderColumn>碰到问题</TableHeaderColumn>
+								      </TableRow>
+								    </TableHeader>
+								    <TableBody>
+								    	{this.state.history&&this.state.history.length>0&&this.state.history.map((row,index)=>(
+											<TableRow key={index} selected={row.selected}>
+								                <TableRowColumn>{(new Date(row.time)).toLocaleDateString()}</TableRowColumn>
+								                <TableRowColumn>{row.elapse+'h'}</TableRowColumn>
+								                <TableRowColumn>{row.summary}</TableRowColumn>
+								                <TableRowColumn>{row.question}</TableRowColumn>
+								              </TableRow>
+										))}
+								    </TableBody>
+								    </Table>
+						      		
+						      	</CardText>
+						      </Card>
+						</Col>
+						</Row>
+					</Grid>
 				):
 				(<span style={{display: 'none'}}></span>)))}
 				

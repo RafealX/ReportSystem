@@ -29,7 +29,8 @@ const conststyle = {
     floatingButton:{
         position:'fixed',
         right:'40px',
-        bottom:'20px'
+        bottom:'20px',
+        display:'none'
     }
 };
 const PaperStyle = {
@@ -42,10 +43,12 @@ const CardStyle = {
     
 }
 
+let isfirst = true;
+
 module.exports = React.createClass({
     getInitialState() {
         Report.reset();
-        return {rps: [], myTeams: [],stepIndex:0, finished: false,show:false};
+        return {rps: [], myTeams: [],stepIndex:0, finished: false,show:false,canAdd:false};
     },
     componentDidMount() {
 
@@ -62,6 +65,7 @@ module.exports = React.createClass({
     },
     componentWillUnmount() {
         //unlisten();
+        isfirst = true;
         Report.reset();
     },
     handleChange(e,c) {
@@ -76,18 +80,34 @@ module.exports = React.createClass({
         }
     },
     render() {
+        if(isfirst){
+            isfirst = false;
+            Report.exist().then(d=>{
+                this.setState({canAdd:true})
+            }).catch(e=>{
+                /*if(e.status && e.status=='2'){
+                    popup.error('今日已发送日报');    
+                }else{
+
+                }*/
+                
+            });
+        }
+        let contentformatter =(r,i) =>
+        r!=''?<p>{r}</p>:''
+           
+        
         let reportRender = (x,i)=>
             <tr key={i}>
-            
-            <td>{x.content}&nbsp;&nbsp;</td>
-            <td>{x.elapse?x.elapse+'小时  ':''}</td>
+            <td>{x.content.split('\n').map((r,index)=>contentformatter(r,index))}&nbsp;&nbsp;</td>
+            <td>{x.elapse?x.elapse+'h  ':''}</td>
             <td>{x.ticket}&nbsp;&nbsp;</td>
             </tr>;
         let taskRender = (x,i)=>
             <tr key={i}>
                 <td>{x.taskname}&nbsp;&nbsp;</td>
-                <td>{x.progress?x.progress+'%  ':''}</td>
-                <td>{x.elapse?x.elapse+'小时':''}</td>
+                <td>{x.progress?x.progress+'%  ':'0%'}</td>
+                <td>{x.elapse?x.elapse+'h':''}</td>
                 <td>{x.content && x.content!=''?x.content:(<span className={"noprogress"}>本日没进度</span>)}</td>
                 <td>{x.delay&&x.delaytotime?(x.delay>0?(<span className={"isdelay"}>{'延期至'+(new Date(x.delaytotime).toLocaleDateString())}{}</span>):(<span className={"isndelay"}>{'提前至'+(new Date(x.delaytotime).toLocaleDateString())}{}</span>)):''}</td>
             </tr>
@@ -211,7 +231,7 @@ module.exports = React.createClass({
                 <Stepper orientation="vertical" linear={false} children={[]}>
                   <ListView ref="listView" loadList={Report.get} getter={Report.operation.get} formatter={Report.formatter} itemRender={itemRender}/>
                 </Stepper>
-                 <FloatingActionButton tooltip={'添加日报'} backgroundColor={'#ff7781'} style={conststyle.floatingButton}  onClick={this._create} >
+                 <FloatingActionButton disabled={!this.state.canAdd} title={this.state.canAdd?'添加日报':'已添加今日日报'} backgroundColor={'#ff7781'} style={conststyle.floatingButton}  onClick={this._create} >
                   <AddIcon />
                 </FloatingActionButton>
                 <Popover
@@ -258,7 +278,7 @@ module.exports = React.createClass({
         });
     },
     _onEdit(rp) {
-        browserHistory.push({pathname: '/m/report/my/edit/' + rp.id, state: Object.assign({}, rp)});
+        browserHistory.push({pathname: '/m/report/my/edit/', state: Object.assign({}, rp)});
         Report.reset();
     }
 });

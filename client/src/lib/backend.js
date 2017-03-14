@@ -38,16 +38,41 @@ let Backend = {
 			};
 			return fetch(url,{body:data,method:'POST'});	
 		},
+		exist:function(data){
+			let url = prefix+'/report'+'/isadded';
+			/*let date = new Date(time);
+			date = new Date(date.toLocaleString());
+			date = date.getTime();
+			let data = {
+				time:date
+			};*/
+			return fetch(url,{body:data,method:'POST'});	
+		},
 		team:{
 			get:function(data){
 				let url = prefix+'/report'+'/team/get';
 				
 				return fetch(url,{body:data,method:'POST'});	
-			}
+			},
+		},
+		mail:function(data){
+			let url = prefix+'/report'+'/sendmail';
+			return fetch(url,{body:data,method:'POST'});
+		},
+		back:function(data){
+			let url = prefix+'/report'+'/back';
+			return fetch(url,{body:data,method:'POST'});
 		}
 	},
 	task:{
 		get:{
+			byid:function(id){
+				let url = prefix+'/task'+'/get';
+				let data = {
+					taskid:id
+				}
+				return fetch(url,{body:data,method:'POST'});	
+			},
 			list:function(params){
 				let url = prefix+'/task'+'/get/list';
 				let data = {
@@ -104,20 +129,17 @@ let Backend = {
 		},
 
 	},
-	team:{
+	group:{
 		get:function(id){
-			let url = prefix+'/team'+'/get';
-			let data = {
-				id:id
-			};	
-			return fetch(url,{body:data,method:'GET'});	
+			let url = prefix+'/group'+'/get';
+			return fetch(url,{method:'GET'});	
 		},
 		add:function(data){
-			let url = prefix+'/team'+'/add';	
+			let url = prefix+'/group'+'/add';	
 			return fetch(url,{body:data,method:'POST'});	
 		},
 		edit:function(data){
-			let url = prefix+'/task'+'/edit';
+			let url = prefix+'/group'+'/set';
 			return fetch(url,{body:data,method:'POST'});	
 		},
 		delete:function(id){
@@ -127,11 +149,49 @@ let Backend = {
 			};	
 			return fetch(url,{body:data,method:'POST'});	
 		},
+		setadmin:function(data){
+			let url = prefix+'/group'+'/setadmin';
+
+			return fetch(url,{body:data,method:'POST'});	
+		},
 		member:{
 			get:function(){
 				let url = prefix+'/group'+'/getmember';
 				return fetch(url,{method:'POST'});	
+			},
+			delete:function(data){
+				let url = prefix+'/group'+'/user/del';
+				return fetch(url,{body:data,method:'POST'});	
+			},
+			add:function(data){
+				let url = prefix+'/group'+'/addmember';
+				return fetch(url,{body:data,method:'POST'});	
 			}
+		},
+		ungroupusers:function(){
+			let url = prefix+'/group'+'/users/ungroup';
+			return fetch(url,{method:'GET'});	
+		}
+	},
+	user:{
+		get:function(id){
+			let url = prefix+'/user'+'/get';
+			var datas = {
+				userid:id,
+			}
+			return fetch(url,{body:datas,method:'get'});
+		}
+	},
+	feedback:{
+		set:function(data){
+			let url = prefix+'/feedback'+'/set';
+			var datas = {
+				content:data
+			}
+			return fetch(url,{body:datas,method:'POST'});
+		},
+		get:function(){
+
 		}
 	}
 };

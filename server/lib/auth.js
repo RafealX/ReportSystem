@@ -29,9 +29,9 @@ module.exports.mustLogin = function () {
             if(result){
                 result = JSON.parse(result);
                 if(result.id){
-                    let user = yield User.findOne({id:result.id}).count();
-                    if(user>0){
-                        this.state.loginUser = result;
+                    let user = yield User.findOne({id:result.id});
+                    if(user){
+                        this.state.loginUser = user.toObject();
                     }
 
                 }
@@ -42,11 +42,11 @@ module.exports.mustLogin = function () {
             yield next;
         } else {
             this.body = {
-                code: 403,
-                msg: '未登录'
-            };
-        }
-    }
+        code: 403,
+        msg: '未登录'
+    };
+}
+}
 };
 
 module.exports.resolveUser = function () {

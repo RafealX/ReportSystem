@@ -33,7 +33,7 @@ export let Members = {
 		pubsub.subscribe('Member.load',callback);
 	},
 	init:function(callback){
-		Backend.team.member.get().then(d=>{
+		Backend.group.member.get().then(d=>{
 			MemberList = d.data;
 			_.isFunction(callback)?callback():'';
 		}).catch(e=>{
@@ -58,9 +58,43 @@ let TeamReportObj = {
 	offset:0,
 	limit:1,
 	data:[],
-	result:{}
+	result:{},
+	tasks:{}
 };
-
+let format = function(){
+	if(window.user && window.user.role==2){//组长才能有权限
+		var timearrs = _.keys(TeamReportObj.result);
+		timearrs = timearrs.sort((x,y)=>{
+			return y*1-x*1;
+		});
+		_.forEach(timearrs,(itm,idx)=>{
+			if(idx!=timearrs.length-1){
+				if(TeamReportObj.result[itm].length<_.keys(MemberList).length){
+					_.forIn(MemberList,(v,k)=>{
+						var _idx = _.findIndex(TeamReportObj.result[itm],(x)=>{
+							return x.userid==k;
+						});
+						if(_idx<0){
+							TeamReportObj.result[itm].push({
+								others:'',
+								withnullconent:true,//标示是否没写日报
+								reports:[],
+								status:2,
+								tasks:[],
+								time:itm,
+								userid:k,
+								username:v,
+								groupid:window.user.groupid
+							})
+						}
+					});
+					console.log(MemberList);
+				}
+			}
+		});
+	}
+}
+pubsub.subscribe('Group.Report.loaded',format);
 export let TeamReport={
 	get:function(){
 		if(TeamReportObj.first){
@@ -86,7 +120,7 @@ export let TeamReport={
 			        if(_.isArray(arr) && arr.length>0){
 			            itm.reports = [];
 			            _.each(arr,(item)=>{
-			                let reportitm = item.split(','),tmp;
+			                let reportitm = item.split('|'),tmp;
 			                 tmp= {
 			                    content:reportitm[0],
 			                    elapse:reportitm[1]*1 || '',
@@ -117,28 +151,26 @@ export let TeamReport={
 					return y*1-x*1;
 				});
 				_.forEach(timearrs,(itm,idx)=>{
-					if(idx!=timearrs.length-1){
-						if(TeamReportObj.result[itm].length<_.keys(MemberList).length){
-							_.forIn(MemberList,(v,k)=>{
-								var _idx = _.findIndex(TeamReportObj.result[itm],(x)=>{
-									return x.userid==k;
-								});
-								if(_idx<0){
-									TeamReportObj.result[itm].push({
-										others:'',
-										withnullconent:true,//标示是否没写日报
-										reports:[],
-										status:2,
-										tasks:[],
-										time:itm,
-										userid:k,
-										username:v,
-										groupid:window.user.groupid
-									})
-								}
+					if(TeamReportObj.result[itm].length<_.keys(MemberList).length){
+						_.forIn(MemberList,(v,k)=>{
+							var _idx = _.findIndex(TeamReportObj.result[itm],(x)=>{
+								return x.userid==k;
 							});
-							console.log(MemberList);
-						}
+							if(_idx<0){
+								TeamReportObj.result[itm].push({
+									others:'',
+									withnullconent:true,//标示是否没写日报
+									reports:[],
+									status:2,
+									tasks:[],
+									time:itm,
+									userid:k,
+									username:v,
+									groupid:window.user.groupid
+								})
+							}
+						});
+						console.log(MemberList);
 					}
 				});
 			}
@@ -162,6 +194,7 @@ export let TeamReport={
 		limit:function(data){
 			_.isNumber(data)?(TeamReportObj.limit=data):'';
 		},
+		
 
 	},
 	reset:function(){
@@ -171,6 +204,8 @@ export let TeamReport={
 		TeamReportObj.result = {};
 		TeamReportObj.limit = 1;
 		TeamReportObj.offset = 0;
+		TeamReportObj.tasks = {};
+		pubsub.unsubscribe('Group.Report.loaded',[TeamReport.format]);
 	},
 	init:function(callback){
 		if(window.user && window.user.role==2){
@@ -202,5 +237,57 @@ export let TeamReport={
 		}).catch(e=>{
 
 		})
+	},
+	backReport:function(itm,callback){
+		let data = {
+			reportid:itm.id
+		};
+		Backend.report.back(data).then(d=>{
+			var index = _.findIndex(TeamReportObj.result[new Date(itm.time).getTime()],item=>{
+				return item.id==itm.id
+			});
+			if(index>=0){
+				TeamReportObj.result[new Date(itm.time).getTime()].splice(index,1);
+			}
+			if(_.isFunction(callback)){
+
+				callback(itm);
+			}
+		}).catch(e=>{
+
+		});
+	},
+	sendMail:function(value,key,cb){
+		let data = {
+			time:new Date(key*1).getTime()
+		};
+		Backend.report.mail(data).then(d=>{
+			//value.issend = true;
+			if(_.isFunction(callback)){
+				cb(value);
+
+			}
+			console.log(d);
+		}).catch(e=>{
+
+		});
+	},
+	task:{
+		get:function(id,cb){
+			if(id){
+				Backend.task.get.byid(id).then(d=>{
+					TeamReportObj.tasks[id] = d.task;
+					if(_.isFunction(cb))
+						cb(TeamReportObj.tasks[id]);
+				}).catch(e=>{
+
+				});
+			}else{
+				return null;
+			}
+		},
+		getter:function(id){
+			return TeamReportObj.tasks[id]
+		}
 	}
 }

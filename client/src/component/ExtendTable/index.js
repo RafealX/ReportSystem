@@ -38,7 +38,11 @@ const iconStyleFilter = {
   cursor: 'pointer',
   transform: 'translateY(5px) translateX(-20px)'
 };
-
+const PaperStyle = {
+    boxShadow:'rgba(0, 0, 0, 0.117647) 0px 0px 0px, rgba(0, 0, 0, 0.117647) 0px 0px 4px',
+    backgroundColor:'#fff',
+    borderRadius:0
+}
 const searchHeaderColumnStyle = {
   position: 'relative'
 };
@@ -680,7 +684,7 @@ export class ExtendTable extends React.Component {
       'hiddeninput': !this.state.showSelect
     });
     return (
-      <Paper zDepth={1} className={style}>
+      <Paper zDepth={1} className={style} style={PaperStyle}>
         <Toolbar className="toptoolbar" style={{display:this.showTop?'block':'none'}}>{this.renderTopTool()}</Toolbar>        
         <Table className={btnClass} selectable={this.state.showSelect} >
           <TableHeader>

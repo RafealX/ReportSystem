@@ -1,5 +1,5 @@
 /**
- * 小组
+ * 小组 目前废弃
  */
 'use strict';
 let helper = require('./helper');

@@ -4,7 +4,7 @@
 
 import _ from 'lodash';
 import Backend from 'lib/backend';
-import {uuid} from 'lib/util';
+import {uuid,today} from 'lib/util';
 import pubsub from 'vanilla-pubsub';
 
 /**
@@ -39,7 +39,7 @@ export let Report={
 			        if(_.isArray(arr) && arr.length>0){
 			            itm.reports = [];
 			            _.each(arr,(item)=>{
-			                let reportitm = item.split(','),tmp;
+			                let reportitm = item.split('|'),tmp;
 			                 tmp= {
 			                    content:reportitm[0],
 			                    elapse:reportitm[1]*1,
@@ -84,5 +84,12 @@ export let Report={
 		ReportObj.offset = ReportObj.limit*-1;
 		ReportObj.data = [];
 		ReportObj.data.length = [];
+	},
+	exist(){
+		let data = {
+			time:today(),
+			userid:window.user.id,
+		};
+		return Backend.report.exist(data);
 	}
 }

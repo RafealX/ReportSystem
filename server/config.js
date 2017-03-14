@@ -16,8 +16,8 @@ module.exports = {
         port: 465,
         secure: true,
         auth: {
-            user: 'llwwtest2@163.com',
-            pass: 'qrkleqszhqbxpipq'
+            user: 'hzhhtesting@163.com',
+            pass: 'test1234'
         }
     }
 };

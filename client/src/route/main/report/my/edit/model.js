@@ -76,15 +76,19 @@ let fakeTask = {
 		status:1//在写日报时新加的任务时允许删除，此项标识是新增的任务而非已经存在的未完成任务
 	},
 	task:{
+		isnew:true,
+		curid:uuid(),
 		elapse:'',
 		taskid:'',
-		taskname:'新建任务',
+		taskname:'',
 		description:'',//任务的目的描述
 		content:'',//本日进度
 		progress:0,
 		startprogress:0,//只有进行编辑的时候才会用到此属性
 		time:today(),
-		tasktime:today(),
+		tasktime:null,
+		sourcetasktime:null,//记录原始截止时间，只有已存在的未完成任务修改时才会起效
+		reason:'',//记录延期原因
 		status:1//在写日报时新加的任务时允许删除，此项标识是新增的任务而非已经存在的未完成任务
 	}
 };
@@ -111,7 +115,7 @@ export let Report={
 		let report = '';
 		_.each(result.report,itm=>{
 			if(itm.content&&itm.elapse)
-				report+=itm.content+','+itm.elapse+','+(itm.ticket||'')+';';
+				report+=itm.content+'|'+itm.elapse+'|'+(itm.ticket||'')+';';
 		});
 		report = report.substring(0,report.length-1);
 		data.report = report;
@@ -140,10 +144,12 @@ export let Report={
 	},
 	set:{
 		report:function(data){
-			TaskObj.report.unshift(data);
+			//TaskObj.report.unshift(data);
+			TaskObj.report.push(data);
 		},
 		task:function(data){
-			TaskObj.task.unshift(data);
+			//TaskObj.task.unshift(data);
+			TaskObj.task.push(data);
 
 		},
 		time:function(data){
@@ -155,7 +161,7 @@ export let Report={
 			_.remove(TaskObj.report,(itm)=>{return data.id==itm.id});
 		},
 		task:function(data){
-			_.remove(TaskObj.task,(itm)=>{return data.taskid==itm.taskid});
+			_.remove(TaskObj.task,(itm)=>{return data.id==itm.id});
 		}
 	},
 	clear:function(){
@@ -207,6 +213,7 @@ export let Report={
 								pushitm.content = tempTask.content;
 								pushitm.time = tempTask.time;
 								pushitm.elapse = tempTask.elapse;
+								pushitm.content!=''?(pushitm.show = true):'';
 								pushitm.progress = tempTask.progress;
 								tempTask.startprogress && tempTask.startprogress>0?(pushitm.startprogress = tempTask.startprogress):'';
 								//TaskObj.task.splice(index,1,pushitm);
@@ -220,6 +227,7 @@ export let Report={
 								pushitm.description = '';//Todo 获取不在Unfinished中的任务
 								pushitm.content = tempTask.content;
 								pushitm.time = tempTask.time;
+								pushitm.content!=''?(pushitm.show = true):'';
 								//pushitm.tasktime = tempTask.tasktime;
 								pushitm.elapse = tempTask.elapse;
 								pushitm.progress = tempTask.progress;
@@ -274,10 +282,13 @@ export let Report={
 					clonetask.taskid = itm.id;
 					clonetask.taskname = itm.name;
 					clonetask.tasktime = itm.endtime;
+					clonetask.sourcetasktime = clonetask.tasktime;//用来检测用户是否进行延期操作
 					clonetask.time = new Date().getTime();
 					clonetask.description = itm.description;
 					clonetask.progress = itm.progress;
+					clonetask.reason = '';//记录延期原因
 					clonetask.status=2;//表明不是在写日报时
+					delete clonetask.isnew;
 					TaskObj.task.push(clonetask);
 				});
 			}
@@ -292,9 +303,9 @@ export let Report={
 		var result = true;
 		if(_.isArray(TaskObj.task) && TaskObj.task.length>0)
 			_.each(TaskObj.task,itm=>{
-				if((itm.content!='' &&(itm.elapse==''||itm.elapse==0)) ||(itm.content==''&&itm.elapse!='')){
+				if((itm.taskname=='')||(itm.description=='')||(itm.content!='' &&(itm.elapse==''||itm.elapse==0)) ||(itm.content==''&&itm.elapse!='') || (itm.sourcetasktime!=null&&itm.sourcetasktime!=itm.tasktime&&itm.reason=='')||(itm.sourcetasktime==null&&itm.tasktime==null) || (itm.tasktime<today())){
 					result = false;
-
+					
 					return result;
 				}
 			});
@@ -313,5 +324,13 @@ export let Report={
 			});
 		}
 		return result;
+	},
+	exist(){
+		let result = TaskObj;
+		let data = {
+			time:(result.time&&getTime(result.time)) || today(),
+			userid:window.user.id,
+		};
+		return Backend.report.exist(data);
 	}
 }

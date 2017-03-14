@@ -4,7 +4,8 @@
 
 import React from 'react';
 import {browserHistory} from 'react-router';
-import {FlatButton, Dialog,SelectField, TextField, MenuItem,FontIcon, IconButton,Step,Stepper,StepLabel,StepContent,List, ListItem,Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn,GridList, GridTile,
+import { Grid, Row, Col } from 'react-flexbox-grid';
+import {FlatButton,Paper, Dialog,SelectField, TextField, MenuItem,FontIcon, IconButton,Step,Stepper,StepLabel,StepContent,List, ListItem,Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn,GridList, GridTile,
     Card, CardTitle,CardText,CardActions, CardHeader,DatePicker,Toolbar,ToolbarGroup,ToolbarTitle, RaisedButton, ToolbarSeparator,Popover,Tabs, Tab} from 'material-ui';
 
 import AddIcon from 'material-ui/svg-icons/content/add';
@@ -41,241 +42,26 @@ const styles = {
     marginBottom: 12,
     fontWeight: 400,
   },
-};
-
-let maps = {
-  name:{
-    title:'任务名'
+  tab:{
+    backgroundColor:'#fd9098',
   },
-  progress:{
-    title:'进度',
-    formatter:function(data){
-      return data.progress? data.progress+'%' : '';
-    }
-  },
-  totaltime:{
-    title:'耗时',
-    formatter:function(data){
-      return data.totaltime? data.totaltime+'h' : '';
-    }
-  },
-  ticket:{
-    title:'ticket'
-  },
-  time:{
-    title:'截止时间',
-    formatter:function(data){
-      return data.time? data.time : '';
-    }
-  },
-  status:{
-    title:'任务状态',
-    formatter:function(data){
-      let result = '';
-      switch(data.status+''){
-        case '1':
-          result = '未开始';
-          break;
-        case '2':
-          result='进行中';
-          break;
-        case '3':
-          result='已完成';
-          break;
-        case '4':
-          result='已删除';
-          break;
-      }
-      return result;
-    }
-  },
-  description:{
-    title:'描述'
-  },
-};
-let tabs = {'12':{
-    name:'未完成',//分成今日需完成以及所有未完成
-    items:[],
-    hiddenfields:['ticket','totaltime'],
-    renderfunc:function(target){
-      let items = target.list;
-      if(_.isArray(items) && items.length>0){
-        let firstItm = _.first(items);
-        let columns = [];
-        _.forIn(firstItm,(value,key)=>{
-          if(maps[key])
-            columns.push({
-              property:key,
-              title:maps[key].title,
-              renderAs:maps[key].formatter?maps[key].formatter : function(data){
-               return data[key]
-              }
-            });
-        });
-        columns.push({
-          title:'延期及原因',renderAs:function(data){
-            let result = '延期了，因为';
-            data.isdelay ? (result+=data.delayreason):(result="没有延期");
-            return result;
-          }
-        })
-        let config = {
-          paginated:true,
-          search: 'name',   
-          data: items,
-          count:target.count,
-          columns: columns
-        };
-        return <ExtendTable config={config} />
-      }else
-        return null;
-    }
-  },'13':{
-    name:'延期任务',//列出延期任务
-    items:[],
-    hiddenfields:['ticket','status','totaltime'],
-    renderfunc:function(target){
-      let items = target.list;
-      if(_.isArray(items) && items.length>0){
-        let firstItm = _.first(items);
-        let columns = [];
-        _.forIn(firstItm,(value,key)=>{
-          if(maps[key])
-            columns.push({
-              property:key,
-              title:maps[key].title,
-              renderAs:maps[key].formatter?maps[key].formatter : function(data){
-               return data[key]
-              }
-            });
-        });
-        columns.push({
-          title:'延期及原因',renderAs:function(data){
-            let result = '延期了，因为';
-            data.isdelay ? (result+=data.delayreason):(result="没有延期");
-            return result;
-          }
-        })
-        let config = {
-          paginated: true,
-          search: 'name',   
-          data: items,
-          count:target.count,
-          columns: columns
-        };
-        return <ExtendTable config={config} />
-      }else
-        return null;
-    }
-  },'14':{
-    name:'所有任务',
-    items:[],
-    hiddenfields:['ticket','status','totaltime'],
-    renderfunc:function(target){
-      let items = target.list;
-      if(_.isArray(items) && items.length>0){
-        let firstItm = _.first(items);
-        let columns = [];
-        _.forIn(firstItm,(value,key)=>{
-          if(maps[key] && this.hiddenfields.indexOf(key)<0)
-            columns.push({
-              property:key,
-              title:maps[key].title,
-              renderAs:maps[key].formatter?maps[key].formatter : function(data){
-               return data[key]
-              }
-            });
-        });
-        columns.push({
-          title:'延期及原因',renderAs:function(data){
-            let result = '延期了，因为';
-            data.isdelay ? (result+=data.delayreason):(result="没有延期");
-            return result;
-          }
-        })
-        let config = {
-          paginated: true,
-          search: 'name',   
-          data: items,
-          count:target.count,
-          columns: columns
-        };
-        return <ExtendTable config={config} />
-      }else
-        return null;
-    }
+  inkBarStyle:{
+    backgroundColor:'#ff808a'
   }
+
 };
+const PaperStyle = {
+    boxShadow:'rgba(0, 0, 0, 0.117647) 0px 0px 0px, rgba(0, 0, 0, 0.117647) 0px 0px 4px',
+    backgroundColor:'#fff',
+    height:'56px',
+    borderRadius:0
+}
+
 
 module.exports = React.createClass({
 	getInitialState() {
 		return {unfinished:null,delay:null,list:null,labelValue:12,open:false};
 	},
-  fetchAll() {
-    // let unfinished = this.fetchunFinished();
-    // unfinished.then(function(d){
-
-    // }.bind(this))
-    // .catch(function(e){
-    //   let result = _.filter(Mock.progress.my.list,tab=>{
-    //     return tab.progress<100 && tab.progress>0 && tab.status==2;
-    //   });
-    //   let target = {
-    //     list:_.clone(result,true),
-    //     count:result.length+1000
-    //   }
-    //   this.setState({unfinished:target});
-    // }.bind(this));
-
-    // let delays = this.fetchDelay();
-    // delays.then(function(d){
-
-    // }.bind(this))
-    // .catch(function(e){
-    //   let result = _.filter(Mock.progress.my.list,tab=>{
-    //     return tab.isdelay;
-    //   });
-    //   let target = {
-    //     list:_.clone(result,true),
-    //     count:60
-    //   }
-    //   this.setState({delay:target});
-    // }.bind(this));
-  
-    let list = this.fetchList();
-    list.then(function(d){
-      console.log('list',d);
-    }.bind(this))
-    .catch(function(e){
-      
-      this.setState({list:Mock.progress.my});
-    }.bind(this));
-  },
-  fetchList(limit,offset) {
-    let params = {
-      userid:user.id,
-      limit:limit?limit:20,
-      offset:offset?offset:0
-    };
-    return Backend.task.get.list(params);
-  },
-  fetchDelay(limit,offset) {
-    let params = {
-      userid:user.id,
-      limit:limit?limit:20,
-      offset:offset?offset:0
-    };
-    return Backend.task.get.delay(params);
-  },
-  fetchunFinished(limit,offset) {
-    let params = {
-      userid:user.id,
-      status:2,
-      limit:limit?limit:20,
-      offset:offset?offset:0
-    };
-    return Backend.task.get.unfinished(params);
-  },
   reloadList() {
     alert('reload list');
     let list = this.fetchList();
@@ -311,164 +97,7 @@ module.exports = React.createClass({
   onAdd() {
    this.refs.showdetailcpn.switchType(1);
   },
-  onDetail(data) {
-    this.refs.showdetailcpn.switchType(3,data);
-  },
-  onEdit(data){
-    //mock
-    this.refs.showdetailcpn.switchType(2,data,function(data){
-      var result = _.findIndex(this.refs[this.refname].state.tableData,(itm)=>{
-        return data.id==itm.id;
-      });
-      if(result>=0)
-        this.refs[this.refname].state.tableData[result] = data;
-      this.refs[this.refname].forceUpdate();
-    }.bind(this));
   
-  },
-  onDelete(data){
-    this.setState({deleterow:data});
-  },
-  deleteRow(data){
-    var result = _.findIndex(this.refs[this.refname].state.tableData,(itm)=>{
-      return data.id==itm.id;
-    });
-    if(result>=0)
-      this.refs[this.refname].state.tableData[result].status = 4;
-    this.refs[this.refname].forceUpdate();
-    //this.refs[this.refname].setState({tableData:});
-  },
-  onDelay(data) {
-    this.setState({delayrow:data})
-    //Backend.task.delay(data.id);
-  },
-  delayRow(data,reason,time) {
-    //Backend.task.delay(data.id);
-    var result = _.findIndex(this.refs[this.refname].state.tableData,(itm)=>{
-      return data.id==itm.id;
-    });
-    if(result>=0){
-      this.refs[this.refname].state.tableData[result].isdelay = true;
-      this.refs[this.refname].state.tableData[result].delayreason = reason;
-      this.refs[this.refname].state.tableData[result].time = reason;
-    }
-
-    this.refs[this.refname].forceUpdate();
-  },
-  handleOpers(row,type,refname) {
-    this.refname = refname;
-    console.log(this.refname);
-    switch(type+''){
-      case 'edit':
-        this.onEdit(row);
-        break;
-      case 'info':
-        this.onDetail(row);
-        break;
-      case 'delay'://申请延期
-        this.onDelay(row);
-        break;
-      case 'delete'://删除
-        this.onDelete(row);
-        break;
-    }
-  },
-  renderTable(curTab,target,refname) {
-      let items = target.list;
-      if(_.isArray(items) && items.length>0){
-        let firstItm = _.first(items);
-        let columns = [];
-        _.forIn(firstItm,(value,key)=>{
-          if(maps[key] && curTab.hiddenfields.indexOf(key)<0)
-            columns.push({
-              property:key,
-              width:'10%',
-              title:maps[key].title,
-              renderAs:maps[key].formatter?maps[key].formatter : function(data){
-               return data[key]
-              }
-            });
-        });
-        columns.push({
-          title:'延期及原因',width:'30%',renderAs:function(data){
-            let result = '延期了，因为';
-            data.isdelay ? (result+=data.delayreason):(result="没有延期");
-            return result;
-          }
-        })
-        // let config = {
-        //   paginated: true,
-        //   search: 'name',   
-        //   data: target,
-        //   count:target.count,
-        //   columns: columns,
-        //   opers:this.handleOpers
-        // };
-        var rect = this.refs.TaskContainer.getBoundingClientRect();
-        let config = {
-          tablemode:2,
-          data:target,
-          maxWidth:rect.width,
-          body:{
-            columns:columns,
-            hasOpers:true,
-            //传递需要渲染的opers，如果不传递，并且hasOpers为true，那么将会渲染出默认提供的操作方式
-            handleCb:this.handleOpers,
-            style:{isSelect:false},
-            opers:[
-              {
-                name:'edit',
-                title:'编辑',
-                creator:function(self,row){
-                  let showorhidden = row.status!=3&&row.status!=4;
-                  return <IconButton onClick={this.handleCb.bind(this,row,self.name,refname)} style={{display:showorhidden?'inline-block':'none'}} title={self.title} key={self.name}><EditIcn color={cyan300}/></IconButton>
-                },
-              },
-              {
-                name:'delete',
-                title:'删除',
-                creator:function(self,row){
-                  let showorhidden = row.status!=4;
-                  return <IconButton style={{display:showorhidden?'inline-block':'none'}} onClick={this.handleCb.bind(this,row,self.name,refname)}  title={self.title} key={self.name}><DeleteIcn color={red300}/></IconButton>
-                },
-              },
-              {
-                name:'info',
-                title:'查看详情',
-                creator:function(self,row){
-
-                  return <IconButton onClick={this.handleCb.bind(this,row,self.name,refname)}  title={self.title} key={self.name}><InfoIcn color={blue300}/></IconButton>
-                },
-              },
-              {
-                name:'delay',
-                title:'申请延期',
-                creator:function(self,row){
-                  let showorhidden =!row.isdelay &&row.status!=4;
-                  return <IconButton onClick={this.handleCb.bind(this,row,self.name,refname)} title={self.title} key={self.name} style={{display:showorhidden?'inline-block':'none'}}><DelayIcn color={deepOrange300}/></IconButton>
-                },
-              }
-            ],
-            
-          },
-          toolbar:{
-            pagenation:{
-              rowsPerPage:[5,10,20],
-              foldCallback:Backend.task.get.list,
-              locate:'top'
-            },
-            search:{
-              field:'name',
-              foldCallback:Backend.task.search,
-              condition:'',
-              locate:'top'
-            }
-          }
-        }
-        return <ExtendTable ref={refname} config={config} />
-      }else
-        return null;
-  },
 	render() {
         const deleteActions = [
           <FlatButton
@@ -496,25 +125,30 @@ module.exports = React.createClass({
           ];
         return (
             <div className={style} ref='TaskContainer'>
-              <Toolbar style={{backgroundColor:'#87d9ea'}}>
-                <ToolbarGroup firstChild={true}> 
-                <FlatButton labelStyle={{color:'#fff'}} hoverColor="#87d9ea"
-                  label="新增任务"  onClick={this.onAdd}
-                  primary={true} style={{marginLeft:'0px'}} style={{height:'100%',padding:0,margin:0}}
-                  icon={<AddIcon color={'#fff'}/>}
-                />
-                </ToolbarGroup>
-                </Toolbar>
+              <Paper zDepth={1} style={PaperStyle}>
+                  <Grid style={{height:'100%',width:'100%'}}>
+                      <Row style={{height:'100%'}}>
+                          <Col xs={1} sm={1} md={2} lg={2} style={{height:'100%'}}>
+                              <FlatButton labelStyle={{color:'#000'}} hoverColor="#eee"
+                                label="新增任务"  onClick={this.onAdd}
+                                primary={true} style={{marginLeft:'0px'}} style={{height:'100%',padding:0,margin:0}}
+                                icon={<AddIcon color={'#8c8b8b'}/>}
+                              />
+                          </Col>
+                      </Row>
+                  </Grid>
+              </Paper>
+              
                  <ShowDetail ref="showdetailcpn" />
-                <Tabs style={{margin: '10px'}}
+                <Tabs style={{margin: '10px'}} inkBarStyle={styles.inkBarStyle}
                     > 
-                    <Tab label={'所有'} value={14}>
+                    <Tab label={'所有'} value={14} style={styles.tab}>
                       <div>
                       <TableView loadList={TaskModel.get.list} operations={TaskModel.opers.list} getter={TaskModel.getter.list} formatter={TaskModel.formatter.list} />
                       </div>
                     </Tab>
-                    </Tabs>
-                    <Tab label={'未完成'} value={12} style={{display:'none'}}>
+                    
+                    <Tab label={'未完成'} value={12} style={styles.tab}>
                       {this.state.unfinished?
                       (<div>{this.renderTable(tabs['12'],this.state.unfinished,'unfinished')}</div>):(
                           <div>
@@ -522,7 +156,7 @@ module.exports = React.createClass({
                           </div>)
                       }
                     </Tab>
-                    <Tab label={'延期'} value={13} style={{display:'none'}}>
+                    <Tab label={'延期'} value={13} style={styles.tab}>
                       {this.state.delay?
                       (<div>{this.renderTable(tabs['13'],this.state.delay,'delay')}</div>):(
                           <div>
@@ -530,7 +164,7 @@ module.exports = React.createClass({
                           </div>)
                       }
                     </Tab>
-                    
+                    </Tabs>
                     {!!this.state.deleterow?
                       <Dialog 
                       title="确定删除？"

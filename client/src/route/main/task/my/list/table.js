@@ -1,5 +1,6 @@
 import React from 'react';
 import {browserHistory} from 'react-router';
+import { Grid, Row, Col } from 'react-flexbox-grid';
 import {FlatButton, Dialog,SelectField, TextField, MenuItem,FontIcon, IconButton,Step,Stepper,StepLabel,StepContent,List, ListItem,Table, TableBody, TableFooter, TableHeader, TableHeaderColumn, TableRow, TableRowColumn,GridList, GridTile,
     Card, CardTitle,CardText,CardActions, CardHeader,DatePicker,Toolbar,ToolbarGroup,ToolbarTitle, RaisedButton, ToolbarSeparator,Popover,Tabs, Tab} from 'material-ui';
 
@@ -221,21 +222,31 @@ export default React.createClass({
 	         actions={delayActions}
 	         modal={false}
 	         open={!!this.state.delayrow?true:false}>
-	          <TextField ref='delayreson' fullWidth={true}
-	            defaultValue=""
-	            floatingLabelText="请填写延期理由"
-	          />
-	          <TextField 
-	            defaultValue={(new Date(this.state.delayrow.time)).toLocaleDateString()} disabled={true}
-	            floatingLabelText="当前截止时间" style={{display:'inline-block'}}
-	          />
-	          <DatePicker 
-	              locale="zh-Hans-CN" ref='delaytime'
-	              DateTimeFormat={Intl.DateTimeFormat}
-	              cancelLabel="取消" okLabel="确定" 
-	              style={{width: '120px'}} defaultDate={new Date(this.state.delayrow.time)}
-	              textFieldStyle={{width: '120px'}}
-	              hintText="延期至？" minDate={new Date(this.state.delayrow.time)}/>
+	         <Grid fluid className={"fordetail"}>
+				<Row>
+					<Col xs={12} sm={12} md={6} lg={6}>
+						 <TextField 
+			            defaultValue={(new Date(this.state.delayrow.endtime)).toLocaleDateString()} disabled={true}
+			            floatingLabelText="当前截止时间" style={{display:'inline-block'}}
+			          />
+					</Col>
+					<Col xs={12} sm={12} md={6} lg={6}>
+						<DatePicker autoOk
+			              locale="zh-Hans-CN" ref='delaytime'
+			              DateTimeFormat={Intl.DateTimeFormat}
+			              cancelLabel="取消" okLabel="确定" 
+			              style={{width: '120px',height:'100%'}} defaultDate={new Date(this.state.delayrow.endtime)}
+			              textFieldStyle={{width: '120px',height:'100%'}}
+			              hintText="延期至？" minDate={new Date(this.state.delayrow.starttime)}/>
+					</Col>
+					<Col xs={12} sm={12} md={12} lg={12}>
+						<TextField ref='delayreson' fullWidth={true}
+				            defaultValue=""
+				            floatingLabelText="请填写延期理由"
+				          />
+					</Col>
+				</Row>
+			</Grid>
 	        </Dialog>
 	          :null}
 	           <ShowDetail ref="showdetailcpn" />

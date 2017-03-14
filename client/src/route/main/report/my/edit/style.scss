@@ -1,7 +1,7 @@
 :local(.style) {
   width:100%;
   height:100%;
-  
+
   .loadingStage{
     text-align:center;
   }
@@ -12,16 +12,19 @@
     font-size:14px;
     font-weight:normal;
     color:#666;
+    margin-top: 5px;
   }
   .tasktitle{
-          padding: 8px 7px;
+          padding: 8px 16px;
       background: #f79d9d;
       color: #fff;
+          box-shadow: rgba(0, 0, 0, 0.117647) 0px 0px 3px, rgba(0, 0, 0, 0.117647) 0px 0px 4px;
   }
   .reporttitle{
-          padding: 8px 7px;
-      background: #479fd4;
+          padding: 8px 16px;
+      background: #7cc3ef;
       color: #fff;
+          box-shadow: rgba(0, 0, 0, 0.117647) 0px 0px 3px, rgba(0, 0, 0, 0.117647) 0px 0px 4px;
   }
   .margger{
     width:100%;
@@ -38,6 +41,9 @@
   .taskcard{
     box-shadow: none !important;
     border:1px solid #E5E5E5;
+    &.outofdate{
+      border-color:#ffd58b;
+    }
     & > div:first-child{
       padding-bottom:0 !important;
     }
@@ -52,6 +58,20 @@
   		padding:0 !important;
   		transform:translateY(-100%);
   	}
+    .outofdatepicker{
+      label{
+        color:#efc35c  !important;
+      }
+      input[type='text']{
+        color:#efc35c  !important;
+      }
+      div{
+        color:#efc35c  !important;
+      }
+      hr{
+        border-color: #efc35c  !important;
+      }
+    }
   }
   .reportcard{
     box-shadow: none !important;
@@ -64,5 +84,11 @@
   	background:#fff !important;
 
   }
-
+  .fade{
+    top: 0;
+    left: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+  }
 }

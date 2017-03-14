@@ -11,6 +11,7 @@ import AdminIcn from 'material-ui/svg-icons/action/verified-user';
 import FaceIcn from 'material-ui/svg-icons/action/face';
 import TeamateIcn from 'material-ui/svg-icons/Social/people';
 import ErrorIcn from 'material-ui/svg-icons/Alert/error';
+import BugIcn from 'material-ui/svg-icons/action/bug-report';
 import {browserHistory} from 'react-router';
 import _ from 'lodash';
 import popup from 'cpn/popup';
@@ -22,21 +23,26 @@ import Avatar from 'cpn/Avatar';
 
 const SelectableList = MakeSelectable(List);
 const navList = 
-    ['/m/report/my/edit', '/m/report/my/list','/m/report/team', '/m/task/my/list','/m/group','/m/privilege'];
+    ['/m/report/my/edit', '/m/report/my/list','/m/report/team', '/m/task/my/list','/m/group','/m/privilege','/m/feedback'];
 
 
 const indexMap = {0: 'list', 1: 'list'};
 const innerDiv = {paddingLeft: 50};
 const nestStyle = {color: '#555', fontSize: '14px'};
-
+let isfirst = true;
 export default React.createClass({
     getInitialState() {
         console.log(_.findIndex(navList, x => location.pathname.startsWith(x)));
+
         return {
             open: false,
             current: _.findIndex(navList, x => location.pathname.startsWith(x)),
             loginUser: window.user || {nickname:'hztest'}
         };
+    },
+    componentWillReceiveProps(nextProps, nextState) {
+        console.log('componentWillReceiveProps',_.findIndex(navList, x => location.pathname.startsWith(x)));
+        this.setState({current:_.findIndex(navList, x => location.pathname.startsWith(x))});
     },
     componentWillMount() {
         pubsub.subscribe('loginUser.change', this._upLoginUser);
@@ -95,21 +101,19 @@ export default React.createClass({
                             value={0}
                             leftIcon={<FaceIcn/>}
                             innerDivStyle={innerDiv}
-                            nestedItems={[
-                                 <ListItem
-                                 value={1}
-                                 style={nestStyle}
-                                primaryText="所有日报"
-                                leftIcon={<DescIcn/>}
-                                innerDivStyle={innerDiv}/>,
-                            ]}
-                            primaryText="我的"/>,
+                            primaryText="编写日报"/>,
+                        <ListItem
+                            style={nestStyle}
+                            value={1}
+                            innerDivStyle={innerDiv}
+                            leftIcon={<DescIcn/>}
+                            primaryText="我的日报"/>,
                         <ListItem
                             style={nestStyle}
                             value={2}
                             innerDivStyle={innerDiv}
                             leftIcon={<TeamateIcn/>}
-                            primaryText="小组"/>
+                            primaryText="小组日报"/>
                     ]}/>
                     <ListItem
                         primaryTogglesNestedList                        
@@ -126,23 +130,27 @@ export default React.createClass({
                     ]}/>
                     <ListItem
                         primaryTogglesNestedList
-                        primaryText="管理员"
-                        leftIcon={<AdminIcn/>} style={{display:'none'}}
+                        primaryText="权限管理"
+                        leftIcon={<AdminIcn/>} style={{display:window.user.role==1?'none':''}}
                         innerDivStyle={innerDiv}
                         nestedItems={[
                         <ListItem
                             style={nestStyle}
-                            value={5}
+                            value={4}
                             innerDivStyle={innerDiv}
                             leftIcon={<TeamateIcn/>}
                             primaryText="小组设置"/>,
                         <ListItem
                             style={nestStyle}
-                            value={5}
+                            value={5} style={{display:window.user.role<3?'none':''}}
                             innerDivStyle={innerDiv}
                             leftIcon={<ErrorIcn/>}
-                            primaryText="权限设置"/>
+                            primaryText="管理员设置"/>
                     ]}/>
+                    <ListItem
+                        primaryText="吐槽和建议" value={6}
+                        leftIcon={<BugIcn/>}
+                        innerDivStyle={innerDiv}/>
                 </SelectableList>
             </Drawer>
         );

@@ -20,7 +20,7 @@ let reportlist = _.map(Mock.progress.my.list,(itm)=>{
         if(_.isArray(arr) && arr.length>0){
             itm.reports = [];
             _.each(arr,(item)=>{
-                let reportitm = item.split(','),tmp;
+                let reportitm = item.split('|'),tmp;
                  tmp= {
                     content:reportitm[0],
                     elapse:reportitm[1]*1,
